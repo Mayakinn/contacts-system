@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { readonly, ref, shallowReadonly } from 'vue'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { type Notification } from '@/typings/interface/Notification'
 import { v4 as uuidv4 } from 'uuid'
@@ -11,14 +11,15 @@ export const useNotificationStore = defineStore('notification', () => {
     Notifs.value = Notifs.value.filter((n) => n.id !== id)
   }
 
-  function newNotification(message: string, status: NotificationType) {
+  function addNotification(message: string, status: NotificationType) {
     const id = uuidv4()
     const notification = { message, status, id }
     Notifs.value.push(notification)
+    const delay = 5000 * Notifs.value.length
     setTimeout(() => {
       deleteNotification(id)
-    }, 5000)
+    }, delay)
   }
 
-  return { Notifs, deleteNotification, newNotification }
+  return { Notifs: readonly(Notifs), deleteNotification, addNotification }
 })
