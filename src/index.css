@@ -1,1 +1,17 @@
 @import 'tailwindcss';
+
+@layer base {
+  :root {
+    --color-TheTeltonikaBlue: #1f3f77; /* Custom Blue */
+  }
+}
+
+@layer utilities {
+  .bg-teltonika-blue {
+    background-color: var(--color-TheTeltonikaBlue);
+  }
+
+  .text-teltonika-blue {
+    color: var(--color-TheTeltonikaBlue);
+  }
+}

@@ -52,6 +52,7 @@ const router = createRouter({
       name: 'forgotpassword',
       component: ForgotPasswordView,
     },
+    //not found view next issue
   ],
 })
 

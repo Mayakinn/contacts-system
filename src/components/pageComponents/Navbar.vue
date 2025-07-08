@@ -1,22 +1,14 @@
 <template>
-  <nav class="flex bg-blue-900 max-h-25">
-    <img class="h-auto w-auto object-contain object-left" src="../../../public/Logo.png" />
-    <div class="flex">
-      <RouterLink to="/" class="font-bold rounded-lg px-3 py-2 text-lg text-white m-7"
-        >Kontaktai</RouterLink
-      >
-      <RouterLink to="/companies" class="font-bold text-white text-lg rounded-lg px-3 py-2 m-7"
-        >Įmonės</RouterLink
-      >
-      <RouterLink to="/structure" class="font-bold text-lg text-white rounded-lg px-3 py-2 m-7"
+  <nav class="flex items-center justify-between bg-teltonika-blue px-20 py-3">
+    <img class="h-auto w-100 object-contain" src="../../../Logo.png" alt="Logo" />
+    <div class="flex space-x-40 text-2xl text-white font-semibold">
+      <RouterLink to="/" class="hover:text-gray-300 transition-colors">Kontaktai</RouterLink>
+      <RouterLink to="/companies" class="hover:text-gray-300 transition-colors">Įmonės</RouterLink>
+      <RouterLink to="/structure" class="hover:text-gray-300 transition-colors"
         >Struktūra</RouterLink
       >
-      <RouterLink to="/admin" class="font-bold text-lg rounded-lg text-white px-3 py-2 m-7"
-        >Paskyros</RouterLink
-      >
-      <RouterLink to="/login" class="font-bold text-lg text-lgrounded-lg text-white px-3 py-2 m-7"
-        >Prisijungti</RouterLink
-      >
+      <RouterLink to="/admin" class="hover:text-gray-300 transition-colors">Paskyros</RouterLink>
+      <RouterLink to="/login" class="hover:text-gray-300 transition-colors">Prisijungti</RouterLink>
     </div>
   </nav>
 </template>
