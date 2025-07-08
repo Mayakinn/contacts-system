@@ -10,5 +10,6 @@ import Notification from './components/pageComponents/Notification.vue'
       <Navbar />
     </div>
   </header>
+  <Notification />
   <RouterView />
 </template>
