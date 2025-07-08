@@ -4,6 +4,7 @@ import CompanyStructureView from '@/views/CompanyStructureView.vue'
 import ContactView from '@/views/ContactView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import LoginView from '@/views/LoginView.vue'
+import NotFoundView from '@/views/NotFoundView.vue'
 import SingleContactView from '@/views/SingleContactView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -52,7 +53,11 @@ const router = createRouter({
       name: 'forgotpassword',
       component: ForgotPasswordView,
     },
-    //not found view next issue
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
+    },
   ],
 })
 
