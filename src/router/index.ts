@@ -203,7 +203,11 @@ const router = createRouter({
       name: 'forgotpassword',
       component: ForgotPasswordView,
     },
-    //not found view next issue
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
+    },
   ],
 })
 
