@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-<<<<<<< HEAD
 import type { Contact } from '@/typings/interface/Contact'
 import ContactCard from './ContactCard.vue'
 const props = defineProps<{
@@ -13,15 +12,4 @@ const props = defineProps<{
       <ContactCard :contact="contact" />
     </div>
   </div>
-=======
-import { getContacts } from '@/services/contactsService'
-
-const contacts = await getContacts()
-
-console.log(contacts)
-</script>
-
-<template>
-  <div>{{ contacts }}</div>
->>>>>>> ac85390 (start of contacts)
 </template>
