@@ -1,12 +1,27 @@
+import type { Contact } from '@/typings/interface/Contact'
+import axios, { Axios } from 'axios'
 import PocketBase from 'pocketbase'
+import type { List } from 'postcss/lib/list'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
 
 const pb = new PocketBase(DB_URL)
 
-const getContacts = async () => {
-  const response = await pb.collection('employess').getList(1, 50)
-  return response
+const getContacts = async (): Promise<[Contact[], number, number] | undefined> => {
+  try {
+    const response = await axios.get(`${DB_URL}/api/collections/employees/records`, {
+      params: {
+        expand: 'office_id',
+      },
+    })
+    const data: Contact[] = response.data.items
+    const totalItems: number = response.data.totalItems
+    const totalPages: number = response.data.totalPages
+    console.log(data)
+    return [data, totalItems, totalPages]
+  } catch (error) {
+    return undefined
+  }
 }
 
 export { getContacts }

@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 import { getContacts } from '@/services/contactsService'
-
-const contacts = await getContacts()
-
-console.log(contacts)
+import type { Contact } from '@/typings/interface/Contact'
+import { onMounted, ref } from 'vue'
+import ContactCard from './ContactCard.vue'
+const props = defineProps<{
+  Contacts: Contact[] | undefined
+}>()
 </script>
 
 <template>
-  <div>{{ contacts }}</div>
+  <div v-for="contact in props.Contacts" key="contact.id" class="">
+    <ContactCard :contact="contact" />
+  </div>
 </template>

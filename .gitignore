@@ -16,6 +16,7 @@ coverage
 
 /cypress/videos/
 /cypress/screenshots/
+/pocketbaseAPI
 
 # Editor directories and files
 .vscode/*
