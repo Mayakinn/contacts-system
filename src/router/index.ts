@@ -45,6 +45,31 @@ const router = createRouter({
       path: '/structure',
       name: 'structure',
       component: CompanyStructureView,
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: ForgotPasswordView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
+    },
+    {
+      path: '/companies',
+      name: 'companies',
+      component: CompaniesManagementView,
+    },
+    {
+      path: '/structure',
+      name: 'structure',
+      component: CompanyStructureView,
       children: [
         {
           path: 'offices',
