@@ -8,7 +8,6 @@ const props = defineProps<{
 
 const image = computed(() => {
   const imageURL = `http://127.0.0.1:8090/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
-  console.log(props.contact)
   return props.contact?.photo != '' ? imageURL : '../../../noPhoto.png'
 })
 </script>
@@ -28,7 +27,10 @@ const image = computed(() => {
       <div class="text-left p-4 space-y-4 text-sm">
         <p class="font-light">Telefono nr: {{ props.contact?.phone_number }}</p>
         <p class="font-light">El. Paštas: {{ props.contact?.email }}</p>
-        <p class="font-light">Adresas: {{ props.contact?.expand?.office_id.street }}</p>
+        <p class="font-light">
+          Adresas: {{ props.contact?.expand?.office_id.street }}
+          {{ props.contact?.expand?.office_id.street_number }}
+        </p>
       </div>
     </div>
   </div>

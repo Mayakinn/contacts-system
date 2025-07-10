@@ -1,27 +1,62 @@
 <script setup lang="ts">
 import ContactCardList from '@/components/contactComponents/ContactCardList.vue'
+import ContactTableList from '@/components/contactComponents/ContactTableList.vue'
+import ItemsPerPage from '@/components/pageComponents/ItemsPerPage.vue'
 import { getContacts } from '@/services/contactsService'
+import { useNotificationStore } from '@/stores/notificationStore'
 import type { Contact } from '@/typings/interface/Contact'
-import { ref } from 'vue'
+import { NotificationType } from '@/typings/interface/NotificationType'
+import { computed, onBeforeUnmount, ref, shallowRef, watch, type Component } from 'vue'
 import { onMounted } from 'vue'
 
+const selectedOption = ref<number>(25)
 const contacts = ref<Contact[]>()
-const totalItems = ref<number>()
+const totalItems = ref<number>(25)
 const totalPages = ref<number>()
+const notifs = useNotificationStore()
+const currentListType = shallowRef<Component>(ContactCardList)
+
 async function loadData() {
-  const result = await getContacts()
+  const result = await getContacts(selectedOption.value)
 
   if (result) {
     const [data, total, pages] = result
     contacts.value = data
     totalItems.value = total
     totalPages.value = pages
+    notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
   } else {
     contacts.value = []
     totalItems.value = 0
     totalPages.value = 0
+    notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.success)
   }
 }
+
+const image = computed(() => {
+  if (currentListType.value == ContactCardList) {
+    return '../../../list-icon.png'
+  } else return '../../../card-icon.png'
+})
+
+function changeListType() {
+  if (currentListType.value == ContactCardList) {
+    currentListType.value = ContactTableList
+    return
+  } else currentListType.value = ContactCardList
+  return
+}
+
+function onNumberChange(emitted: number) {
+  selectedOption.value = emitted
+}
+
+watch(
+  () => selectedOption.value,
+  () => {
+    loadData()
+  },
+)
 
 onMounted(async () => {
   await loadData()
@@ -49,15 +84,22 @@ onMounted(async () => {
           class="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-10 pr-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
           placeholder="Ieškoti kontakto..."
         />
+
+        <ItemsPerPage :TotalItems="totalItems" @number-change="onNumberChange" />
+        <button
+          @click="changeListType()"
+          class="bg-teltonika-blue rounded-xs w-20 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
+        >
+          <img :src="image" />
+        </button>
       </div>
     </div>
     <p class="mt-4">
-      Iš viso rasta:<strong> {{ totalItems }}</strong>
+      Iš viso rasta: <strong> {{ totalItems }}</strong>
     </p>
     <br />
     (Čia bus filtrai!!!)
-    <div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <ContactCardList :Contacts="contacts" />
-    </div>
+
+    <component :is="currentListType" :Contacts="contacts"></component>
   </div>
 </template>
