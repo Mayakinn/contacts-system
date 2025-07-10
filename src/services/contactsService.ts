@@ -26,4 +26,18 @@ const getContacts = async (
   }
 }
 
-export { getContacts }
+const getContact = async (employeeId: string): Promise<Contact | undefined> => {
+  try {
+    const response = await axios.get(`${DB_URL}/api/collections/employees/records/${employeeId}`, {
+      params: {
+        expand: 'office_id, division_id,group_id,department_id,company_id',
+      },
+    })
+    const data: Contact = response.data
+    return data
+  } catch (error) {
+    return undefined
+  }
+}
+
+export { getContacts, getContact }

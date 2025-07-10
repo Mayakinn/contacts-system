@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import router from '@/router'
 import type { Contact } from '@/typings/interface/Contact'
 import { computed } from 'vue'
 
@@ -17,7 +18,10 @@ const image = computed(() => {
     <div class="px-6 py-4">
       <div class="flex items-center">
         <img class="w-15 h-15 rounded-full mr-4" :src="image" />
-        <div class="text-sm">
+        <div
+          class="text-sm cursor-pointer"
+          @click="router.push({ name: 'contact', params: { id: props.contact?.id } })"
+        >
           <p class="text-gray-900 leading-none">
             {{ props.contact?.name }} {{ props.contact?.surname }}
           </p>

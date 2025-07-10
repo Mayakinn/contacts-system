@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { Contact } from '@/typings/interface/Contact'
 import ContactsTableRow from './ContactsTableRow.vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{
   Contacts: Contact[] | undefined
 }>()
+const router = useRouter()
 </script>
 
 <template>
