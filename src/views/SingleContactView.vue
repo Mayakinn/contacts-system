@@ -15,7 +15,6 @@ async function loadData() {
   const result = await getContact(route.params.id as string)
   if (result) {
     contact.value = result
-    console.log(contact.value)
     notifs.addNotification('Kontaktas sėkmingai užkrautas!', NotificationType.success)
   } else {
     contact.value = undefined
