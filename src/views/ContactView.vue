@@ -6,37 +6,52 @@ import { getContacts } from '@/services/contactsService'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Contact } from '@/typings/interface/Contact'
 import { NotificationType } from '@/typings/interface/NotificationType'
-import { computed, onBeforeUnmount, ref, shallowRef, watch, type Component } from 'vue'
+import { computed, ref, shallowRef, watch, type Component } from 'vue'
 import { onMounted } from 'vue'
+import cardImage from '../assets/card-icon.png'
+import listImage from '../assets/list-icon.png'
 
 const selectedOption = ref<number>(25)
 const contacts = ref<Contact[]>()
-const totalItems = ref<number>(25)
-const totalPages = ref<number>()
+const totalItems = ref<number | undefined>(25)
+const totalPages = ref<number | undefined>()
 const notifs = useNotificationStore()
 const currentListType = shallowRef<Component>(ContactCardList)
+const empty = ref<boolean>(false)
+const loading = ref<boolean>(true)
 
 async function loadData() {
   const result = await getContacts(selectedOption.value)
 
-  if (result) {
+  if (result != null) {
     const [data, total, pages] = result
     contacts.value = data
     totalItems.value = total
     totalPages.value = pages
-    notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
+    if (totalItems.value == undefined || totalItems.value == 0) {
+      empty.value = true
+      loading.value = false
+      notifs.addNotification('Kontaktų sąrašas tusčias!', NotificationType.danger)
+      return
+    } else if (totalItems.value > 0) {
+      loading.value = false
+      notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
+    }
   } else {
+    loading.value = false
+    empty.value = true
     contacts.value = []
     totalItems.value = 0
     totalPages.value = 0
-    notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.success)
+
+    notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.danger)
   }
 }
 
 const image = computed(() => {
   if (currentListType.value == ContactCardList) {
-    return '../../../list-icon.png'
-  } else return '../../../card-icon.png'
+    return cardImage
+  } else return listImage
 })
 
 function changeListType() {
@@ -95,11 +110,12 @@ onMounted(async () => {
       </div>
     </div>
     <p class="mt-4">
-      Iš viso rasta: <strong> {{ totalItems }}</strong>
+      Iš viso rasta: <strong> {{ totalItems || 0 }}</strong>
     </p>
     <br />
     (Čia bus filtrai!!!)
-
-    <component :is="currentListType" :Contacts="contacts"></component>
+    <div v-if="loading" class="text-3xl">Kraunama...</div>
+    <div v-else-if="empty" class="text-3xl">Sąrašas tusčias</div>
+    <component v-else :is="currentListType" :Contacts="contacts"></component>
   </div>
 </template>

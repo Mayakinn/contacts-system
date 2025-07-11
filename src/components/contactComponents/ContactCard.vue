@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { Contact } from '@/typings/interface/Contact'
 import { computed } from 'vue'
+import noImage from '../../assets/noPhoto.png'
 
 const props = defineProps<{
   contact: Contact | undefined
 }>()
-
+const DB_URL = import.meta.env.VITE_POCKETBASE_API
 const image = computed(() => {
-  const imageURL = `http://127.0.0.1:8090/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
-  return props.contact?.photo != '' ? imageURL : '../../../noPhoto.png'
+  const imageURL = `${DB_URL}/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
+  return props.contact?.photo != '' ? imageURL : noImage
 })
 </script>
 

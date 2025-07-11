@@ -13,7 +13,7 @@ dist
 dist-ssr
 coverage
 *.local
-
+tsconfig.json/env.d.ts
 /cypress/videos/
 /cypress/screenshots/
 /pocketbaseAPI
