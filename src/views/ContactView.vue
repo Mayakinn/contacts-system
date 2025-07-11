@@ -29,7 +29,7 @@ async function loadData() {
     contacts.value = []
     totalItems.value = 0
     totalPages.value = 0
-    notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.success)
+    notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.danger)
   }
 }
 

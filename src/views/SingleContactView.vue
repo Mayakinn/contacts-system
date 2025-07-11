@@ -6,7 +6,6 @@ import type { Contact } from '@/typings/interface/Contact'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { routes } from 'vue-router/auto-routes'
 const route = useRoute()
 
 const notifs = useNotificationStore()
@@ -16,11 +15,12 @@ async function loadData() {
   const result = await getContact(route.params.id as string)
   if (result) {
     contact.value = result
-    notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
+    console.log(contact.value)
+    notifs.addNotification('Kontaktas sėkmingai užkrautas!', NotificationType.success)
   } else {
     contact.value = undefined
 
-    notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.success)
+    notifs.addNotification('Nepavyko užkrauti kontakto!', NotificationType.danger)
   }
 }
 
