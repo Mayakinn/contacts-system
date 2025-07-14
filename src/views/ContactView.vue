@@ -130,4 +130,5 @@ onMounted(async () => {
     <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
+  <Pagination />
 </template>

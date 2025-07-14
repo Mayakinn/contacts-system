@@ -26,6 +26,12 @@ instance.interceptors.response.use(undefined, (error) => {
   if (status === 400) {
     throw new Error('Autorizacijos klaida, neturite tam teisių!')
   }
+  if (status === 401) {
+    throw new Error('Autorizacijos klaida, prisijunkite!')
+  }
+  if (status === 400) {
+    throw new Error('Autorizacijos klaida, neturite tam teisių!')
+  }
 
   return new Error('Serverio klaida!')
 })
