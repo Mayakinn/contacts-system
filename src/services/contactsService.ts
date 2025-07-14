@@ -1,4 +1,3 @@
-import router from '@/router'
 import type { Contact } from '@/typings/interface/Contact'
 import axios from 'axios'
 
