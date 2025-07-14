@@ -4,10 +4,10 @@ import { onBeforeUnmount, onMounted } from 'vue'
 const options = [5, 10, 25, 50, 100, 'All']
 const showHideMenuSelect = ref<boolean>(false)
 const dropdownRef = ref<HTMLElement | null>(null)
-const selectedOption = ref<number>(25)
+const selectedOption = ref<number | undefined>(25)
 
 const props = defineProps<{
-  TotalItems: number
+  TotalItems: number | undefined
 }>()
 
 const emit = defineEmits(['number-change'])
@@ -43,10 +43,10 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="dropdownRef"
-    class="bg-teltonika-blue rounded-xs w-20 h-10 ml-5 flex items-center cursor-pointer"
+    class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 flex items-center cursor-pointer"
     @click="showHideMenu"
   >
-    <img src="../../../dropdown.png" class="pt-2" />
+    <img src="../../assets/dropdown.png" class="pt-2" />
 
     <div class="w-11.5 space-y-0.5 absolute top-full z-10 mt-1" v-show="showHideMenuSelect">
       <div

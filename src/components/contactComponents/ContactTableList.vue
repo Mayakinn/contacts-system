@@ -4,7 +4,7 @@ import ContactsTableRow from './ContactsTableRow.vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps<{
-  Contacts: Contact[] | undefined
+  contacts: Contact[] | undefined
 }>()
 const router = useRouter()
 </script>
@@ -23,10 +23,10 @@ const router = useRouter()
       </thead>
       <tbody>
         <tr
-          v-for="contact in props.Contacts"
-          class="bg-white border-b border-gray-200 hover:bg-gray-50 hover:text-white dark:hover:bg-gray-600 text-center"
+          v-for="contact in props.contacts"
+          class="bg-white border-b border-gray-200 hover:bg-gray-200 text-center"
         >
-          <ContactsTableRow :Contact="contact" />
+          <ContactsTableRow :contact="contact" />
         </tr>
       </tbody>
     </table>

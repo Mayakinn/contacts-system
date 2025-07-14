@@ -2,14 +2,23 @@
 import router from '@/router'
 import type { Contact } from '@/typings/interface/Contact'
 import { computed } from 'vue'
+import noImage from '../../assets/noPhoto.png'
 
 const props = defineProps<{
   contact: Contact | undefined
 }>()
-
+const DB_URL = import.meta.env.VITE_POCKETBASE_API
 const image = computed(() => {
-  const imageURL = `http://127.0.0.1:8090/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
-  return props.contact?.photo != '' ? imageURL : '../../../noPhoto.png'
+  const imageURL = `${DB_URL}/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
+  return props.contact?.photo != '' ? imageURL : noImage
+})
+
+const email = computed(() => {
+  return props.contact?.email ? props.contact.email : '-'
+})
+
+const phoneNumber = computed(() => {
+  return props.contact?.phone_number ? props.contact.phone_number : '-'
 })
 </script>
 
@@ -29,8 +38,8 @@ const image = computed(() => {
         </div>
       </div>
       <div class="text-left p-4 space-y-4 text-sm">
-        <p class="font-light">Telefono nr: {{ props.contact?.phone_number }}</p>
-        <p class="font-light">El. Paštas: {{ props.contact?.email }}</p>
+        <p class="font-light">Telefono nr: {{ phoneNumber }}</p>
+        <p class="font-light">El. Paštas: {{ email }}</p>
         <p class="font-light">
           Adresas: {{ props.contact?.expand?.office_id.street }}
           {{ props.contact?.expand?.office_id.street_number }}
