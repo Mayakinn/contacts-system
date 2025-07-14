@@ -101,10 +101,9 @@ onMounted(async () => {
         </button>
       </div>
     </div>
-    <p class="mt-4">
+    <p class="my-3">
       Iš viso rasta: <strong> {{ totalItems }} kontaktų</strong>
     </p>
-    <br />
     <Filter />
     <div v-if="empty" class="text-3xl">Sąrašas tusčias</div>
     <div v-else-if="loading" class="text-3xl">Kraunama...</div>

@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { getContacts } from '@/services/contactsService'
 import type { Contact } from '@/typings/interface/Contact'
-import { onMounted, ref } from 'vue'
 import ContactCard from './ContactCard.vue'
 const props = defineProps<{
   contacts: Contact[] | undefined

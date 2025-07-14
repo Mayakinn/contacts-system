@@ -11,6 +11,14 @@ const image = computed(() => {
   const imageURL = `${DB_URL}/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
   return props.contact?.photo != '' ? imageURL : noImage
 })
+
+const email = computed(() => {
+  return props.contact?.email ? props.contact.email : '-'
+})
+
+const phoneNumber = computed(() => {
+  return props.contact?.phone_number ? props.contact.phone_number : '-'
+})
 </script>
 
 <template>
@@ -26,8 +34,8 @@ const image = computed(() => {
         </div>
       </div>
       <div class="text-left p-4 space-y-4 text-sm">
-        <p class="font-light">Telefono nr: {{ props.contact?.phone_number }}</p>
-        <p class="font-light">El. Paštas: {{ props.contact?.email }}</p>
+        <p class="font-light">Telefono nr: {{ phoneNumber }}</p>
+        <p class="font-light">El. Paštas: {{ email }}</p>
         <p class="font-light">
           Adresas: {{ props.contact?.expand?.office_id.street }}
           {{ props.contact?.expand?.office_id.street_number }}

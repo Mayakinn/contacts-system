@@ -6,8 +6,12 @@ const props = defineProps<{
   contact: Contact | undefined
 }>()
 
-const name = computed(() => {
-  return
+const phone_number = computed(() => {
+  return props.contact?.phone_number ? props.contact?.phone_number : '-'
+})
+
+const email = computed(() => {
+  return props.contact?.email ? props.contact?.email : '-'
 })
 </script>
 
@@ -16,7 +20,7 @@ const name = computed(() => {
     {{ props.contact?.name }} {{ props.contact?.surname }}
   </th>
   <td class="px-6 py-4">{{ props.contact?.position }}</td>
-  <td class="px-6 py-4">{{ props.contact?.phone_number }}</td>
-  <td class="px-6 py-4">{{ props.contact?.email }}</td>
+  <td class="px-6 py-4">{{ phone_number }}</td>
+  <td class="px-6 py-4">{{ email }}</td>
   <td class="px-6 py-4">{{ props.contact?.expand?.office_id.street }}</td>
 </template>
