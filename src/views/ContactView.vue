@@ -71,16 +71,14 @@ function changeListType() {
   return
 }
 
-function onNumberChange(emitted: number) {
-  selectedOption.value = emitted
+function onNumberChange(contactsPerPage: number) {
+  selectedOption.value = contactsPerPage
+  loadData()
 }
 function onPageChange(page: number) {
-  console.log(page)
   currentPage.value = page
-}
-watch([ItemsPerPage, currentPage], () => {
   loadData()
-})
+}
 
 onMounted(async () => {
   await loadData()
@@ -106,9 +104,11 @@ onMounted(async () => {
       Iš viso rasta: <strong> {{ totalItems }} kontaktų</strong>
     </p>
     <Filter />
-    <div v-if="empty" class="text-3xl">Sąrašas tusčias</div>
-    <div v-else-if="loading" class="text-3xl">Kraunama...</div>
-    <component v-else :is="currentListType" :contacts="contacts"></component>
   </div>
-  <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
+  <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
+  <div v-else>
+    <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
+    <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  </div>
 </template>
