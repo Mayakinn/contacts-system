@@ -1,7 +1,5 @@
-import router from '@/router'
 import type { Contact } from '@/typings/interface/Contact'
 import axios from 'axios'
-import PocketBase from 'pocketbase'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
 
@@ -19,7 +17,7 @@ instance.interceptors.response.use(undefined, (error) => {
   const { status, data } = error.response
 
   if (status === 404) {
-    router.push('NotFoundPage')
+    throw new Error('Kontaktas/-ai nerastas/-i!')
   }
   if (status === 401) {
     throw new Error('Autorizacijos klaida, prisijunkite!')
@@ -48,4 +46,21 @@ const getContacts = async (selectedOption = 25): Promise<[Contact[], number, num
   }
 }
 
-export { getContacts }
+const getContact = async (employeeId: string): Promise<Contact | undefined> => {
+  try {
+    const response = await instance.get(
+      `${DB_URL}/api/collections/employees/records/${employeeId}`,
+      {
+        params: {
+          expand: 'office_id, division_id,group_id,department_id,company_id',
+        },
+      },
+    )
+    const data: Contact = response.data
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getContacts, getContact }
