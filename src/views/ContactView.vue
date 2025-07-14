@@ -16,16 +16,17 @@ import Pagination from '@/components/pageComponents/Pagination.vue'
 
 const selectedOption = ref<number>(25)
 const contacts = ref<Contact[]>()
-const totalItems = ref<number | undefined>(0)
-const totalPages = ref<number | undefined>()
+const totalItems = ref<number>(0)
+const totalPages = ref<number>(0)
 const notifs = useNotificationStore()
 const currentListType = shallowRef<Component>(ContactCardList)
 const empty = ref<boolean>(true)
 const loading = ref<boolean>(true)
+const currentPage = ref<number>(1)
 
 async function loadData() {
   try {
-    const result = await getContacts(selectedOption.value)
+    const result = await getContacts(selectedOption.value, currentPage.value)
 
     if (result != null) {
       const [data, total, pages] = result
@@ -73,13 +74,13 @@ function changeListType() {
 function onNumberChange(emitted: number) {
   selectedOption.value = emitted
 }
-
-watch(
-  () => selectedOption.value,
-  () => {
-    loadData()
-  },
-)
+function onPageChange(page: number) {
+  console.log(page)
+  currentPage.value = page
+}
+watch([ItemsPerPage, currentPage], () => {
+  loadData()
+})
 
 onMounted(async () => {
   await loadData()
@@ -109,5 +110,5 @@ onMounted(async () => {
     <div v-else-if="loading" class="text-3xl">Kraunama...</div>
     <component v-else :is="currentListType" :contacts="contacts"></component>
   </div>
-  <Pagination />
+  <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
 </template>

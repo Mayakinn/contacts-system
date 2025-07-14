@@ -1,19 +1,34 @@
 <script lang="ts" setup>
-import { useNotificationStore } from '@/stores/notificationStore'
-import { NotificationType } from '@/typings/interface/NotificationType'
+import { computed, onMounted, watch } from 'vue'
 
-const notifs = useNotificationStore()
+const props = defineProps({
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  totalPages: {
+    type: Number,
+    required: true,
+  },
+})
 
-function notYetImplemented() {
-  notifs.addNotification('Neimplementuota', NotificationType.info)
+const emit = defineEmits(['page-change'])
+
+const changePage = (page: number) => {
+  emit('page-change', page)
 }
+
+const canGoBack = computed(() => {
+  return props.currentPage != 1 ? true : false
+})
 </script>
 
 <template>
   <div class="flex justify-center items-center mt-3">
-    <div
-      @click="() => notYetImplemented()"
+    <button
       class="flex items-center w-50 h-7 bg-button-blue text-white text-right text-sm rounded-xs cursor-pointer hover:bg-blue-500 select-none"
+      @click="changePage(currentPage - 1)"
+      :disabled="currentPage == 1"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -30,12 +45,14 @@ function notYetImplemented() {
         />
       </svg>
       <p class="m-1 ml-13">Praeitas puslapis</p>
-    </div>
+    </button>
 
-    <p class="m-0.5 mx-2">1/7</p>
-    <div
-      @click="() => notYetImplemented()"
+    <p class="m-0.5 mx-2">{{ currentPage }}/{{ totalPages }}</p>
+    <button
       class="flex items-center w-50 h-7 bg-button-blue text-white text-left text-sm rounded-xs cursor-pointer hover:bg-blue-500 select-none"
+      @click="changePage(currentPage + 1)"
+      :class="{}"
+      :disabled="currentPage == totalPages"
     >
       <p class="m-1 ml-2">Kitas puslapis</p>
       <svg
@@ -52,6 +69,6 @@ function notYetImplemented() {
           fill="#FFFFFF"
         />
       </svg>
-    </div>
+    </button>
   </div>
 </template>
