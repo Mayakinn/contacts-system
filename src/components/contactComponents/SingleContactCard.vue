@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import router from '@/router'
-import { getContact } from '@/services/contactsService'
 import type { Contact } from '@/typings/interface/Contact'
 import { computed } from 'vue'
 import noImage from '../../assets/noPhoto.png'
