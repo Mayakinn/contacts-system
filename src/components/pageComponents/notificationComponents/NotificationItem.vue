@@ -25,7 +25,7 @@ const notifType = computed(() => {
     {{ props.Notification.message }}
     <img
       class="h-6 w-6 cursor-pointer"
-      src="../../../../close-button.svg"
+      src="../../../assets/close-button.svg"
       @click="notif.deleteNotification(props.Notification.id)"
     />
   </div>
