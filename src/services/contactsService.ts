@@ -1,9 +1,5 @@
-import router from '@/router'
 import type { Contact } from '@/typings/interface/Contact'
-import axios, { Axios, isAxiosError } from 'axios'
-import PocketBase from 'pocketbase'
-import type { List } from 'postcss/lib/list'
-import { errorMessages } from 'vue/compiler-sfc'
+import axios from 'axios'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
 
@@ -13,8 +9,6 @@ const instance = axios.create({
   headers: { 'X-Custom-Header': 'foobar' },
 })
 
-const pb = new PocketBase(DB_URL)
-
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
     throw new Error('Tinklo klaida!')
@@ -23,7 +17,7 @@ instance.interceptors.response.use(undefined, (error) => {
   const { status, data } = error.response
 
   if (status === 404) {
-    router.push('NotFoundPage')
+    throw new Error('Kontaktas/-ai nerastas/-i!')
   }
   if (status === 401) {
     throw new Error('Autorizacijos klaida, prisijunkite!')
@@ -54,15 +48,18 @@ const getContacts = async (selectedOption = 25): Promise<[Contact[], number, num
 
 const getContact = async (employeeId: string): Promise<Contact | undefined> => {
   try {
-    const response = await axios.get(`${DB_URL}/api/collections/employees/records/${employeeId}`, {
-      params: {
-        expand: 'office_id, division_id,group_id,department_id,company_id',
+    const response = await instance.get(
+      `${DB_URL}/api/collections/employees/records/${employeeId}`,
+      {
+        params: {
+          expand: 'office_id, division_id,group_id,department_id,company_id',
+        },
       },
-    })
+    )
     const data: Contact = response.data
     return data
   } catch (error) {
-    return undefined
+    return Promise.reject(error)
   }
 }
 

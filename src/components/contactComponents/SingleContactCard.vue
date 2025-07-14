@@ -3,14 +3,16 @@ import router from '@/router'
 import { getContact } from '@/services/contactsService'
 import type { Contact } from '@/typings/interface/Contact'
 import { computed } from 'vue'
+import noImage from '../../assets/noPhoto.png'
+const DB_URL = import.meta.env.VITE_POCKETBASE_API
 
 const props = defineProps<{
   contact: Contact | undefined
 }>()
 
 const image = computed(() => {
-  const imageURL = `http://127.0.0.1:8090/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
-  return props.contact?.photo != '' ? imageURL : '../../../noPhoto.png'
+  const imageURL = `${DB_URL}/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
+  return props.contact?.photo != '' ? imageURL : noImage
 })
 
 const email = computed(() => {
@@ -61,7 +63,7 @@ const group = computed(() => {
     <div
       class="shadow-lg hover:bg-gray-200 cursor-pointer rounded-full w-10 h-10 items-center flex absolute top-10 right-40"
     >
-      <img class="size-5 m-2.5 mt-3" src="../../../curved-arrow.png" />
+      <img class="size-5 m-2.5 mt-3" src="../../assets/curved-arrow.png" />
     </div>
   </div>
 
