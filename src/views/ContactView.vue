@@ -22,10 +22,11 @@ const notifs = useNotificationStore()
 const currentListType = shallowRef<Component>(ContactCardList)
 const empty = ref<boolean>(true)
 const loading = ref<boolean>(true)
-
+const currentPage = ref<number>(1)
+const filterString = ref<string>('')
 async function loadData() {
   try {
-    const result = await getContacts(contactsPerPage.value)
+    const result = await getContacts(selectedOption.value)
 
     if (!result) {
       empty.value = true
@@ -130,5 +131,4 @@ onMounted(async () => {
     <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
-  <Pagination />
 </template>
