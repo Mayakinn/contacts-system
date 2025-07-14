@@ -17,7 +17,7 @@ const pb = new PocketBase(DB_URL)
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
-    return Promise.reject(new Error('Network error: Server is down'))
+    throw new Error('Tinklo klaida!')
   }
 
   const { status, data } = error.response
@@ -25,8 +25,14 @@ instance.interceptors.response.use(undefined, (error) => {
   if (status === 404) {
     router.push('NotFoundPage')
   }
+  if (status === 401) {
+    throw new Error('Autorizacijos klaida, prisijunkite!')
+  }
+  if (status === 400) {
+    throw new Error('Autorizacijos klaida, neturite tam teisių!')
+  }
 
-  return Promise.reject(new Error('Server Error'))
+  return new Error('Serverio klaida!')
 })
 
 const getContacts = async (selectedOption = 25): Promise<[Contact[], number, number]> => {

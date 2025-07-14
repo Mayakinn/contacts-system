@@ -43,7 +43,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="dropdownRef"
-    class="bg-teltonika-blue rounded-xs w-20 h-10 ml-5 flex items-center cursor-pointer"
+    class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 flex items-center cursor-pointer"
     @click="showHideMenu"
   >
     <img src="../../assets/dropdown.png" class="pt-2" />

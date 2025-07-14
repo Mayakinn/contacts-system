@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import type { Contact } from '@/typings/interface/Contact'
+import { computed } from 'vue'
 
 const props = defineProps<{
-  Contact: Contact | undefined
+  contact: Contact | undefined
 }>()
+
+const name = computed(() => {
+  return
+})
 </script>
 
 <template>
   <th class="px-6 py-4 font-medium whitespace-nowrap">
-    {{ props.Contact?.name }} {{ props.Contact?.surname }}
+    {{ props.contact?.name }} {{ props.contact?.surname }}
   </th>
-  <td class="px-6 py-4">{{ props.Contact?.position }}</td>
-  <td class="px-6 py-4">{{ props.Contact?.phone_number }}</td>
-  <td class="px-6 py-4">{{ props.Contact?.email }}</td>
-  <td class="px-6 py-4">{{ props.Contact?.expand?.office_id.street }}</td>
+  <td class="px-6 py-4">{{ props.contact?.position }}</td>
+  <td class="px-6 py-4">{{ props.contact?.phone_number }}</td>
+  <td class="px-6 py-4">{{ props.contact?.email }}</td>
+  <td class="px-6 py-4">{{ props.contact?.expand?.office_id.street }}</td>
 </template>
