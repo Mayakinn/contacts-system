@@ -131,7 +131,4 @@ onMounted(async () => {
     <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
-  <<<<<<< HEAD =======
-  <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
-  >>>>>>> 81f46d4 (start of pagination)
 </template>
