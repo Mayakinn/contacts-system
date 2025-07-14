@@ -4,11 +4,11 @@ import CompanyStructureView from '@/views/CompanyStructureView.vue'
 import ContactView from '@/views/ContactView.vue'
 import DepartmentView from '@/views/DepartmentView.vue'
 import DivisionView from '@/views/DivisionView.vue'
+import NotFoundView from '@/views/NotFoundView.vue'
+import OfficeView from '@/views/OfficeView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
 import GroupView from '@/views/GroupView.vue'
 import LoginView from '@/views/LoginView.vue'
-import NotFoundView from '@/views/NotFoundView.vue'
-import OfficeView from '@/views/OfficeView.vue'
 import SingleContactView from '@/views/SingleContactView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -99,6 +99,64 @@ const router = createRouter({
       path: '/forgotpassword',
       name: 'forgotpassword',
       component: ForgotPasswordView,
+    },
+
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
+    },
+    {
+      path: '/companies',
+      name: 'companies',
+      component: CompaniesManagementView,
+    },
+    {
+      path: '/structure',
+      name: 'structure',
+      component: CompanyStructureView,
+      children: [
+        {
+          path: 'offices',
+          component: OfficeView,
+        },
+        {
+          path: 'groups',
+          component: GroupView,
+        },
+        {
+          path: 'divisions',
+          component: DivisionView,
+        },
+        {
+          path: 'departments',
+          component: DepartmentView,
+        },
+      ],
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: ForgotPasswordView,
+      children: [
+        {
+          path: '',
+          name: 'contacts',
+          component: ContactView,
+          alias: '/contacts',
+        },
+        {
+          path: 'contacts/:id',
+          name: 'contact',
+          component: SingleContactView,
+          props: true,
+        },
+      ],
     },
     //not found view next issue
   ],

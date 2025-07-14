@@ -1,6 +1,6 @@
 <template>
   <nav class="flex items-center justify-between bg-teltonika-blue px-20 py-3">
-    <img class="h-auto w-100 object-contain" src="../../../Logo.png" alt="Logo" />
+    <img class="h-auto w-100 object-contain" src="../../assets/Logo.png" alt="Logo" />
     <div class="flex space-x-40 text-2xl text-white font-semibold">
       <RouterLink to="/" class="hover:text-gray-300 transition-colors">Kontaktai</RouterLink>
       <RouterLink to="/companies" class="hover:text-gray-300 transition-colors">Įmonės</RouterLink>

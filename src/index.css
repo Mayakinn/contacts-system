@@ -2,13 +2,17 @@
 
 @layer base {
   :root {
-    --color-TheTeltonikaBlue: #1f3f77; /* Custom Blue */
+    --color-TheTeltonikaBlue: #1f3f77;
+    --color-TheButtonBlue: #0054a6;
   }
 }
 
 @layer utilities {
   .bg-teltonika-blue {
     background-color: var(--color-TheTeltonikaBlue);
+  }
+  .bg-button-blue {
+    background-color: var(--color-TheButtonBlue);
   }
 
   .text-teltonika-blue {
