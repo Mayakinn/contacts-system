@@ -19,14 +19,19 @@ const changePage = (page: number) => {
 }
 
 const canGoBack = computed(() => {
-  return props.currentPage != 1
+  return props.currentPage === 1 ? true : false
+})
+
+const canGoForward = computed(() => {
+  return props.currentPage === props.totalPages ? true : false
 })
 </script>
 
 <template>
   <div class="flex justify-center items-center my-3">
     <button
-      class="flex items-center w-50 h-7 bg-button-blue text-white text-right text-sm rounded-xs hover:bg-blue-500"
+      class="flex items-center w-50 h-7 bg-button-blue text-white text-right text-sm rounded-xs"
+      :class="{ 'cursor-pointer hover:bg-blue-500': !canGoBack }"
       @click="changePage(currentPage - 1)"
       :disabled="currentPage == 1"
     >
@@ -49,7 +54,8 @@ const canGoBack = computed(() => {
 
     <p class="m-0.5 mx-2">{{ currentPage }}/{{ totalPages }}</p>
     <button
-      class="flex items-center w-50 h-7 bg-button-blue text-white text-left text-sm rounded-xs hover:bg-blue-500"
+      class="flex items-center w-50 h-7 bg-button-blue text-white text-left text-sm rounded-xs"
+      :class="{ 'cursor-pointer hover:bg-blue-500': !canGoForward }"
       @click="changePage(currentPage + 1)"
       :disabled="currentPage === totalPages"
     >
