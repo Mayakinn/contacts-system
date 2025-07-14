@@ -26,7 +26,7 @@ const currentPage = ref<number>(1)
 const filterString = ref<string>('')
 async function loadData() {
   try {
-    const result = await getContacts(selectedOption.value)
+    const result = await getContacts(selectedOption.value, currentPage.value)
 
     if (!result) {
       empty.value = true
@@ -131,4 +131,7 @@ onMounted(async () => {
     <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
+  <<<<<<< HEAD =======
+  <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  >>>>>>> 81f46d4 (start of pagination)
 </template>
