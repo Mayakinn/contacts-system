@@ -23,10 +23,11 @@ const currentListType = shallowRef<Component>(ContactCardList)
 const empty = ref<boolean>(true)
 const loading = ref<boolean>(true)
 const currentPage = ref<number>(1)
+const filterString = ref<string>('')
 
 async function loadData() {
   try {
-    const result = await getContacts(selectedOption.value, currentPage.value)
+    const result = await getContacts(selectedOption.value, currentPage.value, filterString.value)
 
     if (result != null) {
       const [data, total, pages] = result
@@ -73,10 +74,17 @@ function changeListType() {
 
 function onNumberChange(contactsPerPage: number) {
   selectedOption.value = contactsPerPage
+  currentPage.value = 1
   loadData()
 }
 function onPageChange(page: number) {
   currentPage.value = page
+  loadData()
+}
+
+function onFilterChange(filterParamString: string) {
+  filterString.value = filterParamString
+  currentPage.value = 1
   loadData()
 }
 
@@ -103,7 +111,7 @@ onMounted(async () => {
     <p class="my-3">
       Iš viso rasta: <strong> {{ totalItems }} kontaktų</strong>
     </p>
-    <Filter />
+    <Filter @filter-change="onFilterChange" />
   </div>
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>

@@ -32,10 +32,12 @@ instance.interceptors.response.use(undefined, (error) => {
 const getContacts = async (
   selectedOption = 25,
   currentPage = 1,
+  filterString = '',
 ): Promise<[Contact[], number, number]> => {
   try {
     const response = await instance.get(`/api/collections/employees/records`, {
       params: {
+        filter: filterString,
         perPage: selectedOption,
         page: currentPage,
         expand: 'office_id',

@@ -18,7 +18,7 @@ instance.interceptors.response.use(undefined, (error) => {
   const { status, data } = error.response
 
   if (status === 404) {
-    throw new Error('Įmonė nerasta!')
+    throw new Error('Ofisas nerastas!')
   }
   if (status === 401) {
     throw new Error('Autorizacijos klaida, prisijunkite!')
@@ -30,17 +30,24 @@ instance.interceptors.response.use(undefined, (error) => {
   return new Error('Serverio klaida!')
 })
 
-const getCompanies = async (): Promise<Company[]> => {
+const getOffices = async (selectedCompany: string): Promise<CompanyOffice[]> => {
   try {
     const response = await instance.get(
       `
-api/collections/companies/records`,
+
+api/collections/companies_offices/records`,
+      {
+        params: {
+          expand: 'office_id',
+          filter: `company_id='${selectedCompany}'`,
+        },
+      },
     )
-    const data: Company[] = response.data.items
+    const data: CompanyOffice[] = response.data.items
     return data
   } catch (error) {
     return Promise.reject(error)
   }
 }
 
-export { getCompanies }
+export { getOffices }

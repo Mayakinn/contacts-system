@@ -1,5 +1,4 @@
-import type { Company } from '@/typings/interface/Company'
-import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
+import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import axios from 'axios'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
@@ -18,7 +17,7 @@ instance.interceptors.response.use(undefined, (error) => {
   const { status, data } = error.response
 
   if (status === 404) {
-    throw new Error('Įmonė nerasta!')
+    throw new Error('Padalinys nerastas!')
   }
   if (status === 401) {
     throw new Error('Autorizacijos klaida, prisijunkite!')
@@ -30,17 +29,24 @@ instance.interceptors.response.use(undefined, (error) => {
   return new Error('Serverio klaida!')
 })
 
-const getCompanies = async (): Promise<Company[]> => {
+const getDivisions = async (selectedOffice: string): Promise<OfficeDivision[]> => {
   try {
     const response = await instance.get(
       `
-api/collections/companies/records`,
+
+api/collections/offices_divisions/records`,
+      {
+        params: {
+          expand: 'division_id',
+          filter: `office_id='${selectedOffice}'`,
+        },
+      },
     )
-    const data: Company[] = response.data.items
+    const data: OfficeDivision[] = response.data.items
     return data
   } catch (error) {
     return Promise.reject(error)
   }
 }
 
-export { getCompanies }
+export { getDivisions }
