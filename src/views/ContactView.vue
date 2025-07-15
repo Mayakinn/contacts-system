@@ -24,9 +24,16 @@ const empty = ref<boolean>(true)
 const loading = ref<boolean>(true)
 const currentPage = ref<number>(1)
 const filterString = ref<string>('')
+const searchTerm = ref<string>('')
+const searchAndFilterParamString = ref<string>('')
+
 async function loadData() {
   try {
-    const result = await getContacts(selectedOption.value, currentPage.value, filterString.value)
+    const result = await getContacts(
+      selectedOption.value,
+      currentPage.value,
+      searchAndFilterParamString.value,
+    )
 
     if (!result) {
       empty.value = true
@@ -83,6 +90,11 @@ function onPageChange(page: number) {
   loadData()
 }
 
+function onSearchTermChange(newQuery: string) {
+  searchTerm.value = newQuery
+  updateSearchAndFilterParam()
+}
+
 function onFilterChange(filterParamString: Record<string, string>) {
   filterString.value = combinedFilterParam(filterParamString)
   currentPage.value = 1
@@ -110,8 +122,8 @@ onMounted(async () => {
     <p class="text-6xl font-light">Kontaktų sistema</p>
     <div class="w-full mt-4">
       <div class="relative flex items-center">
-        <Search />
-        <ItemsPerPage :totalItems="totalItems" @number-change="onNumberChange" :active="empty" />
+        <Search @query-change="onSearchTermChange" />
+        <ItemsPerPage :totalItems="totalItems" @number-change="onNumberChange" />
         <button
           @click="changeListType()"
           class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
