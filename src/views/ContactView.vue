@@ -26,7 +26,7 @@ const currentPage = ref<number>(1)
 const filterString = ref<string>('')
 async function loadData() {
   try {
-    const result = await getContacts(selectedOption.value, currentPage.value)
+    const result = await getContacts(selectedOption.value, currentPage.value, filterString.value)
 
     if (!result) {
       empty.value = true
