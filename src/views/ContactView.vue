@@ -24,10 +24,16 @@ const empty = ref<boolean>(true)
 const loading = ref<boolean>(true)
 const currentPage = ref<number>(1)
 const filterString = ref<string>('')
+const searchTerm = ref<string>('')
+const searchAndFilterParamString = ref<string>('')
 
 async function loadData() {
   try {
-    const result = await getContacts(selectedOption.value, currentPage.value, filterString.value)
+    const result = await getContacts(
+      selectedOption.value,
+      currentPage.value,
+      searchAndFilterParamString.value,
+    )
 
     if (result != null) {
       const [data, total, pages] = result
@@ -77,13 +83,32 @@ function onNumberChange(contactsPerPage: number) {
   currentPage.value = 1
   loadData()
 }
+
 function onPageChange(page: number) {
   currentPage.value = page
   loadData()
 }
 
+function onSearchTermChange(newQuery: string) {
+  searchTerm.value = newQuery
+  updateSearchAndFilterParam()
+}
+
 function onFilterChange(filterParamString: string) {
   filterString.value = filterParamString
+  updateSearchAndFilterParam()
+}
+
+function updateSearchAndFilterParam() {
+  if (filterString.value != '' && searchTerm.value != '') {
+    searchAndFilterParamString.value = `(${filterString.value} && ${searchTerm.value})`
+  } else if (filterString.value != '') {
+    searchAndFilterParamString.value = filterString.value
+  } else if (searchTerm.value != '') {
+    searchAndFilterParamString.value = searchTerm.value
+  } else {
+    searchAndFilterParamString.value = ''
+  }
   currentPage.value = 1
   loadData()
 }
@@ -98,7 +123,7 @@ onMounted(async () => {
     <p class="text-6xl font-light">Kontaktų sistema</p>
     <div class="w-full mt-4">
       <div class="relative flex items-center">
-        <Search />
+        <Search @query-change="onSearchTermChange" />
         <ItemsPerPage :TotalItems="totalItems" @number-change="onNumberChange" />
         <button
           @click="changeListType()"

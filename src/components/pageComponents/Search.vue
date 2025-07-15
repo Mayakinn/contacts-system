@@ -1,3 +1,16 @@
+<script lang="ts" setup>
+import { ref } from 'vue'
+import _ from 'lodash'
+
+const searchQuery = ref<string>('')
+const emit = defineEmits(['query-change'])
+
+const updateSearchTerm = _.debounce(() => {
+  const searchParamString = `(name ~ "${searchQuery.value}" || surname ~ "${searchQuery.value}" || email ~ "${searchQuery.value}" || phone_number ~ "${searchQuery.value}" || position ~ "${searchQuery.value}")`
+  emit('query-change', searchParamString)
+}, 1000)
+</script>
+
 <template>
   <div>
     <svg
@@ -15,6 +28,8 @@
     <input
       class="w-110 bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
       placeholder="Ieškoti kontakto..."
+      v-model="searchQuery"
+      @input="updateSearchTerm"
     />
   </div>
 </template>
