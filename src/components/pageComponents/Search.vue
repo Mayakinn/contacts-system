@@ -6,7 +6,8 @@ const searchQuery = ref<string>('')
 const emit = defineEmits(['query-change'])
 
 const updateSearchTerm = _.debounce(() => {
-  const searchParamString = `(name ~ "${searchQuery.value}" || surname ~ "${searchQuery.value}" || email ~ "${searchQuery.value}" || phone_number ~ "${searchQuery.value}" || position ~ "${searchQuery.value}")`
+  const searchParamString = `((name ~ "${searchQuery.value.toLocaleLowerCase()}"  || surname ~ "${searchQuery.value.toLocaleLowerCase()}"  || email ~ "${searchQuery.value.toLocaleLowerCase()}"  || phone_number ~ "${searchQuery.value.toLocaleLowerCase()}" || position ~ "${searchQuery.value.toLocaleLowerCase()}") || 
+  (name ~ "${searchQuery.value.toLocaleUpperCase()}" || surname ~ "${searchQuery.value.toLocaleUpperCase()}" || email ~ "${searchQuery.value.toLocaleUpperCase()}" || phone_number ~ "${searchQuery.value.toLocaleUpperCase()}" || position ~ "${searchQuery.value.toLocaleUpperCase()}"))`
   emit('query-change', searchParamString)
 }, 1000)
 </script>
