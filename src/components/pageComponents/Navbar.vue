@@ -25,10 +25,11 @@ const auth = useAuthStore()
       >
       <RouterLink
         v-if="auth.jwtToken != null"
-        to="/structures"
+        to="/structure"
         class="hover:text-gray-300 transition-colors"
         >Struktūra</RouterLink
       >
+
       <RouterLink
         v-if="auth.User?.name == 'Admin'"
         to="/admin"
@@ -45,3 +46,9 @@ const auth = useAuthStore()
     <NavBarDropdown />
   </nav>
 </template>
+
+<script lang="ts" setup>
+import { useAuthStore } from '@/stores/authStore'
+
+const auth = useAuthStore()
+</script>
