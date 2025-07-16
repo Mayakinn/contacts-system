@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/stores/authStore'
 import AdminView from '@/views/AdminView.vue'
 import CompaniesManagementView from '@/views/CompaniesManagementView.vue'
 import CompanyStructureView from '@/views/CompanyStructureView.vue'
@@ -55,6 +56,9 @@ const router = createRouter({
       path: '/forgotpassword',
       name: 'forgotpassword',
       component: ForgotPasswordView,
+      meta: {
+        hideNavbar: true,
+      },
     },
     {
       path: '/:pathMatch(.*)*',
@@ -62,6 +66,13 @@ const router = createRouter({
       component: NotFoundView,
     },
   ],
+})
+
+router.beforeEach((to, from) => {
+  const auth = useAuthStore()
+  if (auth.jwtToken != null && to.name == 'login') {
+    return { name: 'contacts' }
+  }
 })
 
 export default router
