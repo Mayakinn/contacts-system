@@ -29,11 +29,15 @@ instance.interceptors.response.use(undefined, (error) => {
   return new Error('Serverio klaida!')
 })
 
-const getContacts = async (selectedOption = 25): Promise<[Contact[], number, number]> => {
+const getContacts = async (
+  selectedOption = 25,
+  currentPage = 1,
+): Promise<[Contact[], number, number]> => {
   try {
     const response = await instance.get(`/api/collections/employees/records`, {
       params: {
         perPage: selectedOption,
+        page: currentPage,
         expand: 'office_id',
       },
     })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import router from '@/router'
 import type { Contact } from '@/typings/interface/Contact'
 import { computed } from 'vue'
 import noImage from '../../assets/noPhoto.png'
@@ -22,15 +23,15 @@ const phoneNumber = computed(() => {
 </script>
 
 <template>
-  <div class="rounded overflow-hidden shadow-lg whitespace-nowrap">
+  <div class="rounded overflow-hidden shadow-lg">
     <div class="px-6 py-4">
       <div class="flex items-center">
         <img class="w-15 h-15 rounded-full mr-4" :src="image" />
-        <div class="text-sm text-ellipsis overflow-hidden">
-          <p
-            class="text-gray-900 leading-none truncate"
-            :title="`${props.contact?.name} ${props.contact?.surname}`"
-          >
+        <div
+          class="text-sm cursor-pointer"
+          @click="router.push({ name: 'contact', params: { id: props.contact?.id } })"
+        >
+          <p class="text-gray-900 leading-none">
             {{ props.contact?.name }} {{ props.contact?.surname }}
           </p>
           <p class="text-gray-600">{{ props.contact?.position }}</p>

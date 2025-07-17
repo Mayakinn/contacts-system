@@ -2,13 +2,9 @@ import AdminView from '@/views/AdminView.vue'
 import CompaniesManagementView from '@/views/CompaniesManagementView.vue'
 import CompanyStructureView from '@/views/CompanyStructureView.vue'
 import ContactView from '@/views/ContactView.vue'
-import DepartmentView from '@/views/DepartmentView.vue'
-import DivisionView from '@/views/DivisionView.vue'
-import NotFoundView from '@/views/NotFoundView.vue'
-import OfficeView from '@/views/OfficeView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
-import GroupView from '@/views/GroupView.vue'
 import LoginView from '@/views/LoginView.vue'
+import NotFoundView from '@/views/NotFoundView.vue'
 import SingleContactView from '@/views/SingleContactView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -36,6 +32,31 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
+    },
+    {
+      path: '/companies',
+      name: 'companies',
+      component: CompaniesManagementView,
+    },
+    {
+      path: '/structure',
+      name: 'structure',
+      component: CompanyStructureView,
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: ForgotPasswordView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
     },
     {
       path: '/companies',
