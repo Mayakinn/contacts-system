@@ -71,8 +71,13 @@ function changeListType() {
   return
 }
 
-function onNumberChange(newNumberPerPage: number) {
-  contactsPerPage.value = newNumberPerPage
+function onNumberChange(contactsPerPage: number) {
+  selectedOption.value = contactsPerPage
+  currentPage.value = 1
+  loadData()
+}
+function onPageChange(page: number) {
+  currentPage.value = page
   loadData()
 }
 
@@ -87,7 +92,7 @@ onMounted(async () => {
     <div class="w-full mt-4">
       <div class="relative flex items-center">
         <Search />
-        <ItemsPerPage :TotalItems="totalItems" @number-change="onNumberChange" />
+        <ItemsPerPage :totalItems="totalItems" @number-change="onNumberChange" :active="empty" />
         <button
           @click="changeListType()"
           class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
@@ -100,9 +105,11 @@ onMounted(async () => {
       Iš viso rasta: <strong> {{ totalItems }} kontaktų</strong>
     </p>
     <Filter />
-    <div v-if="empty" class="text-3xl">Sąrašas tusčias</div>
-    <div v-else-if="loading" class="text-3xl">Kraunama...</div>
-    <component v-else :is="currentListType" :contacts="contacts"></component>
   </div>
-  <Pagination />
+  <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
+  <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
+  <div v-else>
+    <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
+    <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  </div>
 </template>

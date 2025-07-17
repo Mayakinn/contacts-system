@@ -1,14 +1,52 @@
 <script lang="ts" setup>
-import { useNotificationStore } from '@/stores/notificationStore'
-import { NotificationType } from '@/typings/interface/NotificationType'
+import { computed, onMounted, watch } from 'vue'
 
-const notifs = useNotificationStore()
+const props = defineProps({
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  totalPages: {
+    type: Number,
+    required: true,
+  },
+})
+
+const emit = defineEmits(['page-change'])
+
+watch([() => props.currentPage, () => props.totalPages], () => {
+  calculatePages()
+})
+
+function calculatePages() {
+  if (props.currentPage > props.totalPages) {
+    changePage(props.totalPages)
+  }
+}
+
+const changePage = (page: number) => {
+  if (page < 1 || page > props.totalPages) {
+    return
+  }
+  emit('page-change', page)
+}
+
+const canGoBack = computed(() => {
+  return props.currentPage === 1 ? true : false
+})
+
+const canGoForward = computed(() => {
+  return props.currentPage === props.totalPages ? true : false
+})
 </script>
 
 <template>
   <div class="flex justify-center items-center my-3">
-    <div
-      class="flex items-center w-50 h-7 bg-button-blue text-white text-right text-sm rounded-xs cursor-pointer hover:bg-blue-500 select-none"
+    <button
+      class="flex items-center w-50 h-7 bg-button-blue text-white text-right text-sm rounded-xs"
+      :class="{ 'cursor-pointer hover:bg-blue-500': !canGoBack }"
+      @click="changePage(currentPage - 1)"
+      :disabled="currentPage == 1"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -25,11 +63,14 @@ const notifs = useNotificationStore()
         />
       </svg>
       <p class="m-1 ml-13">Praeitas puslapis</p>
-    </div>
+    </button>
 
-    <p class="m-0.5 mx-2">1/7</p>
-    <div
-      class="flex items-center w-50 h-7 bg-button-blue text-white text-left text-sm rounded-xs cursor-pointer hover:bg-blue-500 select-none"
+    <p class="m-0.5 mx-2">{{ currentPage }}/{{ totalPages }}</p>
+    <button
+      class="flex items-center w-50 h-7 bg-button-blue text-white text-left text-sm rounded-xs"
+      :class="{ 'cursor-pointer hover:bg-blue-500': !canGoForward }"
+      @click="changePage(currentPage + 1)"
+      :disabled="currentPage === totalPages"
     >
       <p class="m-1 ml-2">Kitas puslapis</p>
       <svg
@@ -46,6 +87,6 @@ const notifs = useNotificationStore()
           fill="#FFFFFF"
         />
       </svg>
-    </div>
+    </button>
   </div>
 </template>
