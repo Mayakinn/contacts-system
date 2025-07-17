@@ -1,11 +1,16 @@
 import { useAuthStore } from '@/stores/authStore'
 import AdminView from '@/views/AdminView.vue'
+import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import CompaniesManagementView from '@/views/CompaniesManagementView.vue'
 import CompanyStructureView from '@/views/CompanyStructureView.vue'
 import ContactView from '@/views/ContactView.vue'
+import DepartmentStructureView from '@/views/DepartmentStructureView.vue'
+import DivisionStructureView from '@/views/DivisionStructureView.vue'
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue'
+import GroupStructureView from '@/views/GroupStructureView.vue'
 import LoginView from '@/views/LoginView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+import OfficeStructureView from '@/views/OfficeStructureView.vue'
 import SingleContactView from '@/views/SingleContactView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -43,9 +48,31 @@ const router = createRouter({
       component: CompaniesManagementView,
     },
     {
-      path: '/structure',
-      name: 'structure',
+      path: '/structures',
+      name: 'structures',
       component: CompanyStructureView,
+      children: [
+        {
+          path: 'offices',
+          name: 'offices',
+          component: OfficeStructureView,
+        },
+        {
+          path: 'departments',
+          name: 'departments',
+          component: DepartmentStructureView,
+        },
+        {
+          path: 'groups',
+          name: 'groups',
+          component: GroupStructureView,
+        },
+        {
+          path: 'divisions',
+          name: 'divisions',
+          component: DivisionStructureView,
+        },
+      ],
     },
     {
       path: '/admin',
@@ -61,6 +88,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/changepassword',
+      name: 'changepassword',
+      component: ChangePasswordView,
+      meta: {
+        hideNavbar: true,
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'notfound',
       component: NotFoundView,
@@ -70,8 +105,20 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const auth = useAuthStore()
-  if (auth.jwtToken != null && to.name == 'login') {
+  if (auth.jwtToken != null && (to.name == 'login' || to.name == 'forgotpassword')) {
     return { name: 'contacts' }
+  }
+  if (
+    auth.jwtToken == null &&
+    (to.name == 'changepassword' ||
+      to.name == 'companies' ||
+      to.name == 'structures' ||
+      to.name == 'offices' ||
+      to.name == 'divisions' ||
+      to.name == 'departments' ||
+      to.name == 'groups')
+  ) {
+    return { name: 'login' }
   }
 })
 

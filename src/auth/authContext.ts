@@ -1,4 +1,5 @@
 import router from '@/router'
+import { useAuthStore } from '@/stores/authStore'
 import axios from 'axios'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
@@ -6,7 +7,7 @@ const DB_URL = import.meta.env.VITE_POCKETBASE_API
 const instance = axios.create({
   baseURL: DB_URL,
   timeout: 1000,
-  headers: { 'X-Custom-Header': 'foobar' },
+  headers: { Authorization: localStorage.getItem('token') },
 })
 
 instance.interceptors.response.use(undefined, (error) => {
@@ -23,7 +24,7 @@ instance.interceptors.response.use(undefined, (error) => {
     throw new Error('Autorizacijos klaida, prisijunkite!')
   }
   if (status === 400) {
-    throw new Error('Autorizacijos klaida, neturite tam teisių!')
+    throw new Error('Neteisingi prisijungimo duomenys!')
   }
 
   return new Error('Serverio klaida!')
@@ -38,13 +39,33 @@ api/collections/users/auth-with-password`,
         identity: email,
         password: password,
       },
+      {
+        params: {
+          expand: 'permissions_id',
+        },
+      },
     )
     const data = response.data
     localStorage.setItem('token', data.token)
-    localStorage.setItem('name', data.record.name)
-
-    console.log(data)
     router.push('contacts')
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const verifyToken = async () => {
+  try {
+    const response = await instance.post(
+      `
+api/collections/users/auth-refresh`,
+      {
+        params: {
+          expand: 'permissions_id',
+        },
+      },
+    )
+    const data = response.data
     return data
   } catch (error) {
     return Promise.reject(error)
@@ -67,4 +88,27 @@ api/collections/users/request-password-reset`,
   }
 }
 
-export { login, adminForgotPassword }
+const adminChangePassword = async (
+  oldPass: string,
+  passwordFirst: string,
+  passwordSecond: string,
+) => {
+  const auth = useAuthStore()
+  try {
+    const response = await instance.patch(
+      `
+api/collections/users/records/${auth.User?.id}`,
+      {
+        oldPassword: oldPass,
+        password: passwordFirst,
+        passwordConfirm: passwordSecond,
+      },
+    )
+
+    return response
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { login, adminForgotPassword, verifyToken, adminChangePassword }

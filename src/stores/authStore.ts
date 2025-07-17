@@ -1,19 +1,30 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
-import { login } from '@/auth/authContext'
+import { onMounted, ref } from 'vue'
+import { login, verifyToken } from '@/auth/authContext'
 
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { useNotificationStore } from './notificationStore'
+import type { User } from '@/typings/interface/User'
 
 export const useAuthStore = defineStore('authContext', () => {
   const jwtToken = ref<string | null>(localStorage.getItem('token'))
-  const username = ref<string | null>(localStorage.getItem('name'))
+  const User = ref<User | null>(null)
+
   const notif = useNotificationStore()
+
   async function loginUser(email: string, password: string) {
-    const response = await login(email, password)
-    if (response != null) {
-      jwtToken.value = response.token
-      username.value = response.record.name
+    try {
+      const response = await login(email, password)
+      if (response != null) {
+        jwtToken.value = response.token
+        User.value = response.record
+        notif.addNotification('Prisijungimas sėkmingas!', NotificationType.success)
+      }
+    } catch (error) {
+      notif.addNotification(
+        'Blogai įvestas slaptažodis ir/arba el.paštas!',
+        NotificationType.danger,
+      )
     }
     return
   }
@@ -21,15 +32,29 @@ export const useAuthStore = defineStore('authContext', () => {
   function logOutUser() {
     if (jwtToken.value != null) {
       localStorage.removeItem('token')
-      localStorage.removeItem('name')
-
+      User.value = null
       jwtToken.value = null
-      username.value = null
-      notif.addNotification('Admin logged out succesfully', NotificationType.success)
+      notif.addNotification('Sėkmingai atsijungta', NotificationType.success)
       return
     }
-    notif.addNotification('Failed to logout', NotificationType.danger)
+    notif.addNotification('Nepavyko atsijungti...', NotificationType.danger)
   }
 
-  return { jwtToken, username, loginUser, logOutUser }
+  async function checkTokenExpiration() {
+    if (jwtToken.value == null) {
+      return null
+    }
+    try {
+      const response = await verifyToken()
+
+      if (response != null) return response.record
+    } catch (error) {
+      notif.addNotification('Sesija baigėsi, prisijungite per naujo', NotificationType.info)
+    }
+  }
+
+  onMounted(async () => {
+    User.value = await checkTokenExpiration()
+  })
+  return { jwtToken, User, loginUser, logOutUser }
 })

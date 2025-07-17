@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 import { adminForgotPassword } from '@/auth/authContext'
-import { useAuthStore } from '@/stores/authStore'
 import { ref } from 'vue'
 
-const auth = useAuthStore()
-
 const email = ref<string>('')
-const password = ref<string>('')
+const userHasPressedSend = ref<boolean>(false)
 
 async function forgotPassword() {
+  userHasPressedSend.value = !userHasPressedSend.value
   await adminForgotPassword(email.value)
 }
 </script>
@@ -16,11 +14,20 @@ async function forgotPassword() {
 <template>
   <div class="flex flex-col justify-center px-6 my-25 py-6 lg:px-40 bg-white">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <h2 class="mt-10 text-center text-4xl tracking-tight text-gray-900">Priminti slaptažodį</h2>
+      <h2
+        class="mt-10 text-center text-4xl tracking-tight text-gray-900"
+        v-show="!userHasPressedSend"
+      >
+        Priminti slaptažodį
+      </h2>
     </div>
 
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-      <form class="space-y-6" @submit.prevent="forgotPassword">
+    <div class="my-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <div v-if="userHasPressedSend" class="">
+        Slaptažodžio priminimas išsiųstas vartotojui su el.paštu:
+        <strong>{{ email }}</strong>
+      </div>
+      <form v-if="!userHasPressedSend" class="space-y-6" @submit.prevent="forgotPassword">
         <div class="my-15">
           <label for="email" class="block text-sm/6 font-medium text-gray-900"
             >Elektroninis paštas:</label
