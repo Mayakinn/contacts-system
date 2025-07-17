@@ -192,6 +192,28 @@ const router = createRouter({
       path: '/structure',
       name: 'structure',
       component: CompanyStructureView,
+      children: [
+        {
+          path: 'offices',
+          name: 'offices',
+          component: OfficeStructureView,
+        },
+        {
+          path: 'departments',
+          name: 'departments',
+          component: DepartmentStructureView,
+        },
+        {
+          path: 'groups',
+          name: 'groups',
+          component: GroupStructureView,
+        },
+        {
+          path: 'divisions',
+          name: 'divisions',
+          component: DivisionStructureView,
+        },
+      ],
     },
     {
       path: '/admin',
@@ -207,6 +229,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/changepassword',
+      name: 'changepassword',
+      component: ChangePasswordView,
+      meta: {
+        hideNavbar: true,
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'notfound',
       component: NotFoundView,
@@ -216,8 +246,20 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const auth = useAuthStore()
-  if (auth.jwtToken != null && to.name == 'login') {
+  if (auth.jwtToken != null && (to.name == 'login' || to.name == 'forgotpassword')) {
     return { name: 'contacts' }
+  }
+  if (
+    auth.jwtToken == null &&
+    (to.name == 'changepassword' ||
+      to.name == 'companies' ||
+      to.name == 'structures' ||
+      to.name == 'offices' ||
+      to.name == 'divisions' ||
+      to.name == 'departments' ||
+      to.name == 'groups')
+  ) {
+    return { name: 'login' }
   }
 })
 
