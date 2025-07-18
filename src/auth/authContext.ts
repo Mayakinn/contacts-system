@@ -96,23 +96,20 @@ api/collections/users/request-password-reset`,
   }
 }
 
-const adminChangePassword = async (
-  oldPass: string,
-  passwordFirst: string,
-  passwordSecond: string,
-) => {
+const adminChangePassword = async (passwordFirst: string, passwordSecond: string) => {
   const auth = useAuthStore()
   try {
     const response = await instance.patch(
       `
 api/collections/users/records/${auth.User?.id}`,
       {
-        oldPassword: oldPass,
         password: passwordFirst,
         passwordConfirm: passwordSecond,
       },
     )
-
+    if (response != null) {
+      auth.logOutUser()
+    }
     return response
   } catch (error) {
     return Promise.reject(error)

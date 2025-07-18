@@ -6,12 +6,14 @@ import { NotificationType } from '@/typings/interface/NotificationType'
 import { useNotificationStore } from './notificationStore'
 import type { User } from '@/typings/interface/User'
 import router from '@/router'
+import { useRoute } from 'vue-router'
 
 export const useAuthStore = defineStore('authContext', () => {
   const jwtToken = ref<string | null>(localStorage.getItem('token'))
   const User = ref<User | null>(null)
 
   const notif = useNotificationStore()
+  const route = useRoute()
 
   async function loginUser(email: string, password: string) {
     try {
@@ -33,7 +35,11 @@ export const useAuthStore = defineStore('authContext', () => {
       User.value = null
       jwtToken.value = null
       notif.addNotification('Sėkmingai atsijungta', NotificationType.success)
-      router.push('/contacts')
+      if (route.path === '/changepassword') {
+        return
+      } else {
+        router.push('/contacts')
+      }
       return
     }
     notif.addNotification('Nepavyko atsijungti...', NotificationType.danger)

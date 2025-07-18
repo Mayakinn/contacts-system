@@ -10,7 +10,6 @@ import PasswordValidator from 'password-validator'
 const schema = new PasswordValidator()
 const passwordFirst = ref<string>('')
 const passwordSecond = ref<string>('')
-const passwordOld = ref<string>('')
 const notifs = useNotificationStore()
 const auth = useAuthStore()
 const successMessage = ref<boolean>(false)
@@ -31,15 +30,11 @@ async function changePassword() {
     return
   }
   try {
-    const response = await adminChangePassword(
-      passwordOld.value,
-      passwordFirst.value,
-      passwordSecond.value,
-    )
+    const response = await adminChangePassword(passwordFirst.value, passwordSecond.value)
     successMessage.value = true
     return
   } catch (error: any) {
-    notifs.addNotification('Neteisingai įvestas slaptažodis!', NotificationType.danger)
+    notifs.addNotification(error, NotificationType.danger)
   }
 }
 
@@ -52,7 +47,6 @@ const isMoreThan8LessThan72 = computed(() => {
 })
 
 function goBackToLogin() {
-  auth.logOutUser()
   setTimeout(() => router.push('login'), 100)
 }
 </script>
@@ -77,33 +71,6 @@ function goBackToLogin() {
     <div class="mt-5 sm:mx-auto sm:w-full sm:max-w-sm" v-if="!successMessage">
       <form class="space-y-6" @submit.prevent="changePassword()">
         <div class="mt-5">
-          <div class="mb-6">
-            <div class="flex items-center justify-between">
-              <label for="password" class="block text-sm/6 font-medium text-gray-900"
-                >Senasis slaptažodis:</label
-              >
-            </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 32 32"
-              fill="currentColor"
-              class="absolute w-5 h-5 text-slate-600 m-2"
-            >
-              <path
-                clip-rule="evenodd"
-                fill-rule="evenodd"
-                d="M24 14v-4a8 8 0 0 0-16 0v4a3.24 3.24 0 0 0-3 3.21v9.54A3.23 3.23 0 0 0 8.23 30h15.54A3.23 3.23 0 0 0 27 26.77v-9.54A3.24 3.24 0 0 0 24 14zM16 4a6 6 0 0 1 6 6v4H10v-4a6 6 0 0 1 6-6zm9 22.77A1.23 1.23 0 0 1 23.77 28H8.23A1.23 1.23 0 0 1 7 26.77v-9.54A1.23 1.23 0 0 1 8.23 16h15.54A1.23 1.23 0 0 1 25 17.23z"
-              />
-            </svg>
-            <input
-              type="password"
-              v-model="passwordOld"
-              required
-              placeholder="Įveskite slaptažodį..."
-              class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
-            />
-          </div>
-
           <div class="flex items-center justify-between">
             <label for="password" class="block text-sm/6 font-medium text-gray-900"
               >Naujas slaptažodis:</label

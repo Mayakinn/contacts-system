@@ -1,13 +1,20 @@
 <script lang="ts" setup>
 import { adminForgotPassword } from '@/auth/authContext'
+import { useNotificationStore } from '@/stores/notificationStore'
+import { NotificationType } from '@/typings/interface/NotificationType'
 import { ref } from 'vue'
 
 const email = ref<string>('')
 const userHasPressedSend = ref<boolean>(false)
+const notifs = useNotificationStore()
 
 async function forgotPassword() {
-  userHasPressedSend.value = !userHasPressedSend.value
-  await adminForgotPassword(email.value)
+  try {
+    await adminForgotPassword(email.value)
+    userHasPressedSend.value = !userHasPressedSend.value
+  } catch (error: any) {
+    notifs.addNotification(error, NotificationType.danger)
+  }
 }
 </script>
 
