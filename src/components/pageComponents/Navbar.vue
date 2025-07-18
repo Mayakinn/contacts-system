@@ -2,40 +2,9 @@
 import router from '@/router'
 import { useAuthStore } from '@/stores/authStore'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import noImage from '../../assets/default-admin.png'
+import NavBarDropdown from './NavBarDropdown.vue'
 
-const dropdownVisibility = ref<boolean>(false)
 const auth = useAuthStore()
-const dropdownRef = ref<HTMLElement | null>(null)
-
-function toggleDropdown() {
-  dropdownVisibility.value = !dropdownVisibility.value
-}
-const DB_URL = import.meta.env.VITE_POCKETBASE_API
-
-const image = computed(() => {
-  const imageURL = `${DB_URL}/api/files/${auth.User?.collectionId}/${auth.User?.id}/${auth.User?.avatar}`
-  return auth.User?.avatar != null || auth.User?.avatar == '' ? imageURL : noImage
-})
-
-const handleClickOutside = (event: MouseEvent) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-    dropdownVisibility.value = false
-  }
-}
-
-function logOut() {
-  auth.logOutUser()
-  dropdownVisibility.value = false
-}
-
-onMounted(async () => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 </script>
 
 <template>
@@ -44,7 +13,7 @@ onBeforeUnmount(() => {
       class="h-auto w-100 object-contain cursor-pointer"
       src="../../assets/Logo.png"
       alt="Logo"
-      @click="router.push('contacts')"
+      @click="router.push('/contacts')"
     />
     <div class="flex space-x-20 text-2xl text-white font-semibold">
       <RouterLink to="/" class="hover:text-gray-300 transition-colors">Kontaktai</RouterLink>
@@ -73,31 +42,6 @@ onBeforeUnmount(() => {
         >Prisijungti</RouterLink
       >
     </div>
-
-    <div
-      v-if="auth.jwtToken != null"
-      @click="toggleDropdown"
-      class="relative cursor-pointer"
-      ref="dropdownRef"
-    >
-      <img class="w-10 h-10 rounded-full mr-4" :src="image" />
-    </div>
+    <NavBarDropdown />
   </nav>
-
-  <div
-    v-if="dropdownVisibility"
-    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-2xl border border-gray-200 z-10"
-  >
-    <ul>
-      <li
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md"
-        @click="router.push('/changepassword')"
-      >
-        Pakeisti slaptažodį
-      </li>
-      <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md" @click="logOut">
-        Atsijungti
-      </li>
-    </ul>
-  </div>
 </template>

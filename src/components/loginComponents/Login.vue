@@ -41,6 +41,7 @@ async function loginAdmin() {
           <input
             type="email"
             v-model="email"
+            id="email"
             placeholder="Įveskite el.pašto adresą..."
             autocomplete="email"
             required
@@ -69,6 +70,7 @@ async function loginAdmin() {
           <input
             type="password"
             v-model="password"
+            id="password"
             autocomplete="current-password"
             required
             placeholder="Įveskite slaptažodį..."

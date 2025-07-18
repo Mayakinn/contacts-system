@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { onMounted, ref } from 'vue'
-import { login, verifyToken } from '@/auth/authContext'
+import { onMounted, readonly, ref } from 'vue'
+import { login, tokenRefresh } from '@/auth/authContext'
 
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { useNotificationStore } from './notificationStore'
@@ -20,11 +20,8 @@ export const useAuthStore = defineStore('authContext', () => {
         User.value = response.record
         notif.addNotification('Prisijungimas sėkmingas!', NotificationType.success)
       }
-    } catch (error) {
-      notif.addNotification(
-        'Blogai įvestas slaptažodis ir/arba el.paštas!',
-        NotificationType.danger,
-      )
+    } catch (error: any) {
+      notif.addNotification(error, NotificationType.danger)
     }
     return
   }
@@ -40,21 +37,28 @@ export const useAuthStore = defineStore('authContext', () => {
     notif.addNotification('Nepavyko atsijungti...', NotificationType.danger)
   }
 
-  async function checkTokenExpiration() {
+  async function userTokenRefresh() {
     if (jwtToken.value == null) {
       return null
     }
     try {
-      const response = await verifyToken()
+      const response = await tokenRefresh()
 
-      if (response != null) return response.record
+      if (response != null) {
+        localStorage.setItem('token', response.token)
+        console.log(response)
+        return response.record
+      }
     } catch (error) {
-      notif.addNotification('Sesija baigėsi, prisijungite per naujo', NotificationType.info)
+      notif.addNotification(
+        'Sesija baigėsi arba tinklo klaida, bandykite prisijungti iš naujo',
+        NotificationType.info,
+      )
     }
   }
 
   onMounted(async () => {
-    User.value = await checkTokenExpiration()
+    User.value = await userTokenRefresh()
   })
-  return { jwtToken, User, loginUser, logOutUser }
+  return { jwtToken: readonly(jwtToken), User: readonly(User), loginUser, logOutUser }
 })

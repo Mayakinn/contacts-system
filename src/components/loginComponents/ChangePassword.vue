@@ -5,13 +5,17 @@ import { useAuthStore } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { computed, ref } from 'vue'
+import PasswordValidator from 'password-validator'
 
+const schema = new PasswordValidator()
 const passwordFirst = ref<string>('')
 const passwordSecond = ref<string>('')
 const passwordOld = ref<string>('')
 const notifs = useNotificationStore()
 const auth = useAuthStore()
 const successMessage = ref<boolean>(false)
+
+schema.has().not().spaces()
 
 async function changePassword() {
   if (!arePasswordsSame.value) {
@@ -22,13 +26,16 @@ async function changePassword() {
     notifs.addNotification('Slaptažodis turi būti nuo 8 iki 72 simbolių.', NotificationType.warning)
     return
   }
+  if (!schema.validate(passwordFirst.value)) {
+    notifs.addNotification('Slaptažodyje negali būti tarpų!', NotificationType.warning)
+    return
+  }
   try {
     const response = await adminChangePassword(
       passwordOld.value,
       passwordFirst.value,
       passwordSecond.value,
     )
-    console.log('success')
     successMessage.value = true
     return
   } catch (error: any) {
@@ -91,7 +98,6 @@ function goBackToLogin() {
             <input
               type="password"
               v-model="passwordOld"
-              autocomplete="current-password"
               required
               placeholder="Įveskite slaptažodį..."
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
@@ -118,7 +124,6 @@ function goBackToLogin() {
           <input
             type="password"
             v-model="passwordFirst"
-            autocomplete="current-password"
             required
             maxlength="72"
             placeholder="Įveskite slaptažodį..."
@@ -146,7 +151,6 @@ function goBackToLogin() {
           <input
             type="password"
             v-model="passwordSecond"
-            autocomplete="current-password"
             required
             maxlength="72"
             placeholder="Įveskite slaptažodį..."

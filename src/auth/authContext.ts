@@ -30,6 +30,14 @@ instance.interceptors.response.use(undefined, (error) => {
   return new Error('Serverio klaida!')
 })
 
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
+})
+
 const login = async (email: string, password: string) => {
   try {
     const response = await instance.post(
@@ -54,7 +62,7 @@ api/collections/users/auth-with-password`,
   }
 }
 
-const verifyToken = async () => {
+const tokenRefresh = async () => {
   try {
     const response = await instance.post(
       `
@@ -111,4 +119,4 @@ api/collections/users/records/${auth.User?.id}`,
   }
 }
 
-export { login, adminForgotPassword, verifyToken, adminChangePassword }
+export { login, adminForgotPassword, tokenRefresh, adminChangePassword }
