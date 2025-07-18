@@ -5,6 +5,7 @@ import { login, tokenRefresh } from '@/auth/authContext'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { useNotificationStore } from './notificationStore'
 import type { User } from '@/typings/interface/User'
+import router from '@/router'
 
 export const useAuthStore = defineStore('authContext', () => {
   const jwtToken = ref<string | null>(localStorage.getItem('token'))
@@ -32,6 +33,7 @@ export const useAuthStore = defineStore('authContext', () => {
       User.value = null
       jwtToken.value = null
       notif.addNotification('Sėkmingai atsijungta', NotificationType.success)
+      router.push('/contacts')
       return
     }
     notif.addNotification('Nepavyko atsijungti...', NotificationType.danger)
@@ -54,6 +56,10 @@ export const useAuthStore = defineStore('authContext', () => {
         'Sesija baigėsi arba tinklo klaida, bandykite prisijungti iš naujo',
         NotificationType.info,
       )
+      localStorage.removeItem('token')
+      User.value = null
+      jwtToken.value = null
+      router.push('/contacts')
     }
   }
 
