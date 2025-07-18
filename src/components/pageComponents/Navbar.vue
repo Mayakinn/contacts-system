@@ -44,21 +44,4 @@ const auth = useAuthStore()
     </div>
     <NavBarDropdown />
   </nav>
-
-  <div
-    v-if="dropdownVisibility"
-    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-2xl border border-gray-200 z-10"
-  >
-    <ul>
-      <li
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md"
-        @click="router.push('/changepassword')"
-      >
-        Pakeisti slaptažodį
-      </li>
-      <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md" @click="logOut">
-        Atsijungti
-      </li>
-    </ul>
-  </div>
 </template>
