@@ -257,7 +257,8 @@ router.beforeEach((to, from) => {
       to.name == 'offices' ||
       to.name == 'divisions' ||
       to.name == 'departments' ||
-      to.name == 'groups')
+      to.name == 'groups' ||
+      to.name == 'admin')
   ) {
     return { name: 'login' }
   }
