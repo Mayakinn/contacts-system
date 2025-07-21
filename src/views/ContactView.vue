@@ -82,10 +82,21 @@ function onPageChange(page: number) {
   loadData()
 }
 
-function onFilterChange(filterParamString: string) {
-  filterString.value = filterParamString
+function onFilterChange(filterParamString: Record<string, string>) {
+  filterString.value = combinedFilterParam(filterParamString)
   currentPage.value = 1
   loadData()
+}
+
+function handleFilterError(errorMessage: any) {
+  notifs.addNotification(errorMessage, NotificationType.danger)
+}
+
+function combinedFilterParam(filterParamString: Record<string, string>) {
+  const filterEntries = Object.entries(filterParamString)
+  return filterEntries.length > 0
+    ? `(${filterEntries.map(([key, value]) => `${key}='${value}'`).join(' && ')})`
+    : ''
 }
 
 onMounted(async () => {
@@ -111,7 +122,7 @@ onMounted(async () => {
     <p class="my-3">
       Iš viso rasta: <strong> {{ totalItems }} kontaktų</strong>
     </p>
-    <Filter @filter-change="onFilterChange" />
+    <Filter @filter-change="onFilterChange" @error-received="handleFilterError" />
   </div>
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
