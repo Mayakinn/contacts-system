@@ -21,10 +21,7 @@ const router = useRouter()
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="user in props.users"
-          class="bg-white border-b border-gray-200 hover:bg-gray-200 text-center"
-        >
+        <tr v-for="user in props.users" class="bg-white border-b border-gray-200 text-center">
           <AdminTableRow :user="user" />
         </tr>
       </tbody>
