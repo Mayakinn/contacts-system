@@ -26,8 +26,7 @@ instance.interceptors.response.use(undefined, (error) => {
   if (status === 400) {
     throw new Error('Autorizacijos klaida, neturite tam teisių!')
   }
-
-  return new Error('Serverio klaida!')
+  throw new Error('Serverio klaida!')
 })
 
 const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number, number]> => {
@@ -38,7 +37,6 @@ const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number
         perPage: perPage,
       },
     })
-    console.log(response.data)
     const data: User[] = response.data.items
     const totalItems: number = response.data.totalItems
     const totalPages: number = response.data.totalPages
@@ -48,4 +46,20 @@ const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number
   }
 }
 
-export { getAdmins }
+const createAdmin = async (permissions: object, formData: FormData) => {
+  try {
+    const firstResponse = await instance.post(`/api/collections/user_permissions/records`, {
+      permissions,
+    })
+    if (firstResponse != null) {
+      const permissionId = firstResponse.data.id
+      formData.append('permissions_id', permissionId)
+      const secondResponse = await instance.post(`/api/collections/users/records`, formData)
+      return secondResponse
+    }
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getAdmins, createAdmin }

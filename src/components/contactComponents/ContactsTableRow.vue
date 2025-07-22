@@ -16,7 +16,10 @@ const email = computed(() => {
 </script>
 
 <template>
-  <th class="px-6 py-4 font-medium whitespace-nowrap">
+  <th
+    class="px-6 py-4 font-medium whitespace-nowrap text-ellipsis overflow-hidden"
+    :title="`${props.contact?.name} ${props.contact?.surname}`"
+  >
     {{ props.contact?.name }} {{ props.contact?.surname }}
   </th>
   <td class="px-6 py-4">{{ props.contact?.position }}</td>

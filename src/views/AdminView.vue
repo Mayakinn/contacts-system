@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import AdminTableList from '@/components/adminComponents/AdminTableList.vue'
 import AdminCreateForm from '@/components/formComponents/adminFormComponents/AdminCreateForm.vue'
+import AdminEditPermissionsForm from '@/components/formComponents/adminFormComponents/AdminEditPermissionsForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
 import { getAdmins } from '@/services/adminService'
@@ -8,7 +9,7 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import type { User } from '@/typings/interface/User'
 import { shallowRef, ref, type Component, onMounted } from 'vue'
-const adminId = ref<number>(0)
+const currentAdmin = ref<User | null>(null)
 
 const currentForm = shallowRef<Component>()
 const formModalActive = ref(false)
@@ -49,12 +50,14 @@ async function loadData() {
       notifs.addNotification('Nepavyko užkrauti adminų!', NotificationType.danger)
     }
   } catch (error: any) {
+    empty.value = true
     notifs.addNotification(error, NotificationType.danger)
   }
 }
 const closeModal = () => {
   formModalActive.value = false
-  adminId.value = 0
+  currentForm.value = empty
+  currentAdmin.value = null
 }
 
 function openAdminCreateForm() {
@@ -62,9 +65,15 @@ function openAdminCreateForm() {
   OpenModal()
 }
 
+function openAdminEditPermissionsForm(user: User) {
+  currentForm.value = AdminEditPermissionsForm
+  currentAdmin.value = user
+  OpenModal()
+}
+
 function closeModalAfterForm(flag: boolean) {
   formModalActive.value = false
-  adminId.value = 0
+  currentAdmin.value = null
 }
 
 function OpenModal() {
@@ -83,7 +92,7 @@ onMounted(async () => {
 <template>
   <div class="m-10 space-y-10">
     <p class="text-5xl font-light">Admin paskyros</p>
-    <div class="flex space-x-10">
+    <div class="flex space-x-10" v-show="!empty">
       <button
         class="w-10 h-10 bg-button-blue rounded-full flex items-center justify-center shadow-2xl hover:bg-blue-500"
         @click="openAdminCreateForm"
@@ -100,7 +109,7 @@ onMounted(async () => {
     <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
     <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
     <div v-else>
-      <AdminTableList :users="users" />
+      <AdminTableList :users="users" @edit-permissions="openAdminEditPermissionsForm" />
       <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
     </div>
   </div>
@@ -108,7 +117,8 @@ onMounted(async () => {
     <component
       @close-pressed="closeModalAfterForm"
       :is="currentForm"
-      :adminId="adminId"
+      :currentAdmin="currentAdmin"
+      :users="users"
     ></component>
   </FormModal>
 </template>
