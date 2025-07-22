@@ -54,7 +54,6 @@ export const useAuthStore = defineStore('authContext', () => {
 
       if (response != null) {
         localStorage.setItem('token', response.token)
-        console.log(response)
         return response.record
       }
     } catch (error) {

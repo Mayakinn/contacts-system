@@ -1,3 +1,214 @@
+<script setup lang="ts">
+import { createAdmin } from '@/services/adminService';
+import { useNotificationStore } from '@/stores/notificationStore';
+import { NotificationType } from '@/typings/interface/NotificationType';
+import { computed, ref } from 'vue';
+import { randomPassword } from 'secure-random-password';
+import validator from 'email-validator'
+import type { User } from '@/typings/interface/User';
+
+const props = defineProps<{
+  currentAdmin: User | null
+  users: User[]
+}>()
+
+const editCreateContacts = ref<boolean>(false)
+const deleteContacts = ref<boolean>(false)
+const createEditCompanies = ref<boolean>(false)
+const deleteCompanies = ref<boolean>(false)
+const createEditOffices = ref<boolean>(false)
+const deleteOffices = ref<boolean>(false)
+const createEditStructures = ref<boolean>(false)
+const deleteStructures = ref<boolean>(false)
+const email = ref<string>('')
+const name = ref<string>('')
+const selectedFile = ref<File | null>(null);
+const password = ref<string>('password')
+const formData = new FormData()
+const emailErrorMessage = ref<string>('')
+const showTempPassword = ref<boolean>(false)
+
+const fileTooBig = ref<boolean>(false)
+
+const notifs = useNotificationStore()
+
+async function createNewAdmin(permissions : object){
+  try{
+    const result = await createAdmin(permissions,formData)
+    if (result != null){
+      showTempPassword.value =true
+    }
+  }catch (error : any){
+    notifs.addNotification(error,NotificationType.danger)
+    emit('close-pressed')
+  }
+}
+
+function validateForm(){
+  if (email.value == '' || name.value == ''){
+    return
+  }   
+  password.value = randomPassword({ length: 12, characters: 'alphanumeric' });
+  if(validator.validate(email.value)== false){
+    emailErrorMessage.value = 'Įveskita validų el.paštą!'
+    return
+  }
+  const result = props.users.filter(obj =>
+  Object.values(obj).some(val =>
+    String(val).toLowerCase().includes(email.value.toLowerCase())
+  )
+);
+  if(result.length > 0){
+    emailErrorMessage.value = 'Paštas jau egzistuoja!'
+    return;
+  }
+  formData.append('email',email.value)
+  formData.append('name', name.value)
+  if(selectedFile.value != null){formData.append('avatar',selectedFile.value)}
+  formData.append('password',password.value)
+  formData.append('passwordConfirm',password.value)
+  const permissions = {
+    edit_employees: editCreateContacts.value,
+    delete_employees: deleteContacts.value,
+    edit_companies: createEditCompanies.value,
+    delete_companies: deleteCompanies.value,
+    edit_offices: createEditOffices.value,
+    delete_offices: deleteOffices.value,
+    edit_structure: createEditStructures.value,
+    delete_structure: deleteStructures.value
+  }
+  createNewAdmin(permissions)
+}
+
+
+const emit = defineEmits(['close-pressed'])
+
+
+function handleFileUpload(event: Event) {
+
+  const target = event.target as HTMLInputElement;
+  if (target && target.files && target.files.length > 0) {
+    if(target.files[0].size <= 5242880){
+      selectedFile.value = target.files[0];
+      fileTooBig.value = false
+    }
+    else{
+      fileTooBig.value = true
+    }
+  }
+}
+
+
+const fileHasBeenUploaded = computed(() => {
+  if(fileTooBig.value){
+    return 'File is too big (Max. 5MB)'
+  }
+  return selectedFile.value?.name ? selectedFile.value?.name : 'No photo uploaded.'
+})
+
+</script>
+
 <template>
-  <div class="sm:flex sm:items-start">This is the admin Create form</div>
+  <div class="sm:items-start m-5">
+    <div v-if="showTempPassword" class="mt-10 pr-50">
+      <h1 class="text-xl">Laikinas slaptažodis:</h1>
+      <p class="mt-10 text-gray-600">Laikinas paskyros slaptažodis : {{ password }}  </p>
+    </div>
+    <form @submit.prevent="validateForm" v-if="!showTempPassword">
+      <h1 class="text-xl">Pridėti naują admin paskyrą:</h1>
+      <div class="grid sm:grid-cols-1 md:grid-cols-2 mt-10 pr-50 justify-items-stretch">
+        <div class="pr-10 space-y-3 pb-50">
+          <div>
+            <label for="name" class="block text-gray-500 text-sm">Vardas:</label>
+            <input
+              type="name"
+              id="name"
+              placeholder="Įveskite vardą..."
+              required
+              v-model="name"
+              class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
+            />
+          </div>
+          <div>
+            <label for="email" class="block text-gray-500 text-sm">Elektroninis paštas:</label>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 32 32"
+              fill="currentColor"
+              class="absolute w-5 h-5 text-slate-600 m-2"
+            >
+              <path
+                clip-rule="evenodd"
+                fill-rule="evenodd"
+                d="M29 4H3a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h26a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-.72 2L16 14.77 3.72 6zM30 25a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.23l13.42 9.58a1 1 0 0 0 1.16 0L30 7.23z"
+              />
+            </svg>
+            <input
+              type="email"
+              id="email"
+              v-model="email"
+              placeholder="Įveskite el.pašto adresą..."
+              autocomplete="email"
+              required
+              class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
+            />
+            {{ emailErrorMessage }}
+          </div>
+          <div class="flex flex-col items-center justify-center mt-10">
+            <label class="bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800 w-full h-6 text-center pt-1"  id="myFile" title="Upload image file" for="inputImage">
+              Įkelti nuotrauką
+              </label>
+            <input type="file" id="inputImage" name="filename" hidden accept=".jpg, .jpeg, .png" ref="file" @change="handleFileUpload">
+
+            <span class="text-sm text-gray-600 mt-1 truncate w-full
+">{{fileHasBeenUploaded}}</span>
+          </div>
+        </div>
+        <div class="">
+          <p class="mx-5 mb-3">Administracinės teisės:</p>
+          <div class="flex flex-col gap-4 text-md items-left">
+            <div>
+              <input type="checkbox" id="editCreateContacts" v-model="editCreateContacts"/>
+              <label for="editCreateContacts"> Redaguoti ir kurti kontaktus</label>
+            </div>
+            <div>
+              <input type="checkbox" id="deleteContacts" v-model="deleteContacts"/>
+              <label for="deleteContacts"> Trinti kontaktus</label>
+            </div>
+            <div>
+              <input type="checkbox" id="createEditCompanies" v-model="createEditCompanies"/>
+              <label for="createEditCompanies"> Redaguoti ir kurti įmones</label>
+            </div>
+            <div>
+              <input type="checkbox" id="deleteCompanies" v-model="deleteCompanies"/>
+              <label for="deleteCompanies"> Trinti įmones</label>
+            </div>
+            <div>
+              <input type="checkbox" id="createEditOffices" v-model="createEditOffices"/>
+              <label for="createEditOffices"> Redaguoti ir kurti ofisus</label>
+            </div>
+            <div>
+              <input type="checkbox" id="deleteOffices" v-model="deleteOffices"/>
+              <label for="deleteOffices"> Trinti ofisus</label>
+            </div>
+            <div>
+              <input type="checkbox" id="createEditStructures" v-model="createEditStructures"/>
+              <label for="createEditStructures"> Redaguoti ir kurti struktūras</label>
+            </div>
+            <div>
+              <input type="checkbox" id="deleteStructures" v-model="deleteStructures"/>
+              <label for="deleteStructures"> Trinti struktūras</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="h-7 w-45 bg-button-blue absolute right-5 bottom-5 text-white text-xs rounded-xs hover:bg-blue-800"
+      >
+        Pridėti
+      </button @click=submit>
+    </form>
+  </div>
+
 </template>
