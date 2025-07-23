@@ -7,7 +7,7 @@ import Notification from './components/pageComponents/notificationComponents/Not
 <template>
   <header>
     <div class="wrapper">
-      <Navbar />
+      <Navbar v-if="!$route.meta.hideNavbar" />
     </div>
   </header>
   <Notification />
