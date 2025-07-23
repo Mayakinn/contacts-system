@@ -35,6 +35,7 @@ const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number
       params: {
         page: currentPage,
         perPage: perPage,
+        expand: 'permissions_id',
       },
     })
     const data: User[] = response.data.items
@@ -62,4 +63,15 @@ const createAdmin = async (permissions: object, formData: FormData) => {
   }
 }
 
-export { getAdmins, createAdmin }
+const updateAdminPermissions = async (permissions: object, id: string) => {
+  try {
+    const response = await instance.patch(`/api/collections/user_permissions/records/${id}`, {
+      ...permissions,
+    })
+    return response.data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getAdmins, createAdmin, updateAdminPermissions }

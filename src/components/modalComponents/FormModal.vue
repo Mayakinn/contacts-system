@@ -8,7 +8,7 @@ const emit = defineEmits(['close-modal'])
 
 <template>
   <transition name="modal-fade">
-    <div v-show="isActive">
+    <div v-if="isActive">
       <div class="fixed inset-0 flex justify-center pt-20 bg-gray-500/75">
         <div class="flex flex-col">
           <div
@@ -46,12 +46,18 @@ const emit = defineEmits(['close-modal'])
 </template>
 
 <style scoped>
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.modal-fade-enter,
-.modal-fade-leave-to {
-  opacity: 0;
+
+.modal-fade-enter-to,
+.modal-fade-leave-from {
+  opacity: 1;
 }
 </style>
