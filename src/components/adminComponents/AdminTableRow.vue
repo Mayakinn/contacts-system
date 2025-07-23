@@ -5,7 +5,7 @@ const props = defineProps<{
   user: User | undefined
 }>()
 
-const emit = defineEmits(['edit-permissions'])
+const emit = defineEmits(['edit-permissions', 'edit-admin'])
 </script>
 
 <template>
@@ -23,7 +23,12 @@ const emit = defineEmits(['edit-permissions'])
     >
       Keisti leidimus
     </button>
-    <button class="bg-button-blue rounded-3xl p-1 px-3 hover:bg-blue-500">Modifikuoti</button>
+    <button
+      class="bg-button-blue rounded-3xl p-1 px-3 hover:bg-blue-500"
+      @click="emit('edit-admin', props.user)"
+    >
+      Modifikuoti
+    </button>
     <button class="bg-red-700 rounded-3xl p-1 px-3 hover:bg-red-600">Ištrinti</button>
   </td>
 </template>
