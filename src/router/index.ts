@@ -106,6 +106,64 @@ const router = createRouter({
       component: CompaniesManagementView,
     },
     {
+      path: '/structures',
+      name: 'structures',
+      component: CompanyStructureView,
+      children: [
+        {
+          path: 'offices',
+          name: 'offices',
+          component: OfficeStructureView,
+        },
+        {
+          path: 'departments',
+          name: 'departments',
+          component: DepartmentStructureView,
+        },
+        {
+          path: 'groups',
+          name: 'groups',
+          component: GroupStructureView,
+        },
+        {
+          path: 'divisions',
+          name: 'divisions',
+          component: DivisionStructureView,
+        },
+      ],
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: ForgotPasswordView,
+      meta: {
+        hideNavbar: true,
+      },
+    },
+    {
+      path: '/changepassword',
+      name: 'changepassword',
+      component: ChangePasswordView,
+      meta: {
+        hideNavbar: true,
+      },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
+    },
+    {
+      path: '/companies',
+      name: 'companies',
+      component: CompaniesManagementView,
+    },
+    {
       path: '/structure',
       name: 'structure',
       component: CompanyStructureView,
