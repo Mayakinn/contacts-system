@@ -58,6 +58,128 @@ const router = createRouter({
       name: 'notfound',
       component: NotFoundView,
     },
+    {
+      path: '/companies',
+      name: 'companies',
+      component: CompaniesManagementView,
+    },
+    {
+      path: '/structure',
+      name: 'structure',
+      component: CompanyStructureView,
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: ForgotPasswordView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
+    },
+    {
+      path: '/companies',
+      name: 'companies',
+      component: CompaniesManagementView,
+    },
+    {
+      path: '/structure',
+      name: 'structure',
+      component: CompanyStructureView,
+      children: [
+        {
+          path: 'offices',
+          component: OfficeView,
+        },
+        {
+          path: 'groups',
+          component: GroupView,
+        },
+        {
+          path: 'divisions',
+          component: DivisionView,
+        },
+        {
+          path: 'departments',
+          component: DepartmentView,
+        },
+      ],
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: ForgotPasswordView,
+    },
+
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notfound',
+      component: NotFoundView,
+    },
+    {
+      path: '/companies',
+      name: 'companies',
+      component: CompaniesManagementView,
+    },
+    {
+      path: '/structure',
+      name: 'structure',
+      component: CompanyStructureView,
+      children: [
+        {
+          path: 'offices',
+          component: OfficeView,
+        },
+        {
+          path: 'groups',
+          component: GroupView,
+        },
+        {
+          path: 'divisions',
+          component: DivisionView,
+        },
+        {
+          path: 'departments',
+          component: DepartmentView,
+        },
+      ],
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: ForgotPasswordView,
+      children: [
+        {
+          path: '',
+          name: 'contacts',
+          component: ContactView,
+          alias: '/contacts',
+        },
+        {
+          path: 'contacts/:id',
+          name: 'contact',
+          component: SingleContactView,
+          props: true,
+        },
+      ],
+    },
+    //not found view next issue
   ],
 })
 
