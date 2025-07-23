@@ -8,10 +8,13 @@ const props = defineProps<{
   users: User[] | undefined
 }>()
 
-const emit = defineEmits(['edit-permissions'])
+const emit = defineEmits(['edit-permissions', 'edit-admin'])
 
 function editPermissionsPressed(user: User) {
   emit('edit-permissions', user)
+}
+function editAdminPressed(user: User) {
+  emit('edit-admin', user)
 }
 
 const router = useRouter()
@@ -29,7 +32,11 @@ const router = useRouter()
       </thead>
       <tbody>
         <tr v-for="user in props.users" class="bg-white border-b border-gray-200 text-center">
-          <AdminTableRow :user="user" @edit-permissions="editPermissionsPressed" />
+          <AdminTableRow
+            :user="user"
+            @edit-permissions="editPermissionsPressed"
+            @edit-admin="editAdminPressed"
+          />
         </tr>
       </tbody>
     </table>

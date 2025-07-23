@@ -74,4 +74,13 @@ const updateAdminPermissions = async (permissions: object, id: string) => {
   }
 }
 
-export { getAdmins, createAdmin, updateAdminPermissions }
+const updateAdmin = async (formData: FormData, id: string) => {
+  try {
+    const response = await instance.patch(`/api/collections/users/records/${id}`, formData)
+    return response.data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getAdmins, createAdmin, updateAdminPermissions, updateAdmin }

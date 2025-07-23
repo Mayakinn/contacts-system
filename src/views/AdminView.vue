@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import AdminTableList from '@/components/adminComponents/AdminTableList.vue'
 import AdminCreateForm from '@/components/formComponents/adminFormComponents/AdminCreateForm.vue'
+import AdminEditDetailsForm from '@/components/formComponents/adminFormComponents/AdminEditDetailsForm.vue'
 import AdminEditPermissionsForm from '@/components/formComponents/adminFormComponents/AdminEditPermissionsForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
@@ -71,6 +72,12 @@ function openAdminEditPermissionsForm(user: User) {
   OpenModal()
 }
 
+function openAdminEditForm(user: User) {
+  currentForm.value = AdminEditDetailsForm
+  currentAdmin.value = user
+  OpenModal()
+}
+
 function closeModalAfterForm(flag: boolean) {
   formModalActive.value = false
   currentAdmin.value = null
@@ -109,7 +116,11 @@ onMounted(async () => {
     <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
     <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
     <div v-else>
-      <AdminTableList :users="users" @edit-permissions="openAdminEditPermissionsForm" />
+      <AdminTableList
+        :users="users"
+        @edit-permissions="openAdminEditPermissionsForm"
+        @edit-admin="openAdminEditForm"
+      />
       <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
     </div>
   </div>
