@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ForgotPassword from '@/components/loginComponents/ForgotPassword.vue'
+import ChangePassword from '@/components/loginComponents/ChangePassword.vue'
 import router from '@/router'
 </script>
 
@@ -13,7 +13,7 @@ import router from '@/router'
   </div>
   <div class="min-h-screen bg-teltonika-blue flex justify-center">
     <div class="">
-      <ForgotPassword />
+      <ChangePassword />
     </div>
   </div>
 </template>
