@@ -76,6 +76,7 @@ function onNumberChange(contactsPerPage: number) {
   currentPage.value = 1
   loadData()
 }
+
 function onPageChange(page: number) {
   currentPage.value = page
   loadData()
