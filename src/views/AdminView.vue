@@ -12,7 +12,7 @@ import { shallowRef, ref, type Component, onMounted } from 'vue'
 const currentAdmin = ref<User | null>(null)
 
 const currentForm = shallowRef<Component>()
-const formModalActive = ref(false)
+const formModalActive = ref<boolean>(false)
 const users = ref<User[]>()
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -56,7 +56,7 @@ async function loadData() {
 }
 const closeModal = () => {
   formModalActive.value = false
-  currentForm.value = empty
+  currentForm.value = undefined
   currentAdmin.value = null
 }
 
