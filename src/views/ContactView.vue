@@ -22,39 +22,38 @@ const notifs = useNotificationStore()
 const currentListType = shallowRef<Component>(ContactCardList)
 const empty = ref<boolean>(true)
 const loading = ref<boolean>(true)
-const currentPage = ref<number>(1)
-const filterString = ref<string>('')
 
 async function loadData() {
   try {
-    const result = await getContacts(selectedOption.value, currentPage.value, filterString.value)
+    const result = await getContacts(contactsPerPage.value)
 
-    if (result != null) {
-      const [data, total, pages] = result
-      contacts.value = data
-      totalItems.value = total
-      loading.value = false
-
-      totalPages.value = pages
-      if (totalItems.value == undefined || totalItems.value == 0) {
-        empty.value = true
-        notifs.addNotification('Kontaktų sąrašas tusčias!', NotificationType.danger)
-        return
-      } else if (totalItems.value > 0) {
-        empty.value = false
-        notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
-      }
-    } else {
-      loading.value = false
+    if (!result) {
       empty.value = true
       contacts.value = []
       totalItems.value = 0
       totalPages.value = 0
-
       notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.danger)
+      return
+    }
+
+    const [data, total, pages] = result
+    contacts.value = data
+    totalItems.value = total
+
+    totalPages.value = pages
+    if (totalItems.value == undefined || totalItems.value == 0) {
+      empty.value = true
+      notifs.addNotification('Kontaktų sąrašas tusčias!', NotificationType.danger)
+      return
+    } else if (totalItems.value > 0) {
+      empty.value = false
+      notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
+      return
     }
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -110,7 +109,7 @@ onMounted(async () => {
     <div class="w-full mt-4">
       <div class="relative flex items-center">
         <Search />
-        <ItemsPerPage :TotalItems="totalItems" @number-change="onNumberChange" />
+        <ItemsPerPage :totalItems="totalItems" @number-change="onNumberChange" :active="empty" />
         <button
           @click="changeListType()"
           class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
