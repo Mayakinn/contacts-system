@@ -9,7 +9,8 @@ import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
 import type { DepartmentGroup } from '@/typings/interface/DepartmentGroup'
 import type { DivisionDepartment } from '@/typings/interface/DivisionDepartment'
 import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import FilterSelect from './FilterSelect.vue'
 
 const chosenCompany = ref<string>('')
 const chosenOffice = ref<string>('')
@@ -23,137 +24,199 @@ const officeDivisions = ref<OfficeDivision[]>([])
 const divisionDepartments = ref<DivisionDepartment[]>([])
 const departmentGroups = ref<DepartmentGroup[]>([])
 
-const emit = defineEmits(['filter-change'])
+const mappedCompanies = computed(() =>
+  companies.value.map((company) => ({ id: company.id, name: company.name })),
+)
 
-const filterParamString = computed(() => {
-  const filters: string[] = []
+const mappedOffices = computed(() =>
+  companyOffices.value.map((office) => ({
+    id: office.expand?.office_id?.id,
+    name: office.expand?.office_id?.name || 'Nežinomas ofisas',
+  })),
+)
 
-  if (chosenCompany.value != '') {
-    filters.push(`company_id='${chosenCompany.value}'`)
+const mappedDivisions = computed(() =>
+  officeDivisions.value.map((division) => ({
+    id: division.expand?.division_id?.id,
+    name: division.expand?.division_id?.name || 'Nežinomas skyrius',
+  })),
+)
+
+const mappedDepartments = computed(() =>
+  divisionDepartments.value.map((department) => ({
+    id: department.expand?.department_id?.id,
+    name: department.expand?.department_id?.name || 'Nežinomas padalinys',
+  })),
+)
+
+const mappedGroups = computed(() =>
+  departmentGroups.value.map((group) => ({
+    id: group.expand?.group_id?.id,
+    name: group.expand?.group_id?.name || 'Nežinoma grupė',
+  })),
+)
+
+const emit = defineEmits(['filter-change', 'error-received'])
+
+const recievedError = ref<boolean>(false)
+
+const filterParamMap = computed(() => {
+  const filters: Record<string, string> = {}
+
+  if (chosenCompany.value && chosenCompany.value !== '') {
+    filters['company_id'] = chosenCompany.value
   }
-  if (chosenOffice.value != '') {
-    filters.push(`office_id='${chosenOffice.value}'`)
+  if (chosenOffice.value && chosenOffice.value !== '') {
+    filters['office_id'] = chosenOffice.value
   }
-  if (chosenDivision.value != '') {
-    filters.push(`division_id='${chosenDivision.value}'`)
+  if (chosenDivision.value && chosenDivision.value !== '') {
+    filters['division_id'] = chosenDivision.value
   }
-  if (chosenDepartment.value != '') {
-    filters.push(`department_id='${chosenDepartment.value}'`)
+  if (chosenDepartment.value && chosenDepartment.value !== '') {
+    filters['department_id'] = chosenDepartment.value
   }
-  if (chosenGroup.value != '') {
-    filters.push(`group_id='${chosenGroup.value}'`)
+  if (chosenGroup.value && chosenGroup.value !== '') {
+    filters['group_id'] = chosenGroup.value
   }
 
-  if (filters.length > 0) {
-    return `(${filters.join(' && ')})`
-  }
-
-  return ''
+  return filters
 })
-async function onCompanyValueChange() {
-  companyOffices.value = await getOffices(chosenCompany.value)
-  chosenOffice.value = ''
-  chosenDivision.value = ''
-  chosenDepartment.value = ''
-  chosenGroup.value = ''
-  emit('filter-change', filterParamString.value)
-}
-async function onOfficeValueChange() {
-  officeDivisions.value = await getDivisions(chosenOffice.value)
-  chosenDivision.value = ''
-  chosenDepartment.value = ''
-  chosenGroup.value = ''
-  emit('filter-change', filterParamString.value)
-}
-
-async function onDivisionValueChange() {
-  divisionDepartments.value = await getDepartments(chosenDivision.value)
-  chosenDepartment.value = ''
-  chosenGroup.value = ''
-  emit('filter-change', filterParamString.value)
-}
-
-async function onDepartmentValueChange() {
-  departmentGroups.value = await getGroups(chosenDepartment.value)
-  chosenGroup.value = ''
-  emit('filter-change', filterParamString.value)
-}
 
 onMounted(async () => {
-  companies.value = await getCompanies()
+  try {
+    companies.value = await getCompanies()
+  } catch (error: any) {
+    emit('error-received', error)
+    recievedError.value = true
+  }
 })
+
+watch(
+  filterParamMap,
+  (newFilters) => {
+    try {
+      emit('filter-change', { ...newFilters })
+    } catch (error) {
+      emit('error-received', error)
+      recievedError.value = true
+    }
+  },
+  { deep: true },
+)
+
+async function onCompanyValueChange(value: string) {
+  try {
+    chosenCompany.value = value
+    chosenOffice.value = ''
+    chosenDivision.value = ''
+    chosenDepartment.value = ''
+    chosenGroup.value = ''
+
+    companyOffices.value = await getOffices(value)
+    officeDivisions.value = []
+    divisionDepartments.value = []
+    departmentGroups.value = []
+  } catch (error: any) {
+    emit('error-received', error)
+    recievedError.value = true
+  }
+}
+
+async function onOfficeValueChange(value: string) {
+  try {
+    chosenOffice.value = value
+    chosenDivision.value = ''
+    chosenDepartment.value = ''
+    chosenGroup.value = ''
+
+    officeDivisions.value = await getDivisions(value)
+    divisionDepartments.value = []
+    departmentGroups.value = []
+  } catch (error: any) {
+    emit('error-received', error)
+    recievedError.value = true
+  }
+}
+
+async function onDivisionValueChange(value: string) {
+  try {
+    chosenDivision.value = value
+    chosenDepartment.value = ''
+    chosenGroup.value = ''
+
+    divisionDepartments.value = await getDepartments(value)
+    departmentGroups.value = []
+  } catch (error: any) {
+    emit('error-received', error)
+    recievedError.value = true
+  }
+}
+
+async function onDepartmentValueChange(value: string) {
+  try {
+    chosenDepartment.value = value
+    departmentGroups.value = await getGroups(value)
+  } catch (error: any) {
+    emit('error-received', error)
+    recievedError.value = true
+  }
+}
+
+async function onGroupValueChange(value: string) {
+  try {
+    chosenGroup.value = value
+  } catch (error: any) {
+    emit('error-received', error)
+    recievedError.value = true
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-wrap gap-10 font-light">
-    <div class="">
-      <label class="block">Įmonė:</label>
-      <select
-        class="border rounded-sm w-55 border-gray-300 h-6 text-gray-500"
-        v-model="chosenCompany"
-        @change="onCompanyValueChange()"
-      >
-        <option value="" disabled selected>Filtruoti įmones...</option>
-        <option v-for="company in companies" :value="company.id">
-          {{ company.name }}
-        </option>
-      </select>
-    </div>
-    <div>
-      <label class="block">Ofisas:</label>
-      <select
-        class="border rounded-sm w-55 border-gray-300 h-6 text-gray-500"
-        v-model="chosenOffice"
-        @change="onOfficeValueChange()"
-      >
-        <option value="" disabled selected>Filtruoti ofisus...</option>
-        <option v-for="office in companyOffices" :value="office.expand?.office_id.id">
-          {{ office.expand?.office_id.name }}
-        </option>
-      </select>
-    </div>
-    <div>
-      <label class="block"> Padalinys: </label>
-      <select
-        class="border rounded-sm w-55 border-gray-300 h-6 text-gray-500"
-        v-model="chosenDivision"
-        @change="onDivisionValueChange()"
-      >
-        <option value="" disabled selected>Filtruoti padalinius...</option>
-        <option v-for="division in officeDivisions" :value="division.expand?.division_id.id">
-          {{ division.expand?.division_id.name }}
-        </option>
-      </select>
-    </div>
+    <FilterSelect
+      label="Įmonė"
+      :options="mappedCompanies"
+      :placeholder="'Filtruoti įmones...'"
+      v-model="chosenCompany"
+      :isDisabled="recievedError"
+      @update:modelValue="onCompanyValueChange"
+    />
 
-    <div>
-      <label class="block"> Skyrius: </label>
-      <select
-        class="border rounded-sm w-65 border-gray-300 h-6 text-gray-500"
-        v-model="chosenDepartment"
-        @change="onDepartmentValueChange()"
-      >
-        <option value="" disabled selected>Filtruoti skyrius...</option>
-        <option
-          v-for="department in divisionDepartments"
-          :value="department.expand?.department_id.id"
-        >
-          {{ department.expand?.department_id.name }}
-        </option>
-      </select>
-    </div>
-    <div>
-      <label class="block"> Grupė: </label>
+    <FilterSelect
+      label="Ofisas"
+      :options="mappedOffices"
+      :placeholder="'Filtruoti ofisus...'"
+      v-model="chosenOffice"
+      :isDisabled="recievedError"
+      @update:modelValue="onOfficeValueChange"
+    />
 
-      <select
-        class="border rounded-sm w-55 border-gray-300 h-6 text-gray-500"
-        v-model="chosenGroup"
-      >
-        <option value="" disabled selected>Filtruoti grupes...</option>
-        <option v-for="group in departmentGroups" :value="group.expand?.group_id.id">
-          {{ group.expand?.group_id.name }}
-        </option>
-      </select>
-    </div>
+    <FilterSelect
+      label="Padalinys"
+      :options="mappedDivisions"
+      :placeholder="'Filtruoti padalinius...'"
+      v-model="chosenDivision"
+      :isDisabled="recievedError"
+      @update:modelValue="onDivisionValueChange"
+    />
+
+    <FilterSelect
+      label="Skyrius"
+      :options="mappedDepartments"
+      :placeholder="'Filtruoti skyrius...'"
+      v-model="chosenDepartment"
+      :isDisabled="recievedError"
+      @update:modelValue="onDepartmentValueChange"
+    />
+
+    <FilterSelect
+      label="Grupė"
+      :options="mappedGroups"
+      :placeholder="'Filtruoti grupes...'"
+      v-model="chosenGroup"
+      :isDisabled="recievedError"
+      @update:modelValue="onGroupValueChange"
+    />
   </div>
 </template>

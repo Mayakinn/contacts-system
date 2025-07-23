@@ -14,7 +14,20 @@ const props = defineProps({
 
 const emit = defineEmits(['page-change'])
 
+watch([() => props.currentPage, () => props.totalPages], () => {
+  calculatePages()
+})
+
+function calculatePages() {
+  if (props.currentPage > props.totalPages) {
+    changePage(props.totalPages)
+  }
+}
+
 const changePage = (page: number) => {
+  if (page < 1 || page > props.totalPages) {
+    return
+  }
   emit('page-change', page)
 }
 

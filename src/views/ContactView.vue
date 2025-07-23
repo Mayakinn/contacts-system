@@ -22,45 +22,38 @@ const notifs = useNotificationStore()
 const currentListType = shallowRef<Component>(ContactCardList)
 const empty = ref<boolean>(true)
 const loading = ref<boolean>(true)
-const currentPage = ref<number>(1)
-const filterString = ref<string>('')
-const searchTerm = ref<string>('')
-const searchAndFilterParamString = ref<string>('')
 
 async function loadData() {
   try {
-    const result = await getContacts(
-      selectedOption.value,
-      currentPage.value,
-      searchAndFilterParamString.value,
-    )
+    const result = await getContacts(contactsPerPage.value)
 
-    if (result != null) {
-      const [data, total, pages] = result
-      contacts.value = data
-      totalItems.value = total
-      loading.value = false
-
-      totalPages.value = pages
-      if (totalItems.value == undefined || totalItems.value == 0) {
-        empty.value = true
-        notifs.addNotification('Kontaktų sąrašas tusčias!', NotificationType.danger)
-        return
-      } else if (totalItems.value > 0) {
-        empty.value = false
-        notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
-      }
-    } else {
-      loading.value = false
+    if (!result) {
       empty.value = true
       contacts.value = []
       totalItems.value = 0
       totalPages.value = 0
-
       notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.danger)
+      return
+    }
+
+    const [data, total, pages] = result
+    contacts.value = data
+    totalItems.value = total
+
+    totalPages.value = pages
+    if (totalItems.value == undefined || totalItems.value == 0) {
+      empty.value = true
+      notifs.addNotification('Kontaktų sąrašas tusčias!', NotificationType.danger)
+      return
+    } else if (totalItems.value > 0) {
+      empty.value = false
+      notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
+      return
     }
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -89,28 +82,21 @@ function onPageChange(page: number) {
   loadData()
 }
 
-function onSearchTermChange(newQuery: string) {
-  searchTerm.value = newQuery
-  updateSearchAndFilterParam()
-}
-
-function onFilterChange(filterParamString: string) {
-  filterString.value = filterParamString
-  updateSearchAndFilterParam()
-}
-
-function updateSearchAndFilterParam() {
-  if (filterString.value != '' && searchTerm.value != '') {
-    searchAndFilterParamString.value = `(${filterString.value} && ${searchTerm.value})`
-  } else if (filterString.value != '') {
-    searchAndFilterParamString.value = filterString.value
-  } else if (searchTerm.value != '') {
-    searchAndFilterParamString.value = searchTerm.value
-  } else {
-    searchAndFilterParamString.value = ''
-  }
+function onFilterChange(filterParamString: Record<string, string>) {
+  filterString.value = combinedFilterParam(filterParamString)
   currentPage.value = 1
   loadData()
+}
+
+function handleFilterError(errorMessage: any) {
+  notifs.addNotification(errorMessage, NotificationType.danger)
+}
+
+function combinedFilterParam(filterParamString: Record<string, string>) {
+  const filterEntries = Object.entries(filterParamString)
+  return filterEntries.length > 0
+    ? `(${filterEntries.map(([key, value]) => `${key}='${value}'`).join(' && ')})`
+    : ''
 }
 
 onMounted(async () => {
@@ -123,8 +109,8 @@ onMounted(async () => {
     <p class="text-6xl font-light">Kontaktų sistema</p>
     <div class="w-full mt-4">
       <div class="relative flex items-center">
-        <Search @query-change="onSearchTermChange" />
-        <ItemsPerPage :TotalItems="totalItems" @number-change="onNumberChange" />
+        <Search />
+        <ItemsPerPage :totalItems="totalItems" @number-change="onNumberChange" :active="empty" />
         <button
           @click="changeListType()"
           class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
@@ -136,7 +122,7 @@ onMounted(async () => {
     <p class="my-3">
       Iš viso rasta: <strong> {{ totalItems }} kontaktų</strong>
     </p>
-    <Filter @filter-change="onFilterChange" />
+    <Filter @filter-change="onFilterChange" @error-received="handleFilterError" />
   </div>
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
