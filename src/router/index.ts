@@ -262,6 +262,9 @@ router.beforeEach((to, from) => {
   ) {
     return { name: 'login' }
   }
+  if (  auth.User?.username != 'admin' && to.name == 'admin'){
+    return { name: 'contacts'}
+  }
 })
 
 export default router

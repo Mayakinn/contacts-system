@@ -3,29 +3,29 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { computed, ref, watchEffect } from 'vue'
 import type { User } from '@/typings/interface/User'
-import { checkEmailAvailability, updateAdmin } from '@/services/adminService'
+import {  updateAdmin } from '@/services/adminService'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
+import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
 
 const schema = yup.object({
   email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
   name: yup
     .string()
     .required('Neįvestas vardas')
-    .min(4, 'Vardas per trumpas. Min. 4 simboliai')
     .max(30, 'Vardas per ilgas. Max. 30 simboliai'),
+
 })
 
 const props = defineProps<{
   currentAdmin: User | null
-  users: User[]
 }>()
 
 const emit = defineEmits(['close-pressed'])
 
 const fileTooBig = ref<boolean>(false)
 
-const { values, defineField, errors, handleSubmit } = useForm({
+const { defineField, errors, handleSubmit } = useForm({
   validationSchema: schema,
 })
 
@@ -49,38 +49,22 @@ function handleFileUpload(event: Event) {
   }
 }
 
-async function updateAdminInfo() {
-  try {
-    if (props.currentAdmin?.id != null) {
-      const result = await updateAdmin(formData, props.currentAdmin?.id)
-      if (result != null) {
-        notifs.addNotification('Adminas atnaujintas sėkmingai!', NotificationType.success)
-        emit('close-pressed')
-      }
-    }
-  } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
-    emit('close-pressed')
-  }
-}
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = handleSubmit(async () => {
   try {
-    const response = await checkEmailAvailability(values.email)
-
-    if (response.totalItems > 0) {
-      isEmailTaken.value = true
+    const currentSelectedAdmin = props.currentAdmin
+    if (!currentSelectedAdmin?.permissions_id) {
       return
     }
-    const currentAdmin = props.currentAdmin
-    if (!currentAdmin?.permissions_id) {
-      return
-    }
+    const emailChanged = email.value !== currentSelectedAdmin.email
+
+    if (emailChanged) {
     formData.append('email', email.value)
+    }
 
     formData.append('name', name.value)
 
-    formData.append('permissions_id', currentAdmin.permissions_id)
+    formData.append('permissions_id', currentSelectedAdmin.permissions_id)
 
     if (selectedFile.value != null) {
       formData.append('avatar', selectedFile.value)
@@ -106,11 +90,25 @@ const fileHasBeenUploaded = computed(() => {
   return selectedFile.value?.name ? selectedFile.value?.name : 'No photo uploaded.'
 })
 
+async function updateAdminInfo() {
+  try {
+    if (props.currentAdmin?.id != null) {
+      const result = await updateAdmin(formData, props.currentAdmin?.id)
+      if (result != null) {
+        notifs.addNotification('Adminas atnaujintas sėkmingai!', NotificationType.success)
+        emit('close-pressed')
+      }
+    }
+  } catch (error: any) {
+    notifs.addNotification(error, NotificationType.danger)
+    emit('close-pressed')
+  }
+}
 watchEffect(() => {
   if (props.currentAdmin) {
     const p = props.currentAdmin
-    email.value = p.email ?? false
-    name.value = p.name ?? false
+    email.value = p.email ?? ''
+    name.value = p.name ?? ''
   }
 })
 </script>
@@ -129,6 +127,7 @@ watchEffect(() => {
               placeholder="Įveskite vardą..."
               v-model="name"
               maxlength="30"
+              :disabled="currentAdmin?.name == 'Admin'"
               v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
             />
@@ -193,4 +192,6 @@ watchEffect(() => {
       </button>
     </form>
   </div>
+    <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)"/>
+
 </template>

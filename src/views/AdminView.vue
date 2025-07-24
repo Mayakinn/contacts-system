@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import AdminTableList from '@/components/adminComponents/AdminTableList.vue'
 import AdminCreateForm from '@/components/formComponents/adminFormComponents/AdminCreateForm.vue'
+import AdminDeleteForm from '@/components/formComponents/adminFormComponents/AdminDeleteForm.vue'
 import AdminEditDetailsForm from '@/components/formComponents/adminFormComponents/AdminEditDetailsForm.vue'
 import AdminEditPermissionsForm from '@/components/formComponents/adminFormComponents/AdminEditPermissionsForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
@@ -72,6 +73,12 @@ function openAdminEditPermissionsForm(user: User) {
   OpenModal()
 }
 
+function openDeleteAdminForm(user: User) {
+  currentForm.value = AdminDeleteForm
+  currentAdmin.value = user
+  OpenModal()
+}
+
 function openAdminEditForm(user: User) {
   currentForm.value = AdminEditDetailsForm
   currentAdmin.value = user
@@ -126,6 +133,7 @@ onMounted(async () => {
         :users="users"
         @edit-permissions="openAdminEditPermissionsForm"
         @edit-admin="openAdminEditForm"
+        @delete-admin="openDeleteAdminForm"
       />
       <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
     </div>
@@ -135,7 +143,6 @@ onMounted(async () => {
       @close-pressed="closeModalAfterForm"
       :is="currentForm"
       :currentAdmin="currentAdmin"
-      :users="users"
     ></component>
   </FormModal>
 </template>

@@ -8,13 +8,17 @@ const props = defineProps<{
   users: User[] | undefined
 }>()
 
-const emit = defineEmits(['edit-permissions', 'edit-admin'])
+const emit = defineEmits(['edit-permissions', 'edit-admin', 'delete-admin'])
 
 function editPermissionsPressed(user: User) {
   emit('edit-permissions', user)
 }
 function editAdminPressed(user: User) {
   emit('edit-admin', user)
+}
+
+function deleteAdminPressed(user: User) {
+  emit('delete-admin', user)
 }
 
 const router = useRouter()
@@ -36,6 +40,7 @@ const router = useRouter()
             :user="user"
             @edit-permissions="editPermissionsPressed"
             @edit-admin="editAdminPressed"
+            @delete-admin="deleteAdminPressed"
           />
         </tr>
       </tbody>
