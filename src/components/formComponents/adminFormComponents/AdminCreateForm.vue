@@ -4,26 +4,24 @@ import { useNotificationStore } from '@/stores/notificationStore';
 import { NotificationType } from '@/typings/interface/NotificationType';
 import { computed, ref } from 'vue';
 import { randomPassword } from 'secure-random-password';
-import validator from 'email-validator'
 import type { User } from '@/typings/interface/User';
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
+import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue';
 
 const props = defineProps<{
   currentAdmin: User | null
-  users: User[]
 }>()
 
 const schema = yup.object({
   email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
   name: yup
     .string()
-    .required('Neįvestas el.paštas')
-    .min(4, 'Vardas per trumpas. Min. 4 simboliai')
+    .required('Įveskite vardą')
     .max(30, 'Vardas per ilgas. Max. 30 simboliai'),
 })
 
-const { values, defineField, errors } = useForm({
+const {  defineField, errors , handleSubmit} = useForm({
   validationSchema: schema,
 })
 
@@ -42,7 +40,6 @@ const deleteStructures = ref<boolean>(false)
 const selectedFile = ref<File | null>(null);
 const password = ref<string>('password')
 const formData = new FormData()
-const emailErrorMessage = ref<string>('')
 const showTempPassword = ref<boolean>(false)
 
 const fileTooBig = ref<boolean>(false)
@@ -61,24 +58,8 @@ async function createNewAdmin(permissions : object){
   }
 }
 
-function validateForm(){
-  if (email.value == '' || name.value == ''){
-    return
-  }   
+const onSubmit = handleSubmit(async (values) => {
   password.value = randomPassword({ length: 12, characters: 'alphanumeric' });
-  if(validator.validate(email.value)== false){
-    emailErrorMessage.value = 'Įveskita validų el.paštą!'
-    return
-  }
-  const result = props.users.filter(obj =>
-  Object.values(obj).some(val =>
-    String(val).toLowerCase().includes(email.value.toLowerCase())
-  )
-);
-  if(result.length > 0){
-    emailErrorMessage.value = 'Paštas jau egzistuoja!'
-    return;
-  }
   formData.append('email',email.value)
   formData.append('name', name.value)
   if(selectedFile.value != null){formData.append('avatar',selectedFile.value)}
@@ -95,7 +76,7 @@ function validateForm(){
     delete_structure: deleteStructures.value
   }
   createNewAdmin(permissions)
-}
+})
 
 
 const emit = defineEmits(['close-pressed'])
@@ -131,7 +112,7 @@ const fileHasBeenUploaded = computed(() => {
       <h1 class="text-xl">Laikinas slaptažodis:</h1>
       <p class="mt-10 text-gray-600">Laikinas paskyros slaptažodis : {{ password }}  </p>
     </div>
-    <form @submit.prevent="validateForm" v-if="!showTempPassword">
+    <form @submit.prevent="onSubmit" v-if="!showTempPassword">
       <h1 class="text-xl">Pridėti naują admin paskyrą:</h1>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 mt-10 pr-50 justify-items-stretch">
         <div class="pr-10 space-y-3 pb-50">
@@ -146,6 +127,7 @@ const fileHasBeenUploaded = computed(() => {
               v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
             />
+            <p>{{ errors.name }}</p>
           </div>
           <div>
             <label for="email" class="block text-gray-500 text-sm">Elektroninis paštas:</label>
@@ -170,7 +152,7 @@ const fileHasBeenUploaded = computed(() => {
               autocomplete="email"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
             />
-            {{ emailErrorMessage }}
+            {{ errors.email }}
           </div>
           <div class="flex flex-col items-center justify-center mt-10">
             <label class="bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800 w-full h-6 text-center pt-1"  id="myFile" title="Upload image file" for="inputImage">
@@ -228,5 +210,6 @@ const fileHasBeenUploaded = computed(() => {
       </button @click=submit>
     </form>
   </div>
+  <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)"/>
 
 </template>

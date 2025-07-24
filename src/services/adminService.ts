@@ -27,7 +27,7 @@ instance.interceptors.response.use(undefined, (error) => {
     throw new Error('Autorizacijos klaida, prisijunkite!')
   }
   if (status === 400) {
-    throw new Error('Paštas užimtas!')
+    throw new Error('Paštas užimtas ir/arba nevalidus el.paštas!')
   }
   throw new Error('Serverio klaida!')
 })
@@ -51,18 +51,30 @@ const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number
 }
 
 const createAdmin = async (permissions: object, formData: FormData) => {
+  let permissionId : string = ''
+  let noErrors : boolean = false
   try {
     const firstResponse = await instance.post(`/api/collections/user_permissions/records`, {
-      permissions,
+      ...permissions,
+      
     })
-    if (firstResponse != null) {
-      const permissionId = firstResponse.data.id
-      formData.append('permissions_id', permissionId)
-      const secondResponse = await instance.post(`/api/collections/users/records`, formData)
-      return secondResponse
-    }
+    permissionId = firstResponse.data.id
+    formData.append('permissions_id', permissionId)
+    await instance.post(`/api/collections/users/records`, formData)
+    noErrors = true
+
+    return
   } catch (error) {
     return Promise.reject(error)
+  }
+  finally{
+    if (!noErrors && permissionId != ''){
+      try{
+      await instance.delete(`/api/collections/user_permissions/records/${permissionId}`)
+      }catch (error){
+      Promise.reject(error)
+    }
+    } 
   }
 }
 
@@ -86,17 +98,27 @@ const updateAdmin = async (formData: FormData, id: string) => {
   }
 }
 
-const checkEmailAvailability = async (email: string) => {
-  try {
-    const response = await instance.get(`/api/collections/users/records`, {
-      params: {
-        filter: `email ~ "${email}"`,
-      },
-    })
-    return response.data
-  } catch (error: any) {
+const deleteAdmin = async( admin : User ) => {
+  let adminDeleted = false
+  try{
+    await instance.delete(`/api/collections/users/records/${admin.id}`)
+    adminDeleted = true
+
+  } catch (error) {
     return Promise.reject(error)
+  }
+  finally {
+    if(adminDeleted){
+      try {
+        await instance.delete(`/api/collections/user_permissions/records/${admin.permissions_id}`)
+        return
+      }
+      catch (error){
+        return Promise.reject(error)
+      }
+    }
   }
 }
 
-export { getAdmins, createAdmin, updateAdminPermissions, updateAdmin, checkEmailAvailability }
+
+export { getAdmins, createAdmin, updateAdminPermissions, updateAdmin, deleteAdmin }

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
+import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
 import { updateAdminPermissions } from '@/services/adminService'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import type { User } from '@/typings/interface/User'
-import { ref, toRef, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 const props = defineProps<{
   currentAdmin: User | null
-  users: User[]
 }>()
 
 const editCreateContacts = ref<boolean>(false)
@@ -113,4 +113,6 @@ async function updateSelectedAdminPermissions(permissions: object) {
       </button>
     </form>
   </div>
+    <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)"/>
+
 </template>
