@@ -2,9 +2,20 @@
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { computed, ref, watchEffect } from 'vue'
-import validator from 'email-validator'
 import type { User } from '@/typings/interface/User'
-import { updateAdmin } from '@/services/adminService'
+import { checkEmailAvailability, updateAdmin } from '@/services/adminService'
+import { useForm } from 'vee-validate'
+import * as yup from 'yup'
+
+const schema = yup.object({
+  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
+  name: yup
+    .string()
+    .required('Neįvestas vardas')
+    .min(4, 'Vardas per trumpas. Min. 4 simboliai')
+    .max(30, 'Vardas per ilgas. Max. 30 simboliai'),
+})
+
 const props = defineProps<{
   currentAdmin: User | null
   users: User[]
@@ -14,12 +25,17 @@ const emit = defineEmits(['close-pressed'])
 
 const fileTooBig = ref<boolean>(false)
 
+const { values, defineField, errors, handleSubmit } = useForm({
+  validationSchema: schema,
+})
+
+const [email, emailAttrs] = defineField('email')
+const [name, nameAttrs] = defineField('name')
+
 const notifs = useNotificationStore()
-const email = ref<string>('')
-const name = ref<string>('')
 const selectedFile = ref<File | null>(null)
 const formData = new FormData()
-const emailErrorMessage = ref<string>('')
+const isEmailTaken = ref<boolean>(false)
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
@@ -48,46 +64,36 @@ async function updateAdminInfo() {
   }
 }
 
-function validateForm() {
-  if (props.currentAdmin?.permissions_id == null) {
-    return
-  }
-  const result = props.users.filter((obj) =>
-    Object.values(obj).some((val) => String(val).toLowerCase().includes(email.value.toLowerCase())),
-  )
-  if (result.length > 0 && email.value != '') {
-    emailErrorMessage.value = 'Paštas jau egzistuoja!'
-    return
-  }
-  if (email.value != '') {
-    if (validator.validate(email.value) == false) {
-      emailErrorMessage.value = 'Įveskita validų el.paštą!'
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    const response = await checkEmailAvailability(values.email)
+
+    if (response.totalItems > 0) {
+      isEmailTaken.value = true
       return
-    } else {
-      formData.append('email', email.value.trim())
     }
-  }
-  if (name.value != '') {
-    formData.append('name', name.value.trim())
-  }
-  formData.append('permissions_id', props.currentAdmin?.permissions_id)
-  if (selectedFile.value != null) {
-    formData.append('avatar', selectedFile.value)
-  }
+    const currentAdmin = props.currentAdmin
+    if (!currentAdmin?.permissions_id) {
+      return
+    }
+    formData.append('email', email.value)
 
-  updateAdminInfo()
-}
+    formData.append('name', name.value)
 
-const nameExisted = computed(() => {
-  return props.currentAdmin?.name != '' ? props.currentAdmin?.name : 'Įveskite vardą...'
+    formData.append('permissions_id', currentAdmin.permissions_id)
+
+    if (selectedFile.value != null) {
+      formData.append('avatar', selectedFile.value)
+    }
+
+    updateAdminInfo()
+  } catch (error: any) {
+    notifs.addNotification('Įvyko klaida validuojant duomenis', NotificationType.warning)
+  }
 })
 
 const avatarExisted = computed(() => {
   return props.currentAdmin?.avatar != '' ? true : false
-})
-
-const emailExisted = computed(() => {
-  return props.currentAdmin?.email != '' ? props.currentAdmin?.email : 'Įveskite el.pašto adresą...'
 })
 
 const fileHasBeenUploaded = computed(() => {
@@ -99,11 +105,19 @@ const fileHasBeenUploaded = computed(() => {
   }
   return selectedFile.value?.name ? selectedFile.value?.name : 'No photo uploaded.'
 })
+
+watchEffect(() => {
+  if (props.currentAdmin) {
+    const p = props.currentAdmin
+    email.value = p.email ?? false
+    name.value = p.name ?? false
+  }
+})
 </script>
 
 <template>
   <div class="sm:items-start m-5">
-    <form @submit.prevent="validateForm">
+    <form @submit.prevent="onSubmit">
       <h1 class="text-xl">Redaguoti paskyrą:</h1>
       <div class="mt-10 justify-items-stretch">
         <div class="space-y-3 pb-10">
@@ -114,8 +128,11 @@ const fileHasBeenUploaded = computed(() => {
               id="name"
               placeholder="Įveskite vardą..."
               v-model="name"
+              maxlength="30"
+              v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
             />
+            <p>{{ errors.name }}</p>
           </div>
           <div>
             <label for="email" class="block text-gray-500 text-sm">Elektroninis paštas:</label>
@@ -135,11 +152,13 @@ const fileHasBeenUploaded = computed(() => {
               type="email"
               id="email"
               v-model="email"
+              v-bind="emailAttrs"
               placeholder="Įveskite el. pašto adresą..."
               autocomplete="email"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
             />
-            {{ emailErrorMessage }}
+            <p>{{ errors.email }}</p>
+            <p v-show="isEmailTaken">El.paštas užmimtas</p>
           </div>
           <div class="flex flex-col items-center justify-center mt-10">
             <label
