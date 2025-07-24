@@ -81,6 +81,12 @@ function openAdminEditForm(user: User) {
 function closeModalAfterForm(flag: boolean) {
   formModalActive.value = false
   currentAdmin.value = null
+
+  if (flag) {
+    return
+  } else {
+    loadData()
+  }
 }
 
 function OpenModal() {

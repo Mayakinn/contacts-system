@@ -6,11 +6,30 @@ import { computed, ref } from 'vue';
 import { randomPassword } from 'secure-random-password';
 import validator from 'email-validator'
 import type { User } from '@/typings/interface/User';
+import { useForm } from 'vee-validate'
+import * as yup from 'yup'
 
 const props = defineProps<{
   currentAdmin: User | null
   users: User[]
 }>()
+
+const schema = yup.object({
+  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
+  name: yup
+    .string()
+    .required('Neįvestas el.paštas')
+    .min(4, 'Vardas per trumpas. Min. 4 simboliai')
+    .max(30, 'Vardas per ilgas. Max. 30 simboliai'),
+})
+
+const { values, defineField, errors } = useForm({
+  validationSchema: schema,
+})
+
+const [email, emailAttrs] = defineField('email')
+const [name, nameAttrs] = defineField('name')
+
 
 const editCreateContacts = ref<boolean>(false)
 const deleteContacts = ref<boolean>(false)
@@ -20,8 +39,6 @@ const createEditOffices = ref<boolean>(false)
 const deleteOffices = ref<boolean>(false)
 const createEditStructures = ref<boolean>(false)
 const deleteStructures = ref<boolean>(false)
-const email = ref<string>('')
-const name = ref<string>('')
 const selectedFile = ref<File | null>(null);
 const password = ref<string>('password')
 const formData = new FormData()
@@ -124,8 +141,9 @@ const fileHasBeenUploaded = computed(() => {
               type="name"
               id="name"
               placeholder="Įveskite vardą..."
-              required
               v-model="name"
+              maxlength="30"
+              v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
             />
           </div>
@@ -147,9 +165,9 @@ const fileHasBeenUploaded = computed(() => {
               type="email"
               id="email"
               v-model="email"
-              placeholder="Įveskite el.pašto adresą..."
+              v-bind="emailAttrs"
+              placeholder="Įveskite el. pašto adresą..."
               autocomplete="email"
-              required
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
             />
             {{ emailErrorMessage }}

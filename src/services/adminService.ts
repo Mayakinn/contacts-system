@@ -20,11 +20,14 @@ instance.interceptors.response.use(undefined, (error) => {
   if (status === 404) {
     throw new Error('adminas/-ai nerastas/-i!')
   }
+  if (status === 403) {
+    throw new Error('Neturite tam teisių!')
+  }
   if (status === 401) {
     throw new Error('Autorizacijos klaida, prisijunkite!')
   }
   if (status === 400) {
-    throw new Error('Autorizacijos klaida, neturite tam teisių!')
+    throw new Error('Paštas užimtas!')
   }
   throw new Error('Serverio klaida!')
 })
@@ -83,4 +86,17 @@ const updateAdmin = async (formData: FormData, id: string) => {
   }
 }
 
-export { getAdmins, createAdmin, updateAdminPermissions, updateAdmin }
+const checkEmailAvailability = async (email: string) => {
+  try {
+    const response = await instance.get(`/api/collections/users/records`, {
+      params: {
+        filter: `email ~ "${email}"`,
+      },
+    })
+    return response.data
+  } catch (error: any) {
+    return Promise.reject(error)
+  }
+}
+
+export { getAdmins, createAdmin, updateAdminPermissions, updateAdmin, checkEmailAvailability }
