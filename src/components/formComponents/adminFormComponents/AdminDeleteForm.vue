@@ -11,16 +11,22 @@ const props = defineProps<{
 const notif = useNotificationStore()
 
 async function deleteSelectedAdmin(){
-try{
-    if(props.currentAdmin != null){
-        await deleteAdmin(props.currentAdmin)
-        notif.addNotification('Sėkmingai panaikinta paskyra', NotificationType.success)
-        emit('close-pressed')
+    if (props.currentAdmin?.username == 'admin' ){
+        notif.addNotification("Negalima panaikinti šios paskyros!", NotificationType.danger)
+        emit('close-pressed', true)
+        return
     }
-} catch (error : any){
-    notif.addNotification(error.message, NotificationType.danger)
-    emit('close-pressed', true)
-}
+
+    try{
+        if(props.currentAdmin != null){
+            await deleteAdmin(props.currentAdmin)
+            notif.addNotification('Sėkmingai panaikinta paskyra', NotificationType.success)
+            emit('close-pressed')
+        }
+    } catch (error : any){
+        notif.addNotification(error.message, NotificationType.danger)
+        emit('close-pressed', true)
+    }
 }
 
 </script>

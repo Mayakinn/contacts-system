@@ -15,7 +15,7 @@ const emit = defineEmits(['edit-permissions', 'edit-admin', 'delete-admin'])
   >
     {{ props.user?.name }}
   </th>
-  <td class="px-6 py-4">{{ props.user?.email }}</td>
+  <td class="px-6 py-4 whitespace-nowrap text-ellipsis overflow-hidden" :title="`${props.user?.email}`">{{ props.user?.email }}</td>
   <td class="px-6 py-4 space-x-5 text-white font-light">
     <button
       class="bg-button-blue rounded-3xl p-1 px-3 hover:bg-blue-500"

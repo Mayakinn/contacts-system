@@ -1,4 +1,4 @@
-import type { Contact } from '@/typings/interface/Contact'
+import { useAuthStore } from '@/stores/authStore'
 import type { User } from '@/typings/interface/User'
 import axios from 'axios'
 
@@ -32,6 +32,14 @@ instance.interceptors.response.use(undefined, (error) => {
   throw new Error('Serverio klaida!')
 })
 
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
+})
+
 const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number, number]> => {
   try {
     const response = await instance.get(`/api/collections/users/records`, {
@@ -51,6 +59,7 @@ const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number
 }
 
 const createAdmin = async (permissions: object, formData: FormData) => {
+
   let permissionId : string = ''
   let noErrors : boolean = false
   try {
