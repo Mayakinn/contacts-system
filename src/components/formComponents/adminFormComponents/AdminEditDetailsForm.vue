@@ -23,7 +23,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['close-pressed'])
 
-const fileTooBig = ref<boolean>(false)
 
 const { defineField, errors, handleSubmit } = useForm({
   validationSchema: schema,
@@ -36,16 +35,28 @@ const notifs = useNotificationStore()
 const selectedFile = ref<File | null>(null)
 const formData = new FormData()
 const isEmailTaken = ref<boolean>(false)
+const MAXFILESIZE = 5242880
+const isFileAnImage = ref<boolean>(true)
+const isFileSizeOk = ref<boolean>(true)
+
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
   if (target && target.files && target.files.length > 0) {
-    if (target.files[0].size <= 5242880) {
-      selectedFile.value = target.files[0]
-      fileTooBig.value = false
-    } else {
-      fileTooBig.value = true
+    if (target.files[0].name.match(/\.(jpg|jpeg|png|gif)$/)) {
+        isFileAnImage.value = true
+        if (target.files[0].size <= MAXFILESIZE) {
+          selectedFile.value = target.files[0]
+          isFileSizeOk.value = true
+      }
+      else{
+        isFileSizeOk.value = false
+      }
     }
+    else{
+      isFileAnImage.value = false
+    }
+
   }
 }
 
@@ -81,8 +92,11 @@ const avatarExisted = computed(() => {
 })
 
 const fileHasBeenUploaded = computed(() => {
-  if (fileTooBig.value) {
+  if (isFileSizeOk.value == false) {
     return 'File is too big (Max. 5MB)'
+  }
+    if (isFileAnImage.value == false) {
+    return 'File is not an image.'
   }
   if (avatarExisted.value == true && selectedFile.value == null) {
     return props.currentAdmin?.avatar
@@ -101,7 +115,7 @@ async function updateAdminInfo() {
     }
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
-    emit('close-pressed')
+    emit('close-pressed', true)
   }
 }
 watchEffect(() => {
@@ -127,7 +141,6 @@ watchEffect(() => {
               placeholder="Įveskite vardą..."
               v-model="name"
               maxlength="30"
-              :disabled="currentAdmin?.name == 'Admin'"
               v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
             />

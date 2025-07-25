@@ -27,8 +27,6 @@ const {  defineField, errors , handleSubmit} = useForm({
 
 const [email, emailAttrs] = defineField('email')
 const [name, nameAttrs] = defineField('name')
-
-
 const editCreateContacts = ref<boolean>(false)
 const deleteContacts = ref<boolean>(false)
 const createEditCompanies = ref<boolean>(false)
@@ -41,24 +39,24 @@ const selectedFile = ref<File | null>(null);
 const password = ref<string>('password')
 const formData = new FormData()
 const showTempPassword = ref<boolean>(false)
-
-const fileTooBig = ref<boolean>(false)
-
+const isFileAnImage = ref<boolean>(true)
+const isFileSizeOk = ref<boolean>(true)
+const MAXFILESIZE = 5242880
 const notifs = useNotificationStore()
+
+const emit = defineEmits(['close-pressed'])
 
 async function createNewAdmin(permissions : object){
   try{
-    const result = await createAdmin(permissions,formData)
-    if (result != null){
-      showTempPassword.value =true
-    }
+    await createAdmin(permissions,formData)
+    showTempPassword.value =true
   }catch (error : any){
     notifs.addNotification(error,NotificationType.danger)
-    emit('close-pressed')
+    emit('close-pressed', true)
   }
 }
 
-const onSubmit = handleSubmit(async (values) => {
+const onSubmit = handleSubmit(async () => {
   password.value = randomPassword({ length: 12, characters: 'alphanumeric' });
   formData.append('email',email.value)
   formData.append('name', name.value)
@@ -79,27 +77,37 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 
-const emit = defineEmits(['close-pressed'])
 
 
 function handleFileUpload(event: Event) {
-
-  const target = event.target as HTMLInputElement;
+  const target = event.target as HTMLInputElement
   if (target && target.files && target.files.length > 0) {
-    if(target.files[0].size <= 5242880){
-      selectedFile.value = target.files[0];
-      fileTooBig.value = false
+    if (target.files[0].name.match(/\.(jpg|jpeg|png|gif)$/)) {
+        isFileAnImage.value = true
+        if (target.files[0].size <= MAXFILESIZE) {
+          selectedFile.value = target.files[0]
+          isFileSizeOk.value = true
+      }
+      else{
+        isFileSizeOk.value = false
+      }
     }
     else{
-      fileTooBig.value = true
+      isFileAnImage.value = false
     }
+
   }
 }
 
-
 const fileHasBeenUploaded = computed(() => {
-  if(fileTooBig.value){
+  if (isFileSizeOk.value == false) {
     return 'File is too big (Max. 5MB)'
+  }
+    if (isFileAnImage.value == false) {
+    return 'File is not an image.'
+  }
+  if (isFileSizeOk.value == true && selectedFile.value == null) {
+    return props.currentAdmin?.avatar
   }
   return selectedFile.value?.name ? selectedFile.value?.name : 'No photo uploaded.'
 })

@@ -34,6 +34,22 @@ function formatData() {
   }
   updateSelectedAdminPermissions(permissions)
 }
+
+async function updateSelectedAdminPermissions(permissions: object) {
+  try {
+    if (props.currentAdmin?.permissions_id != null) {
+      const results = await updateAdminPermissions(permissions, props.currentAdmin?.permissions_id)
+      if (results != null) {
+        notifs.addNotification('Sėkmingai atnaujinti leidimai!', NotificationType.success)
+        emit('close-pressed')
+      }
+    }
+  } catch (error: any) {
+    notifs.addNotification(error, NotificationType.danger)
+    emit('close-pressed', true)
+  }
+}
+
 watchEffect(() => {
   if (props.currentAdmin?.expand?.permissions_id) {
     const p = props.currentAdmin.expand.permissions_id
@@ -47,20 +63,6 @@ watchEffect(() => {
     deleteStructures.value = p.delete_structure ?? false
   }
 })
-async function updateSelectedAdminPermissions(permissions: object) {
-  try {
-    if (props.currentAdmin?.permissions_id != null) {
-      const results = await updateAdminPermissions(permissions, props.currentAdmin?.permissions_id)
-      if (results != null) {
-        notifs.addNotification('Sėkmingai atnaujinti leidimai!', NotificationType.success)
-        emit('close-pressed')
-      }
-    }
-  } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
-    emit('close-pressed')
-  }
-}
 </script>
 
 <template>
