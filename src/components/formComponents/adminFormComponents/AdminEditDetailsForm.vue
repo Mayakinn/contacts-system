@@ -56,7 +56,6 @@ function handleFileUpload(event: Event) {
     else{
       isFileAnImage.value = false
     }
-
   }
 }
 
