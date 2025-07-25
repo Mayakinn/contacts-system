@@ -3,18 +3,15 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { computed, ref, watchEffect } from 'vue'
 import type { User } from '@/typings/interface/User'
-import {  updateAdmin } from '@/services/adminService'
+import { updateAdmin } from '@/services/adminService'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
+import { useAuthStore } from '@/stores/authStore'
 
 const schema = yup.object({
   email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
-  name: yup
-    .string()
-    .required('Neįvestas vardas')
-    .max(30, 'Vardas per ilgas. Max. 30 simboliai'),
-
+  name: yup.string().required('Neįvestas vardas').max(30, 'Vardas per ilgas. Max. 30 simboliai'),
 })
 
 const props = defineProps<{
@@ -22,7 +19,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['close-pressed'])
-
 
 const { defineField, errors, handleSubmit } = useForm({
   validationSchema: schema,
@@ -38,27 +34,24 @@ const isEmailTaken = ref<boolean>(false)
 const MAXFILESIZE = 5242880
 const isFileAnImage = ref<boolean>(true)
 const isFileSizeOk = ref<boolean>(true)
-
+const auth = useAuthStore()
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
   if (target && target.files && target.files.length > 0) {
     if (target.files[0].name.match(/\.(jpg|jpeg|png|gif)$/)) {
-        isFileAnImage.value = true
-        if (target.files[0].size <= MAXFILESIZE) {
-          selectedFile.value = target.files[0]
-          isFileSizeOk.value = true
-      }
-      else{
+      isFileAnImage.value = true
+      if (target.files[0].size <= MAXFILESIZE) {
+        selectedFile.value = target.files[0]
+        isFileSizeOk.value = true
+      } else {
         isFileSizeOk.value = false
       }
-    }
-    else{
+    } else {
       isFileAnImage.value = false
     }
   }
 }
-
 
 const onSubmit = handleSubmit(async () => {
   try {
@@ -69,7 +62,7 @@ const onSubmit = handleSubmit(async () => {
     const emailChanged = email.value !== currentSelectedAdmin.email
 
     if (emailChanged) {
-    formData.append('email', email.value)
+      formData.append('email', email.value)
     }
 
     formData.append('name', name.value)
@@ -78,6 +71,9 @@ const onSubmit = handleSubmit(async () => {
 
     if (selectedFile.value != null) {
       formData.append('avatar', selectedFile.value)
+    }
+    if (auth.User?.name == currentSelectedAdmin.name) {
+      await auth.userTokenRefresh()
     }
 
     updateAdminInfo()
@@ -94,7 +90,7 @@ const fileHasBeenUploaded = computed(() => {
   if (isFileSizeOk.value == false) {
     return 'File is too big (Max. 5MB)'
   }
-    if (isFileAnImage.value == false) {
+  if (isFileAnImage.value == false) {
     return 'File is not an image.'
   }
   if (avatarExisted.value == true && selectedFile.value == null) {
@@ -204,6 +200,5 @@ watchEffect(() => {
       </button>
     </form>
   </div>
-    <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)"/>
-
+  <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)" />
 </template>

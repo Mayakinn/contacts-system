@@ -67,6 +67,7 @@ const tokenRefresh = async () => {
     const response = await instance.post(
       `
 api/collections/users/auth-refresh`,
+{},
       {
         params: {
           expand: 'permissions_id',

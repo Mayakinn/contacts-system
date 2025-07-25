@@ -6,7 +6,7 @@ const DB_URL = import.meta.env.VITE_POCKETBASE_API
 const instance = axios.create({
   baseURL: DB_URL,
   timeout: 1000,
-  headers: { 'X-Custom-Header': 'foobar' },
+  headers: { Authorization: localStorage.getItem('token') },
 })
 
 instance.interceptors.response.use(undefined, (error) => {
@@ -27,6 +27,14 @@ instance.interceptors.response.use(undefined, (error) => {
   }
 
   return new Error('Serverio klaida!')
+})
+
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
 })
 
 const getContacts = async (
@@ -69,4 +77,14 @@ const getContact = async (employeeId: string): Promise<Contact | undefined> => {
   }
 }
 
-export { getContacts, getContact }
+const createContact = async (formData: FormData) => {
+  try {
+    await instance.post(`/api/collections/employees/records`, formData)
+
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getContacts, getContact, createContact }

@@ -13,6 +13,9 @@ import listImage from '../assets/list-icon.png'
 import Filter from '@/components/pageComponents/Filter.vue'
 import Search from '@/components/pageComponents/Search.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
+import { useAuthStore } from '@/stores/authStore'
+import FormModal from '@/components/modalComponents/FormModal.vue'
+import ContactCreateForm from '@/components/formComponents/contactFormComponents/ContactCreateForm.vue'
 
 const selectedOption = ref<number>(25)
 const contacts = ref<Contact[]>()
@@ -26,9 +29,14 @@ const currentPage = ref<number>(1)
 const filterString = ref<string>('')
 const searchTerm = ref<string>('')
 const searchAndFilterParamString = ref<string>('')
+const auth = useAuthStore()
+const currentContact = ref<Contact | null>(null)
+const currentForm = shallowRef<Component>()
+const formModalActive = ref<boolean>(false)
 
 async function loadData() {
   try {
+    loading.value = true
     const result = await getContacts(
       selectedOption.value,
       currentPage.value,
@@ -94,8 +102,10 @@ function onSearchTermChange(newQuery: string) {
   updateSearchAndFilterParam()
 }
 
-function onFilterChange(filterParamString: string) {
-  filterString.value = filterParamString
+function onFilterChange(filterParamString: Record<string, string>) {
+  filterString.value = combinedFilterParam(filterParamString)
+
+  currentPage.value = 1
   updateSearchAndFilterParam()
 }
 
@@ -111,6 +121,43 @@ function updateSearchAndFilterParam() {
   }
   currentPage.value = 1
   loadData()
+}
+
+function handleFilterError(errorMessage: any) {
+  notifs.addNotification(errorMessage, NotificationType.danger)
+}
+
+function combinedFilterParam(filterParamString: Record<string, string>) {
+  const filterEntries = Object.entries(filterParamString)
+  return filterEntries.length > 0
+    ? `(${filterEntries.map(([key, value]) => `${key}='${value}'`).join(' && ')})`
+    : ''
+}
+
+function closeModalAfterForm(flag: boolean) {
+  formModalActive.value = false
+  currentContact.value = null
+
+  if (flag) {
+    return
+  } else {
+    loadData()
+  }
+}
+
+function OpenModal() {
+  formModalActive.value = true
+}
+
+const closeModal = () => {
+  formModalActive.value = false
+  currentForm.value = undefined
+  currentContact.value = null
+}
+
+function openAdminCreateForm() {
+  currentForm.value = ContactCreateForm
+  OpenModal()
 }
 
 onMounted(async () => {
@@ -131,17 +178,38 @@ onMounted(async () => {
         >
           <img :src="image" />
         </button>
+        <button
+          v-show="auth.User?.expand?.permissions_id?.edit_employees == true"
+          @click="openAdminCreateForm"
+          class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="30" height="30">
+            <path
+              fill="white"
+              d="M10.75 5.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75v3.5h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5Z"
+            />
+          </svg>
+        </button>
       </div>
     </div>
     <p class="my-3">
       Iš viso rasta: <strong> {{ totalItems }} kontaktų</strong>
     </p>
-    <Filter @filter-change="onFilterChange" />
+    <Filter @filter-change="onFilterChange" @error-received="handleFilterError" />
   </div>
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
-  <div v-else>
-    <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
+  <div v-if="!loading && !empty" :key="currentListType + '-' + currentPage">
+    <component :is="currentListType" :contacts="contacts" class="mx-24 mt-10" />
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
+
+  <FormModal :isActive="formModalActive" @close-modal="closeModal">
+    <component
+      @close-pressed="closeModalAfterForm"
+      :is="currentForm"
+      :currentContact="currentContact"
+      :key="currentForm"
+    ></component>
+  </FormModal>
 </template>

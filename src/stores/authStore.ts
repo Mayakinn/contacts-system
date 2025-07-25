@@ -54,7 +54,8 @@ export const useAuthStore = defineStore('authContext', () => {
 
       if (response != null) {
         localStorage.setItem('token', response.token)
-        return response.record
+        User.value = response.record
+        return
       }
     } catch (error) {
       notif.addNotification(
@@ -69,7 +70,13 @@ export const useAuthStore = defineStore('authContext', () => {
   }
 
   onMounted(async () => {
-    User.value = await userTokenRefresh()
+    await userTokenRefresh()
   })
-  return { jwtToken: readonly(jwtToken), User: readonly(User), loginUser, logOutUser }
+  return {
+    jwtToken: readonly(jwtToken),
+    User: readonly(User),
+    loginUser,
+    logOutUser,
+    userTokenRefresh,
+  }
 })

@@ -115,6 +115,5 @@ watchEffect(() => {
       </button>
     </form>
   </div>
-    <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)"/>
-
+  <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)" />
 </template>
