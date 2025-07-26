@@ -20,6 +20,10 @@ const email = computed(() => {
 const phoneNumber = computed(() => {
   return props.contact?.phone_number ? props.contact.phone_number : '-'
 })
+
+const emit = defineEmits(['edit-contact', 'delete-contact'])
+
+
 </script>
 
 <template>
@@ -27,10 +31,8 @@ const phoneNumber = computed(() => {
     <div class="px-6 py-4">
       <div class="flex items-center">
         <img class="w-15 h-15 rounded-full mr-4" :src="image" />
-        <div
-          class="text-sm cursor-pointer"
-          @click="router.push({ name: 'contact', params: { id: props.contact?.id } })"
-        >
+        <div class="text-sm cursor-pointer"
+          @click="router.push({ name: 'contact', params: { id: props.contact?.id } })">
           <p class="text-gray-900 leading-none">
             {{ props.contact?.name }} {{ props.contact?.surname }}
           </p>

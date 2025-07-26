@@ -77,6 +77,16 @@ const getContact = async (employeeId: string): Promise<Contact | undefined> => {
   }
 }
 
+const deleteContact = async (employeeId: string): Promise<Contact | undefined> => {
+  try {
+    await instance.delete(
+      `${DB_URL}/api/collections/employees/records/${employeeId}`)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
 const createContact = async (formData: FormData) => {
   try {
     await instance.post(`/api/collections/employees/records`, formData)
@@ -87,4 +97,4 @@ const createContact = async (formData: FormData) => {
   }
 }
 
-export { getContacts, getContact, createContact }
+export { getContacts, getContact, createContact, deleteContact }

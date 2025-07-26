@@ -7,6 +7,14 @@ const props = defineProps<{
   contacts: Contact[] | undefined
 }>()
 const auth = useAuthStore()
+
+const emit = defineEmits(['edit-contact', 'delete-contact'])
+
+
+function deleteContactPressed(contact: Contact) {
+  emit('delete-contact', contact)
+}
+
 </script>
 
 <template>
@@ -19,24 +27,17 @@ const auth = useAuthStore()
           <th scope="col" class="px-6 py-3">Telefono numeris</th>
           <th scope="col" class="px-6 py-3">Elektroninis paštas</th>
           <th scope="col" class="px-6 py-3">Adresas</th>
-          <th
-            scope="col"
-            class="px-6 py-3"
-            v-if="
-              auth.User?.expand?.permissions_id?.delete_employees ||
-              auth.User?.expand?.permissions_id?.delete_employees
-            "
-          >
+          <th scope="col" class="px-6 py-3" v-if="
+            auth.User?.expand?.permissions_id?.delete_employees ||
+            auth.User?.expand?.permissions_id?.delete_employees
+          ">
             Veiksmai
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="contact in props.contacts"
-          class="bg-white border-b border-gray-200 hover:bg-gray-200 text-center"
-        >
-          <ContactsTableRow :contact="contact" />
+        <tr v-for="contact in props.contacts" class="bg-white border-b border-gray-200 hover:bg-gray-200 text-center">
+          <ContactsTableRow :contact="contact" @delete-contact="deleteContactPressed" />
         </tr>
       </tbody>
     </table>
