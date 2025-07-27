@@ -34,7 +34,6 @@ const [name, nameAttrs] = defineField('name')
 const notifs = useNotificationStore()
 const selectedFile = ref<File | null>(null)
 const formData = new FormData()
-const isEmailTaken = ref<boolean>(false)
 const MAXFILESIZE = 5242880
 const isFileAnImage = ref<boolean>(true)
 const isFileSizeOk = ref<boolean>(true)
@@ -142,7 +141,7 @@ watchEffect(() => {
             <input type="name" id="name" placeholder="Įveskite vardą..." v-model="name" maxlength="30"
               v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease" />
-            <p>{{ errors.name }}</p>
+            <p class="text-red-500">{{ errors.name }}</p>
           </div>
           <div>
             <label for="email" class="block text-gray-500 text-sm">Elektroninis paštas:</label>
@@ -154,8 +153,7 @@ watchEffect(() => {
             <input type="email" id="email" v-model="email" v-bind="emailAttrs"
               placeholder="Įveskite el. pašto adresą..." autocomplete="email"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease" />
-            <p>{{ errors.email }}</p>
-            <p v-show="isEmailTaken">El.paštas užmimtas</p>
+            <p class="text-red-500">{{ errors.email }}</p>
           </div>
           <div class="flex flex-col items-center justify-center mt-10">
             <label class="bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800 w-full h-6 text-center pt-1"
@@ -167,7 +165,7 @@ watchEffect(() => {
 
             <span class="text-sm text-gray-600 mt-1 truncate w-full max-w-50">{{
               fileHasBeenUploaded
-            }}</span>
+              }}</span>
           </div>
         </div>
       </div>
