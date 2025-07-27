@@ -184,21 +184,21 @@ onMounted(async () => {
             <input type="name" id="name" placeholder="Įveskite vardą..." v-model="name" maxlength="30"
               v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease" />
-            <p>{{ errors.name }}</p>
+            <p class="text-red-500">{{ errors.name }}</p>
           </div>
           <div>
             <label for="lastName" class="block text-gray-500 text-sm">Pavardė:</label>
             <input type="lastName" id="lastName" placeholder="Įveskite pavardę..." v-model="lastName" maxlength="30"
               v-bind="lastNameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease" />
-            <p>{{ errors.lastName }}</p>
+            <p class="text-red-500">{{ errors.lastName }}</p>
           </div>
           <div>
             <label for="position" class="block text-gray-500 text-sm">Pozicija:</label>
             <input type="position" id="position" placeholder="Įveskite poziciją..." v-model="position" maxlength="30"
               v-bind="positionAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease" />
-            <p>{{ errors.position }}</p>
+            <p class="text-red-500">{{ errors.position }}</p>
           </div>
           <p class="text-2xl">Kontaktinė informacija:</p>
           <div>
@@ -211,7 +211,7 @@ onMounted(async () => {
             <input type="email" id="email" v-model="email" v-bind="emailAttrs"
               placeholder="Įveskite el. pašto adresą..." autocomplete="email"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease" />
-            <p>{{ errors.email }}</p>
+            <p class="text-red-500">{{ errors.email }}</p>
           </div>
           <div>
             <label for="phoneNumber" class="block text-gray-500 text-sm">Telefono numeris:</label>
@@ -227,7 +227,7 @@ onMounted(async () => {
             <input type="phoneNumber" id="phoneNumber" v-model="phoneNumber" v-bind="phoneNumberAttrs"
               placeholder="Įveskite telefono numerį..." autocomplete="email"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease" />
-            <p>{{ errors.phoneNumber }}</p>
+            <p class="text-red-500">{{ errors.phoneNumber }}</p>
           </div>
         </div>
         <div class="">
@@ -242,7 +242,7 @@ onMounted(async () => {
                   {{ company.name }}
                 </option>
               </select>
-              <p>{{ errors.chosenCompany }}</p>
+              <p class="text-red-500">{{ errors.chosenCompany }}</p>
             </div>
             <div>
               <label class="block">Ofisas:</label>
@@ -254,7 +254,7 @@ onMounted(async () => {
                   {{ office.expand?.office_id.name }}
                 </option>
               </select>
-              <p>{{ errors.chosenOffice }}</p>
+              <p class="text-red-500">{{ errors.chosenOffice }}</p>
             </div>
             <div>
               <label class="block">Padalinys:</label>
@@ -266,7 +266,7 @@ onMounted(async () => {
                   {{ division.expand?.division_id.name }}
                 </option>
               </select>
-              <p>{{ errors.chosenDivision }}</p>
+              <p class="text-red-500">{{ errors.chosenDivision }}</p>
             </div>
             <div>
               <label class="block">Skyrius:</label>
@@ -300,7 +300,7 @@ onMounted(async () => {
 
               <span class="text-sm text-gray-600 mt-1 truncate w-full">{{
                 fileHasBeenUploaded
-              }}</span>
+                }}</span>
             </div>
           </div>
         </div>

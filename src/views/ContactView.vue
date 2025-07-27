@@ -17,6 +17,7 @@ import { useAuthStore } from '@/stores/authStore'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import ContactCreateForm from '@/components/formComponents/contactFormComponents/ContactCreateForm.vue'
 import ContactDeleteForm from '@/components/formComponents/contactFormComponents/ContactDeleteForm.vue'
+import ContactEditForm from '@/components/formComponents/contactFormComponents/ContactEditForm.vue'
 
 const selectedOption = ref<number>(25)
 const contacts = ref<Contact[]>()
@@ -167,6 +168,12 @@ function openContactDeleteForm(contact: Contact) {
   OpenModal()
 }
 
+function openContactEditForm(contact: Contact) {
+  currentContact.value = contact
+  currentForm.value = ContactEditForm
+  OpenModal()
+}
+
 
 onMounted(async () => {
   await loadData()
@@ -201,7 +208,8 @@ onMounted(async () => {
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
   <div v-if="!loading && !empty" :key="currentListType + '-' + currentPage">
-    <component :is="currentListType" :contacts="contacts" class="mx-24 mt-10" @delete-contact="openContactDeleteForm" />
+    <component :is="currentListType" :contacts="contacts" class="mx-24 mt-10" @delete-contact="openContactDeleteForm"
+      @edit-contact="openContactEditForm" />
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
 

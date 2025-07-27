@@ -48,7 +48,7 @@ const getContacts = async (
         filter: filterString,
         perPage: selectedOption,
         page: currentPage,
-        expand: 'office_id',
+        expand: 'office_id,division_id,group_id,department_id,company_id',
       },
     })
     const data: Contact[] = response.data.items

@@ -15,6 +15,10 @@ function deleteContactPressed(contact: Contact) {
   emit('delete-contact', contact)
 }
 
+function editContactPressed(contact: Contact) {
+  emit('edit-contact', contact)
+}
+
 </script>
 
 <template>
@@ -37,7 +41,8 @@ function deleteContactPressed(contact: Contact) {
       </thead>
       <tbody>
         <tr v-for="contact in props.contacts" class="bg-white border-b border-gray-200 hover:bg-gray-200 text-center">
-          <ContactsTableRow :contact="contact" @delete-contact="deleteContactPressed" />
+          <ContactsTableRow :contact="contact" @delete-contact="deleteContactPressed"
+            @edit-contact="editContactPressed" />
         </tr>
       </tbody>
     </table>
