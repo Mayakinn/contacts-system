@@ -41,8 +41,7 @@ instance.interceptors.request.use((config) => {
 const login = async (email: string, password: string) => {
   try {
     const response = await instance.post(
-      `
-api/collections/users/auth-with-password`,
+      `api/collections/users/auth-with-password`,
       {
         identity: email,
         password: password,
@@ -54,6 +53,7 @@ api/collections/users/auth-with-password`,
       },
     )
     const data = response.data
+    console.log(data)
     localStorage.setItem('token', data.token)
     router.push('contacts')
     return data

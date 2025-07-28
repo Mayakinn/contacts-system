@@ -71,7 +71,8 @@ const onSubmit = handleSubmit(async () => {
     edit_offices: createEditOffices.value,
     delete_offices: deleteOffices.value,
     edit_structure: createEditStructures.value,
-    delete_structure: deleteStructures.value
+    delete_structure: deleteStructures.value,
+    read_permissions: true
   }
   createNewAdmin(permissions)
 })
