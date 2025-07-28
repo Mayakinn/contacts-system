@@ -59,13 +59,11 @@ const getAdmins = async (currentPage = 1, perPage = 10): Promise<[User[], number
 }
 
 const createAdmin = async (permissions: object, formData: FormData) => {
-
-  let permissionId : string = ''
-  let noErrors : boolean = false
+  let permissionId: string = ''
+  let noErrors: boolean = false
   try {
     const firstResponse = await instance.post(`/api/collections/user_permissions/records`, {
       ...permissions,
-      
     })
     permissionId = firstResponse.data.id
     formData.append('permissions_id', permissionId)
@@ -75,15 +73,14 @@ const createAdmin = async (permissions: object, formData: FormData) => {
     return
   } catch (error) {
     return Promise.reject(error)
-  }
-  finally{
-    if (!noErrors && permissionId != ''){
-      try{
-      await instance.delete(`/api/collections/user_permissions/records/${permissionId}`)
-      }catch (error){
-      Promise.reject(error)
+  } finally {
+    if (!noErrors && permissionId != '') {
+      try {
+        await instance.delete(`/api/collections/user_permissions/records/${permissionId}`)
+      } catch (error) {
+        Promise.reject(error)
+      }
     }
-    } 
   }
 }
 
@@ -107,27 +104,23 @@ const updateAdmin = async (formData: FormData, id: string) => {
   }
 }
 
-const deleteAdmin = async( admin : User ) => {
+const deleteAdmin = async (admin: User) => {
   let adminDeleted = false
-  try{
+  try {
     await instance.delete(`/api/collections/users/records/${admin.id}`)
     adminDeleted = true
-
   } catch (error) {
     return Promise.reject(error)
-  }
-  finally {
-    if(adminDeleted){
+  } finally {
+    if (adminDeleted) {
       try {
         await instance.delete(`/api/collections/user_permissions/records/${admin.permissions_id}`)
         return
-      }
-      catch (error){
+      } catch (error) {
         return Promise.reject(error)
       }
     }
   }
 }
-
 
 export { getAdmins, createAdmin, updateAdminPermissions, updateAdmin, deleteAdmin }

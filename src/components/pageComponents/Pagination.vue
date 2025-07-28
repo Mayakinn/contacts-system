@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, watch } from 'vue'
 
 const props = defineProps({
   currentPage: {
@@ -14,7 +14,23 @@ const props = defineProps({
 
 const emit = defineEmits(['page-change'])
 
+watch(
+  () => props.totalPages,
+  () => {
+    calculatePages()
+  },
+)
+
+function calculatePages() {
+  if (props.currentPage > props.totalPages) {
+    emit('page-change', props.totalPages)
+  }
+}
+
 const changePage = (page: number) => {
+  if (page < 1 || page > props.totalPages) {
+    return
+  }
   emit('page-change', page)
 }
 
