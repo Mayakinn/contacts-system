@@ -43,10 +43,10 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="dropdownRef"
-    class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 flex items-center cursor-pointer"
+    class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 flex items-center cursor-pointer justify justify-center"
     @click="showHideMenu"
   >
-    <img src="../../assets/dropdown.png" class="pt-2" />
+    <img src="../../assets/dropdown.png" class="size-11 pt-1" />
     <transition-group name="select-fade">
       <div class="w-11.5 space-y-0.5 absolute top-full z-10 mt-1" v-if="showHideMenuSelect">
         <div

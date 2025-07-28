@@ -174,7 +174,6 @@ function openContactEditForm(contact: Contact) {
   OpenModal()
 }
 
-
 onMounted(async () => {
   await loadData()
 })
@@ -187,15 +186,22 @@ onMounted(async () => {
       <div class="relative flex items-center">
         <Search @query-change="onSearchTermChange" />
         <ItemsPerPage :TotalItems="totalItems" @number-change="onNumberChange" />
-        <button @click="changeListType()"
-          class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer">
+        <button
+          @click="changeListType()"
+          class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
+        >
           <img :src="image" />
         </button>
-        <button v-show="auth.User?.expand?.permissions_id?.edit_employees == true" @click="openContactCreateForm"
-          class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer">
+        <button
+          v-show="auth.User?.expand?.permissions_id?.edit_employees == true"
+          @click="openContactCreateForm"
+          class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="30" height="30">
-            <path fill="white"
-              d="M10.75 5.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75v3.5h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5Z" />
+            <path
+              fill="white"
+              d="M10.75 5.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75v3.5h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5Z"
+            />
           </svg>
         </button>
       </div>
@@ -208,13 +214,22 @@ onMounted(async () => {
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
   <div v-if="!loading && !empty" :key="currentListType + '-' + currentPage">
-    <component :is="currentListType" :contacts="contacts" class="mx-24 mt-10" @delete-contact="openContactDeleteForm"
-      @edit-contact="openContactEditForm" />
+    <component
+      :is="currentListType"
+      :contacts="contacts"
+      class="mx-24 mt-10"
+      @delete-contact="openContactDeleteForm"
+      @edit-contact="openContactEditForm"
+    />
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
 
   <FormModal :isActive="formModalActive" @close-modal="closeModal">
-    <component @close-pressed="closeModalAfterForm" :is="currentForm" :currentContact="currentContact"
-      :key="currentForm"></component>
+    <component
+      @close-pressed="closeModalAfterForm"
+      :is="currentForm"
+      :currentContact="currentContact"
+      :key="currentForm"
+    ></component>
   </FormModal>
 </template>
