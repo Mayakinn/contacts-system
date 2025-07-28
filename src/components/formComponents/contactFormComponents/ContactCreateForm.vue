@@ -22,7 +22,7 @@ const props = defineProps<{
   currentContact: Contact | null
 }>()
 
-const regexExpressionPhone = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
+const regexExpressionPhone = /^$|^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
 
 const schema = yup.object({
   email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą').trim(),
@@ -93,6 +93,7 @@ async function createNewContact() {
   try {
     await createContact(formData)
     emit('close-pressed')
+    notifs.addNotification('Kontaktas sėkmingai sukurtas!', NotificationType.success)
     return
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
@@ -106,8 +107,6 @@ const onSubmit = handleSubmit(async () => {
 
   if (regexExpressionPhone.test(phoneNumber.value)) {
     formData.append('phone_number', phoneNumber.value.trim())
-  } else {
-    return
   }
   formData.append('position', position.value.trim())
   formData.append('company_id', chosenCompany.value)

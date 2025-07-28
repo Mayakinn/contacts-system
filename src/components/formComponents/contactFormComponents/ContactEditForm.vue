@@ -17,7 +17,7 @@ import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import { useForm } from 'vee-validate'
 import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import * as yup from 'yup'
-const regexExpressionPhone = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
+const regexExpressionPhone = /^$|^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
 
 const schema = yup.object({
   email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą').trim(),
