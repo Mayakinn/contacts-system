@@ -17,19 +17,30 @@ import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import { useForm } from 'vee-validate'
 import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import * as yup from 'yup'
+const regexExpressionPhone = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
 
 const schema = yup.object({
-  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
-  name: yup.string().required('Įveskite vardą').max(30, 'Vardas per ilgas. Max. 30 simboliai'),
+  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą').trim(),
+  name: yup
+    .string()
+    .required('Įveskite vardą')
+    .max(30, 'Vardas per ilgas. Max. 30 simboliai')
+    .trim(),
   lastName: yup
     .string()
     .required('Įveskite pavardę')
-    .max(30, 'Pavardė per ilga. Max. 30 simboliai'),
-  phoneNumber: yup.string().max(17, 'Telefono numeris per ilgas. Max. 17 simboliai'),
+    .max(30, 'Pavardė per ilga. Max. 30 simboliai')
+    .trim(),
+  phoneNumber: yup
+    .string()
+    .max(17, 'Telefono numeris per ilgas. Max. 17 simboliai')
+    .matches(regexExpressionPhone, 'Įveskite validų telefono numerį')
+    .trim(),
   position: yup
     .string()
     .required('Įveskite poziciją')
-    .max(40, 'Pozicija per ilga. Max. 40 simboliai'),
+    .max(40, 'Pozicija per ilga. Max. 40 simboliai')
+    .trim(),
   chosenCompany: yup.string().required('Būtina pasirinkti įmonę'),
   chosenOffice: yup.string().required('Būtina pasirinkti ofisą'),
   chosenDivision: yup.string().required('Būtina pasirinkti padalinį'),

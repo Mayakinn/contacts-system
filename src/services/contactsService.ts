@@ -11,22 +11,24 @@ const instance = axios.create({
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
-    throw new Error('Tinklo klaida!')
+    throw 'Klaida: Tinklo klaida!'
   }
 
   const { status, data } = error.response
 
   if (status === 404) {
-    throw new Error('Kontaktas/-ai nerastas/-i!')
+    throw 'Klaida: Kontaktas/-ai nerastas/-i!'
   }
   if (status === 401) {
-    throw new Error('Autorizacijos klaida, prisijunkite!')
+    throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
   if (status === 400) {
-    throw new Error('Autorizacijos klaida, neturite tam teisių!')
+    throw 'Klaida: Nepalikite tusčių laukelių!'
   }
-
-  return new Error('Serverio klaida!')
+  if (status === 403) {
+    throw 'Klaida: Neturite tam teisių!'
+  }
+  return 'Klaida: Serverio klaida!'
 })
 
 instance.interceptors.request.use((config) => {
