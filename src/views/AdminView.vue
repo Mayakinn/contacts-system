@@ -32,8 +32,13 @@ async function loadData() {
       users.value = data
       totalItems.value = total
       loading.value = false
-
       totalPages.value = pages
+      if (currentPage.value > totalPages.value && totalPages.value > 0) {
+        currentPage.value = totalPages.value
+        await loadData()
+        return
+      }
+
       if (totalItems.value == undefined || totalItems.value == 0) {
         empty.value = true
         notifs.addNotification('Adminų sąrašas tusčias!', NotificationType.danger)
