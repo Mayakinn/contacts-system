@@ -30,7 +30,7 @@ const auth = useAuthStore()
         >Struktūra</RouterLink
       >
       <RouterLink
-        v-if="auth.User?.name == 'Admin'"
+        v-if="auth.User?.username == 'admin'"
         to="/admin"
         class="hover:text-gray-300 transition-colors"
         >Paskyros</RouterLink

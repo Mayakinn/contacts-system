@@ -19,14 +19,22 @@ const notifType = computed(() => {
   }
 })
 </script>
-
 <template>
-  <div class="p-4 flex items-center justify-between border-l-15 rounded-lg" :class="notifType">
-    {{ props.Notification.message }}
+  <div
+    class="flex items-start justify-between border-l-15 rounded-lg p-4 w-full bg-white shadow-xl"
+    :class="notifType"
+  >
+    <div class="flex-1 mr-4">
+      {{ props.Notification.message }}
+    </div>
     <img
-      class="h-6 w-6 cursor-pointer"
+      class="h-6 w-6 cursor-pointer shrink-0"
       src="../../../assets/close-button.svg"
       @click="notif.deleteNotification(props.Notification.id)"
     />
   </div>
 </template>
+
+
+
+

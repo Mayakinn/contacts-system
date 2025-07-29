@@ -55,6 +55,7 @@ api/collections/users/auth-with-password`,
     )
     const data = response.data
     localStorage.setItem('token', data.token)
+    localStorage.setItem('username', data.record.username)
     router.push('contacts')
     return data
   } catch (error) {
