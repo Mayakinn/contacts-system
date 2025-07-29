@@ -12,22 +12,22 @@ const instance = axios.create({
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
-    throw new Error('Tinklo klaida!')
+    throw 'Klaida: Tinklo klaida!'
   }
 
   const { status, data } = error.response
 
   if (status === 404) {
-    throw new Error('Vartotojas nerastas!')
+    throw 'Klaida: Vartotojas nerastas!'
   }
   if (status === 401) {
-    throw new Error('Autorizacijos klaida, prisijunkite!')
+    throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
   if (status === 400) {
-    throw new Error('Neteisingi prisijungimo duomenys!')
+    throw 'Klaida: Neteisingi prisijungimo duomenys!'
   }
 
-  return new Error('Serverio klaida!')
+  return 'Klaida: Serverio klaida!'
 })
 
 instance.interceptors.request.use((config) => {
@@ -41,8 +41,7 @@ instance.interceptors.request.use((config) => {
 const login = async (email: string, password: string) => {
   try {
     const response = await instance.post(
-      `
-api/collections/users/auth-with-password`,
+      `api/collections/users/auth-with-password`,
       {
         identity: email,
         password: password,

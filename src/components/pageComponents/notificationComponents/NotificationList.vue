@@ -24,7 +24,7 @@ const notifs = useNotificationStore()
 .notification-fade-enter-from,
 .notification-fade-leave-to {
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateX(300px);
 }
 
 .notification-fade-enter-active,
