@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { createAdmin } from '@/services/adminService';
-import { useNotificationStore } from '@/stores/notificationStore';
-import { NotificationType } from '@/typings/interface/NotificationType';
-import { computed, ref } from 'vue';
-import { randomPassword } from 'secure-random-password';
-import type { User } from '@/typings/interface/User';
+import { createAdmin } from '@/services/adminService'
+import { useNotificationStore } from '@/stores/notificationStore'
+import { NotificationType } from '@/typings/interface/NotificationType'
+import { computed, ref } from 'vue'
+import { randomPassword } from 'secure-random-password'
+import type { User } from '@/typings/interface/User'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
-import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue';
+import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
+const regexExpressionString = /^\p{L}+$/u
 
 const props = defineProps<{
   currentAdmin: User | null
@@ -18,10 +19,12 @@ const schema = yup.object({
   name: yup
     .string()
     .required('Įveskite vardą')
-    .max(30, 'Vardas per ilgas. Max. 30 simboliai'),
+    .max(30, 'Vardas per ilgas. Max. 30 simboliai')
+    .matches(regexExpressionString, 'Negalimi jokie specialūs simboliai/skaičiai')
+    .min(2, 'Vardas per trumpas'),
 })
 
-const {  defineField, errors , handleSubmit} = useForm({
+const { defineField, errors, handleSubmit } = useForm({
   validationSchema: schema,
 })
 
@@ -35,7 +38,7 @@ const createEditOffices = ref<boolean>(false)
 const deleteOffices = ref<boolean>(false)
 const createEditStructures = ref<boolean>(false)
 const deleteStructures = ref<boolean>(false)
-const selectedFile = ref<File | null>(null);
+const selectedFile = ref<File | null>(null)
 const password = ref<string>('password')
 const formData = new FormData()
 const showTempPassword = ref<boolean>(false)
@@ -46,23 +49,25 @@ const notifs = useNotificationStore()
 
 const emit = defineEmits(['close-pressed'])
 
-async function createNewAdmin(permissions : object){
-  try{
-    await createAdmin(permissions,formData)
-    showTempPassword.value =true
-  }catch (error : any){
-    notifs.addNotification(error,NotificationType.danger)
+async function createNewAdmin(permissions: object) {
+  try {
+    await createAdmin(permissions, formData)
+    showTempPassword.value = true
+  } catch (error: any) {
+    notifs.addNotification(error, NotificationType.danger)
     emit('close-pressed', true)
   }
 }
 
 const onSubmit = handleSubmit(async () => {
-  password.value = randomPassword({ length: 12, characters: 'alphanumeric' });
-  formData.append('email',email.value)
+  password.value = randomPassword({ length: 12, characters: 'alphanumeric' })
+  formData.append('email', email.value)
   formData.append('name', name.value)
-  if(selectedFile.value != null){formData.append('avatar',selectedFile.value)}
-  formData.append('password',password.value)
-  formData.append('passwordConfirm',password.value)
+  if (selectedFile.value != null) {
+    formData.append('avatar', selectedFile.value)
+  }
+  formData.append('password', password.value)
+  formData.append('passwordConfirm', password.value)
   const permissions = {
     edit_employees: editCreateContacts.value,
     delete_employees: deleteContacts.value,
@@ -72,31 +77,25 @@ const onSubmit = handleSubmit(async () => {
     delete_offices: deleteOffices.value,
     edit_structure: createEditStructures.value,
     delete_structure: deleteStructures.value,
-    read_permissions: true
+    read_permissions: true,
   }
   createNewAdmin(permissions)
 })
-
-
-
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
   if (target && target.files && target.files.length > 0) {
     if (target.files[0].name.match(/\.(jpg|jpeg|png|gif)$/)) {
-        isFileAnImage.value = true
-        if (target.files[0].size <= MAXFILESIZE) {
-          selectedFile.value = target.files[0]
-          isFileSizeOk.value = true
-      }
-      else{
+      isFileAnImage.value = true
+      if (target.files[0].size <= MAXFILESIZE) {
+        selectedFile.value = target.files[0]
+        isFileSizeOk.value = true
+      } else {
         isFileSizeOk.value = false
       }
-    }
-    else{
+    } else {
       isFileAnImage.value = false
     }
-
   }
 }
 
@@ -104,7 +103,7 @@ const fileHasBeenUploaded = computed(() => {
   if (isFileSizeOk.value == false) {
     return 'File is too big (Max. 5MB)'
   }
-    if (isFileAnImage.value == false) {
+  if (isFileAnImage.value == false) {
     return 'File is not an image.'
   }
   if (isFileSizeOk.value == true && selectedFile.value == null) {
@@ -112,14 +111,13 @@ const fileHasBeenUploaded = computed(() => {
   }
   return selectedFile.value?.name ? selectedFile.value?.name : 'No photo uploaded.'
 })
-
 </script>
 
 <template>
   <div class="sm:items-start m-5">
     <div v-if="showTempPassword" class="mt-10 pr-50">
       <h1 class="text-xl">Laikinas slaptažodis:</h1>
-      <p class="mt-10 text-gray-600">Laikinas paskyros slaptažodis : {{ password }}  </p>
+      <p class="mt-10 text-gray-600">Laikinas paskyros slaptažodis : {{ password }}</p>
     </div>
     <form @submit.prevent="onSubmit" v-if="!showTempPassword">
       <h1 class="text-xl">Pridėti naują admin paskyrą:</h1>
@@ -164,48 +162,62 @@ const fileHasBeenUploaded = computed(() => {
             {{ errors.email }}
           </div>
           <div class="flex flex-col items-center justify-center mt-10">
-            <label class="bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800 w-full h-6 text-center pt-1"  id="myFile" title="Upload image file" for="inputImage">
+            <label
+              class="bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800 w-full h-6 text-center pt-1"
+              id="myFile"
+              title="Upload image file"
+              for="inputImage"
+            >
               Įkelti nuotrauką
-              </label>
-            <input type="file" id="inputImage" name="filename" hidden accept=".jpg, .jpeg, .png" ref="file" @change="handleFileUpload">
+            </label>
+            <input
+              type="file"
+              id="inputImage"
+              name="filename"
+              hidden
+              accept=".jpg, .jpeg, .png"
+              ref="file"
+              @change="handleFileUpload"
+            />
 
-            <span class="text-sm text-gray-600 mt-1 truncate w-full
-">{{fileHasBeenUploaded}}</span>
+            <span class="text-sm text-gray-600 mt-1 truncate w-full">{{
+              fileHasBeenUploaded
+            }}</span>
           </div>
         </div>
         <div class="">
           <p class="mx-5 mb-3">Administracinės teisės:</p>
           <div class="flex flex-col gap-4 text-md items-left">
             <div>
-              <input type="checkbox" id="editCreateContacts" v-model="editCreateContacts"/>
+              <input type="checkbox" id="editCreateContacts" v-model="editCreateContacts" />
               <label for="editCreateContacts"> Redaguoti ir kurti kontaktus</label>
             </div>
             <div>
-              <input type="checkbox" id="deleteContacts" v-model="deleteContacts"/>
+              <input type="checkbox" id="deleteContacts" v-model="deleteContacts" />
               <label for="deleteContacts"> Trinti kontaktus</label>
             </div>
             <div>
-              <input type="checkbox" id="createEditCompanies" v-model="createEditCompanies"/>
+              <input type="checkbox" id="createEditCompanies" v-model="createEditCompanies" />
               <label for="createEditCompanies"> Redaguoti ir kurti įmones</label>
             </div>
             <div>
-              <input type="checkbox" id="deleteCompanies" v-model="deleteCompanies"/>
+              <input type="checkbox" id="deleteCompanies" v-model="deleteCompanies" />
               <label for="deleteCompanies"> Trinti įmones</label>
             </div>
             <div>
-              <input type="checkbox" id="createEditOffices" v-model="createEditOffices"/>
+              <input type="checkbox" id="createEditOffices" v-model="createEditOffices" />
               <label for="createEditOffices"> Redaguoti ir kurti ofisus</label>
             </div>
             <div>
-              <input type="checkbox" id="deleteOffices" v-model="deleteOffices"/>
+              <input type="checkbox" id="deleteOffices" v-model="deleteOffices" />
               <label for="deleteOffices"> Trinti ofisus</label>
             </div>
             <div>
-              <input type="checkbox" id="createEditStructures" v-model="createEditStructures"/>
+              <input type="checkbox" id="createEditStructures" v-model="createEditStructures" />
               <label for="createEditStructures"> Redaguoti ir kurti struktūras</label>
             </div>
             <div>
-              <input type="checkbox" id="deleteStructures" v-model="deleteStructures"/>
+              <input type="checkbox" id="deleteStructures" v-model="deleteStructures" />
               <label for="deleteStructures"> Trinti struktūras</label>
             </div>
           </div>
@@ -216,9 +228,8 @@ const fileHasBeenUploaded = computed(() => {
         class="h-7 w-45 bg-button-blue absolute right-5 bottom-5 text-white text-xs rounded-xs hover:bg-blue-800"
       >
         Pridėti
-      </button @click=submit>
+      </button>
     </form>
   </div>
-  <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)"/>
-
+  <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)" />
 </template>

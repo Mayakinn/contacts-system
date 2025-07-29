@@ -18,6 +18,7 @@ import { useForm } from 'vee-validate'
 import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import * as yup from 'yup'
 const regexExpressionPhone = /^$|^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/
+const regexExpressionString = /^\p{L}+$/u
 
 const schema = yup.object({
   email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą').trim(),
@@ -25,11 +26,15 @@ const schema = yup.object({
     .string()
     .required('Įveskite vardą')
     .max(30, 'Vardas per ilgas. Max. 30 simboliai')
+    .matches(regexExpressionString, 'Negalimi jokie specialūs simboliai/skaičiai')
+    .min(2, 'Vardas per trumpas')
     .trim(),
   lastName: yup
     .string()
     .required('Įveskite pavardę')
     .max(30, 'Pavardė per ilga. Max. 30 simboliai')
+    .matches(regexExpressionString, 'Negalimi jokie specialūs simboliai/skaičiai')
+    .min(2, 'Pavardė per trumpas')
     .trim(),
   phoneNumber: yup
     .string()
