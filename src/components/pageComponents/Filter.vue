@@ -84,7 +84,8 @@ const filterParamMap = computed(() => {
 
 onMounted(async () => {
   try {
-    companies.value = await getCompanies()
+    const data = await getCompanies()
+    companies.value = data[0]
   } catch (error: any) {
     emit('error-received', error)
     recievedError.value = true

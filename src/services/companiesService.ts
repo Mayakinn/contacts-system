@@ -23,23 +23,62 @@ instance.interceptors.response.use(undefined, (error) => {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
   if (status === 400) {
-    throw 'Klaida: Autorizacijos klaida, neturite tam teisių!'
+    throw 'Klaida: Tokia įmonė jau egzistuoja!'
+  }
+  if (status === 403) {
+    throw 'Klaida: Neturite tam teisių'
   }
 
   return 'Klaida: Serverio klaida!'
 })
-
-const getCompanies = async (): Promise<Company[]> => {
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
+})
+const getCompanies = async (currentPage = 1): Promise<[Company[], number, number]> => {
   try {
-    const response = await instance.get(
-      `
-api/collections/companies/records`,
-    )
+    const response = await instance.get(`api/collections/companies/records`, {
+      params: {
+        page: currentPage,
+      },
+    })
     const data: Company[] = response.data.items
-    return data
+    const totalItems: number = response.data.totalItems
+    const totalPages: number = response.data.totalPages
+    return [data, totalItems, totalPages]
   } catch (error) {
     return Promise.reject(error)
   }
 }
 
-export { getCompanies }
+const createCompany = async (formData: FormData) => {
+  try {
+    await instance.post(`api/collections/companies/records`, formData)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const editCompany = async (companyId: string, formData: FormData) => {
+  try {
+    await instance.patch(`api/collections/companies/records/${companyId}`, formData)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const deleteCompany = async (companyId: string) => {
+  try {
+    await instance.delete(`api/collections/companies/records/${companyId}`)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getCompanies, createCompany, editCompany, deleteCompany }
