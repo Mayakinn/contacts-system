@@ -56,11 +56,29 @@ const getCompanies = async (currentPage = 1): Promise<[Company[], number, number
 
 const createCompany = async (formData: FormData) => {
   try {
-    const response = await instance.post(`api/collections/companies/records`, formData)
+    await instance.post(`api/collections/companies/records`, formData)
     return
   } catch (error) {
     return Promise.reject(error)
   }
 }
 
-export { getCompanies, createCompany }
+const editCompany = async (companyId: string, formData: FormData) => {
+  try {
+    await instance.patch(`api/collections/companies/records/${companyId}`, formData)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const deleteCompany = async (companyId: string) => {
+  try {
+    await instance.delete(`api/collections/companies/records/${companyId}`)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getCompanies, createCompany, editCompany, deleteCompany }

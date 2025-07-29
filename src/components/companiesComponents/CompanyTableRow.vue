@@ -17,7 +17,13 @@ const auth = useAuthStore()
   >
     {{ props.company?.name }}
   </th>
-  <td class="px-6 py-4 space-x-5 text-white font-light">
+  <td
+    class="px-6 py-4 space-x-5 text-white font-light"
+    v-if="
+      auth.User?.expand?.permissions_id?.edit_companies ||
+      auth.User?.expand?.permissions_id?.delete_companies
+    "
+  >
     <button
       class="bg-button-blue rounded-3xl p-1 px-3 hover:bg-blue-500"
       v-show="auth.User?.expand?.permissions_id?.edit_companies"

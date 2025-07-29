@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import CompanyTableList from '@/components/companiesComponents/CompanyTableList.vue'
-import AdminDeleteForm from '@/components/formComponents/adminFormComponents/AdminDeleteForm.vue'
-import AdminEditDetailsForm from '@/components/formComponents/adminFormComponents/AdminEditDetailsForm.vue'
 import CompanyCreateForm from '@/components/formComponents/companyFormComponents/CompanyCreateForm.vue'
+import CompanyDeleteForm from '@/components/formComponents/companyFormComponents/CompanyDeleteForm.vue'
+import CompanyEditForm from '@/components/formComponents/companyFormComponents/CompanyEditForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
 import { getCompanies } from '@/services/companiesService'
@@ -69,13 +69,13 @@ function openCompanyCreateForm() {
 }
 
 function openDeleteCompanyForm(user: User) {
-  currentForm.value = AdminDeleteForm
+  currentForm.value = CompanyDeleteForm
   currentCompany.value = user
   OpenModal()
 }
 
 function openCompanyEditForm(user: User) {
-  currentForm.value = AdminEditDetailsForm
+  currentForm.value = CompanyEditForm
   currentCompany.value = user
   OpenModal()
 }
@@ -109,10 +109,7 @@ onMounted(async () => {
   <div class="m-10 space-y-10">
     <p class="text-5xl font-light">Įmonės</p>
     <div v-show="!empty">
-      <div
-        v-show="auth.User?.expand?.permissions_id?.edit_companies == true"
-        class="flex space-x-10"
-      >
+      <div v-if="auth.User?.expand?.permissions_id?.edit_companies == true" class="flex space-x-10">
         <button
           class="w-10 h-10 bg-button-blue rounded-full flex items-center justify-center shadow-2xl hover:bg-blue-500"
           @click="openCompanyCreateForm"
