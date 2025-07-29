@@ -1,4 +1,5 @@
 import type { DepartmentGroup } from '@/typings/interface/DepartmentGroup'
+import type { Group } from '@/typings/interface/Group'
 import axios from 'axios'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
@@ -28,7 +29,7 @@ instance.interceptors.response.use(undefined, (error) => {
   return 'Klaida: Serverio klaida!'
 })
 
-const getGroups = async (selectedDepartment: string): Promise<DepartmentGroup[]> => {
+const getGroupsForFilter = async (selectedDepartment: string): Promise<DepartmentGroup[]> => {
   try {
     const response = await instance.get(
       `
@@ -48,4 +49,21 @@ api/collections/departments_groups/records`,
   }
 }
 
-export { getGroups }
+const getGroups = async (currentPage = 1): Promise<[Group[], number, number]> => {
+  try {
+    const response = await instance.get(`api/collections/groups/records`, {
+      params: {
+        page: currentPage,
+      },
+    })
+    const data: Group[] = response.data.items
+
+    const totalItems: number = response.data.totalItems
+    const totalPages: number = response.data.totalPages
+    return [data, totalItems, totalPages]
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getGroupsForFilter, getGroups }

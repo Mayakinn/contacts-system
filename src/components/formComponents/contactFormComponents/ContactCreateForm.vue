@@ -11,10 +11,10 @@ import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
 import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import type { DivisionDepartment } from '@/typings/interface/DivisionDepartment'
 import type { DepartmentGroup } from '@/typings/interface/DepartmentGroup'
-import { getOffices } from '@/services/officeService'
+import { getOfficesForFilter } from '@/services/officeService'
 import { getDivisions } from '@/services/divisionService'
 import { getDepartments } from '@/services/departmentService'
-import { getGroups } from '@/services/groupService'
+import { getGroupsForFilter } from '@/services/groupService'
 import { getCompanies } from '@/services/companiesService'
 import { createContact } from '@/services/contactsService'
 
@@ -154,7 +154,7 @@ const divisionDepartments = ref<DivisionDepartment[]>([])
 const departmentGroups = ref<DepartmentGroup[]>([])
 
 async function onCompanyValueChange() {
-  companyOffices.value = await getOffices(chosenCompany.value)
+  companyOffices.value = await getOfficesForFilter(chosenCompany.value)
   chosenOffice.value = ''
   chosenDivision.value = ''
   chosenDepartment.value = ''
@@ -174,7 +174,7 @@ async function onDivisionValueChange() {
 }
 
 async function onDepartmentValueChange() {
-  departmentGroups.value = await getGroups(chosenDepartment.value)
+  departmentGroups.value = await getGroupsForFilter(chosenDepartment.value)
   chosenGroup.value = ''
 }
 

@@ -4,8 +4,8 @@ import { getCompanies } from '@/services/companiesService'
 import { updateContact } from '@/services/contactsService'
 import { getDepartments } from '@/services/departmentService'
 import { getDivisions } from '@/services/divisionService'
-import { getGroups } from '@/services/groupService'
-import { getOffices } from '@/services/officeService'
+import { getGroupsForFilter } from '@/services/groupService'
+import { getOfficesForFilter } from '@/services/officeService'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Company } from '@/typings/interface/Company'
 import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
@@ -100,7 +100,7 @@ const MAXFILESIZE = 5242880
 const notifs = useNotificationStore()
 
 async function onCompanyValueChange() {
-  companyOffices.value = await getOffices(chosenCompany.value)
+  companyOffices.value = await getOfficesForFilter(chosenCompany.value)
   chosenOffice.value = ''
   chosenDivision.value = ''
   chosenDepartment.value = ''
@@ -120,7 +120,7 @@ async function onDivisionValueChange() {
 }
 
 async function onDepartmentValueChange() {
-  departmentGroups.value = await getGroups(chosenDepartment.value)
+  departmentGroups.value = await getGroupsForFilter(chosenDepartment.value)
   chosenGroup.value = ''
 }
 

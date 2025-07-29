@@ -1,5 +1,6 @@
 import type { Company } from '@/typings/interface/Company'
 import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
+import type { Office } from '@/typings/interface/Office'
 import axios from 'axios'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
@@ -29,7 +30,7 @@ instance.interceptors.response.use(undefined, (error) => {
   return 'Klaida: Serverio klaida!'
 })
 
-const getOffices = async (selectedCompany: string): Promise<CompanyOffice[]> => {
+const getOfficesForFilter = async (selectedCompany: string): Promise<CompanyOffice[]> => {
   try {
     const response = await instance.get(
       `
@@ -49,4 +50,20 @@ api/collections/companies_offices/records`,
   }
 }
 
-export { getOffices }
+const getOffices = async (currentPage = 1): Promise<[Office[], number, number]> => {
+  try {
+    const response = await instance.get(`/api/collections/offices/records`, {
+      params: {
+        page: currentPage,
+      },
+    })
+    const data: Office[] = response.data.items
+    const totalItems: number = response.data.totalItems
+    const totalPages: number = response.data.totalPages
+    return [data, totalItems, totalPages]
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getOfficesForFilter, getOffices }
