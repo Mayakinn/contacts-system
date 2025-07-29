@@ -189,7 +189,8 @@ const fileHasBeenUploaded = computed(() => {
 })
 
 onMounted(async () => {
-  companies.value = await getCompanies()
+  const data = await getCompanies()
+  companies.value = data[0]
 })
 </script>
 
