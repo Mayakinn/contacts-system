@@ -13,6 +13,11 @@ import listImage from '../assets/list-icon.png'
 import Filter from '@/components/pageComponents/Filter.vue'
 import Search from '@/components/pageComponents/Search.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
+import { useAuthStore } from '@/stores/authStore'
+import FormModal from '@/components/modalComponents/FormModal.vue'
+import ContactCreateForm from '@/components/formComponents/contactFormComponents/ContactCreateForm.vue'
+import ContactDeleteForm from '@/components/formComponents/contactFormComponents/ContactDeleteForm.vue'
+import ContactEditForm from '@/components/formComponents/contactFormComponents/ContactEditForm.vue'
 
 const selectedOption = ref<number>(25)
 const contacts = ref<Contact[]>()
@@ -26,42 +31,52 @@ const currentPage = ref<number>(1)
 const filterString = ref<string>('')
 const searchTerm = ref<string>('')
 const searchAndFilterParamString = ref<string>('')
+const auth = useAuthStore()
+const currentContact = ref<Contact | null>(null)
+const currentForm = shallowRef<Component>()
+const formModalActive = ref<boolean>(false)
 
 async function loadData() {
   try {
+    loading.value = true
     const result = await getContacts(
       selectedOption.value,
       currentPage.value,
       searchAndFilterParamString.value,
     )
 
-    if (!result) {
+    if (result != null) {
+      const [data, total, pages] = result
+      contacts.value = data
+      totalItems.value = total
+      loading.value = false
+      totalPages.value = pages
+
+      if (currentPage.value > totalPages.value && totalPages.value > 0) {
+        currentPage.value = totalPages.value
+        await loadData()
+        return
+      }
+
+      if (totalItems.value == undefined || totalItems.value == 0) {
+        empty.value = true
+        notifs.addNotification('Kontaktų sąrašas tusčias!', NotificationType.danger)
+        return
+      } else if (totalItems.value > 0) {
+        empty.value = false
+        notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
+      }
+    } else {
+      loading.value = false
       empty.value = true
       contacts.value = []
       totalItems.value = 0
       totalPages.value = 0
+
       notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.danger)
-      return
-    }
-
-    const [data, total, pages] = result
-    contacts.value = data
-    totalItems.value = total
-
-    totalPages.value = pages
-    if (totalItems.value == undefined || totalItems.value == 0) {
-      empty.value = true
-      notifs.addNotification('Kontaktų sąrašas tusčias!', NotificationType.danger)
-      return
-    } else if (totalItems.value > 0) {
-      empty.value = false
-      notifs.addNotification('Kontaktai sėkmingai užkrauti!', NotificationType.success)
-      return
     }
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
-  } finally {
-    loading.value = false
   }
 }
 
@@ -97,6 +112,21 @@ function onSearchTermChange(newQuery: string) {
 
 function onFilterChange(filterParamString: Record<string, string>) {
   filterString.value = combinedFilterParam(filterParamString)
+
+  currentPage.value = 1
+  updateSearchAndFilterParam()
+}
+
+function updateSearchAndFilterParam() {
+  if (filterString.value != '' && searchTerm.value != '') {
+    searchAndFilterParamString.value = `(${filterString.value} && ${searchTerm.value})`
+  } else if (filterString.value != '') {
+    searchAndFilterParamString.value = filterString.value
+  } else if (searchTerm.value != '') {
+    searchAndFilterParamString.value = searchTerm.value
+  } else {
+    searchAndFilterParamString.value = ''
+  }
   currentPage.value = 1
   loadData()
 }
@@ -110,6 +140,43 @@ function combinedFilterParam(filterParamString: Record<string, string>) {
   return filterEntries.length > 0
     ? `(${filterEntries.map(([key, value]) => `${key}='${value}'`).join(' && ')})`
     : ''
+}
+
+function closeModalAfterForm(flag: boolean) {
+  formModalActive.value = false
+  currentContact.value = null
+  if (flag) {
+    return
+  } else {
+    loadData()
+  }
+}
+
+function OpenModal() {
+  formModalActive.value = true
+}
+
+const closeModal = () => {
+  formModalActive.value = false
+  currentForm.value = undefined
+  currentContact.value = null
+}
+
+function openContactCreateForm() {
+  currentForm.value = ContactCreateForm
+  OpenModal()
+}
+
+function openContactDeleteForm(contact: Contact) {
+  currentContact.value = contact
+  currentForm.value = ContactDeleteForm
+  OpenModal()
+}
+
+function openContactEditForm(contact: Contact) {
+  currentContact.value = contact
+  currentForm.value = ContactEditForm
+  OpenModal()
 }
 
 onMounted(async () => {
@@ -130,6 +197,18 @@ onMounted(async () => {
         >
           <img :src="image" />
         </button>
+        <button
+          v-show="auth.User?.expand?.permissions_id?.edit_employees == true"
+          @click="openContactCreateForm"
+          class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="30" height="30">
+            <path
+              fill="white"
+              d="M10.75 5.75c0-.414-.336-.75-.75-.75s-.75.336-.75.75v3.5h-3.5c-.414 0-.75.336-.75.75s.336.75.75.75h3.5v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5h3.5c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-3.5v-3.5Z"
+            />
+          </svg>
+        </button>
       </div>
     </div>
     <p class="my-3">
@@ -139,8 +218,23 @@ onMounted(async () => {
   </div>
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
-  <div v-else>
-    <component :is="currentListType" :contacts="contacts" class="ml-24 mt-10"></component>
+  <div v-if="!loading && !empty" :key="currentListType + '-' + currentPage">
+    <component
+      :is="currentListType"
+      :contacts="contacts"
+      class="mx-24 mt-10"
+      @delete-contact="openContactDeleteForm"
+      @edit-contact="openContactEditForm"
+    />
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
+
+  <FormModal :isActive="formModalActive" @close-modal="closeModal">
+    <component
+      @close-pressed="closeModalAfterForm"
+      :is="currentForm"
+      :currentContact="currentContact"
+      :key="currentForm"
+    ></component>
+  </FormModal>
 </template>
