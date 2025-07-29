@@ -83,5 +83,6 @@ export const useAuthStore = defineStore('authContext', () => {
     User: readonly(User),
     loginUser,
     logOutUser,
+    userTokenRefresh
   }
 })

@@ -61,7 +61,7 @@ async function updateSelectedAdminPermissions(permissions: object) {
     if (props.currentAdmin?.permissions_id != null) {
       const results = await updateAdminPermissions(permissions, props.currentAdmin?.permissions_id)
       if (results != null) {
-        if (props.currentAdmin.username == auth.User?.username) {
+        if (props.currentAdmin.username == auth.username) {
           //Reiketu refreshint duomenis admin'o jeigu pats sau pasikeite permissions
           auth.userTokenRefresh()
         }
