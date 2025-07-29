@@ -64,16 +64,13 @@ const login = async (email: string, password: string) => {
 
 const tokenRefresh = async () => {
   try {
-    const response = await instance.post(
-      `
-api/collections/users/auth-refresh`,
-      {
-        params: {
-          expand: 'permissions_id',
-        },
+    const response = await instance.post(`api/collections/users/auth-refresh`, {
+      params: {
+        expand: 'permissions_id',
       },
-    )
+    })
     const data = response.data
+    console.log(data)
     return data
   } catch (error) {
     return Promise.reject(error)
@@ -82,13 +79,9 @@ api/collections/users/auth-refresh`,
 
 const adminForgotPassword = async (email: string) => {
   try {
-    const response = await instance.post(
-      `
-api/collections/users/request-password-reset`,
-      {
-        email: email,
-      },
-    )
+    const response = await instance.post(`api/collections/users/request-password-reset`, {
+      email: email,
+    })
 
     return
   } catch (error) {
