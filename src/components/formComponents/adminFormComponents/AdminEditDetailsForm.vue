@@ -7,6 +7,7 @@ import { updateAdmin } from '@/services/adminService'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
+const regexExpressionString = /^\p{L}+$/u
 
 const schema = yup.object({
   email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą').trim(),
@@ -14,7 +15,9 @@ const schema = yup.object({
     .string()
     .required('Neįvestas vardas')
     .max(30, 'Vardas per ilgas. Max. 30 simboliai')
-    .trim(),
+    .trim()
+    .matches(regexExpressionString, 'Negalimi jokie specialūs simboliai/skaičiai')
+    .min(2, 'Vardas per trumpas'),
 })
 
 const props = defineProps<{

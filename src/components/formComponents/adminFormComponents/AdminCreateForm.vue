@@ -8,6 +8,7 @@ import type { User } from '@/typings/interface/User'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
+const regexExpressionString = /^\p{L}+$/u
 
 const props = defineProps<{
   currentAdmin: User | null
@@ -19,6 +20,8 @@ const schema = yup.object({
     .string()
     .required('Įveskite vardą')
     .max(30, 'Vardas per ilgas. Max. 30 simboliai')
+    .matches(regexExpressionString, 'Negalimi jokie specialūs simboliai/skaičiai')
+    .min(2, 'Vardas per trumpas')
     .trim(),
 })
 
@@ -74,6 +77,7 @@ const onSubmit = handleSubmit(async () => {
     delete_offices: deleteOffices.value,
     edit_structure: createEditStructures.value,
     delete_structure: deleteStructures.value,
+    read_permissions: true,
   }
   createNewAdmin(permissions)
 })
