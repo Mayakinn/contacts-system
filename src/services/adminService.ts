@@ -12,24 +12,24 @@ const instance = axios.create({
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
-    throw new Error('Tinklo klaida!')
+    throw 'Klaida: Tinklo klaida!'
   }
 
   const { status, data } = error.response
 
   if (status === 404) {
-    throw new Error('adminas/-ai nerastas/-i!')
+    throw 'Klaida: adminas/-ai nerastas/-i!'
   }
   if (status === 403) {
-    throw new Error('Neturite tam teisių!')
+    throw 'Klaida: Neturite tam teisių!'
   }
   if (status === 401) {
-    throw new Error('Autorizacijos klaida, prisijunkite!')
+    throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
   if (status === 400) {
-    throw new Error('Paštas užimtas ir/arba nevalidus el.paštas!')
+    throw 'Klaida: Paštas užimtas ir/arba nevalidus el.paštas!'
   }
-  throw new Error('Serverio klaida!')
+  throw 'Klaida: Serverio klaida!'
 })
 
 instance.interceptors.request.use((config) => {

@@ -3,6 +3,7 @@ import router from '@/router'
 import type { Contact } from '@/typings/interface/Contact'
 import { computed } from 'vue'
 import noImage from '../../assets/noPhoto.png'
+import { useAuthStore } from '@/stores/authStore'
 
 const props = defineProps<{
   contact: Contact | undefined
@@ -20,6 +21,10 @@ const email = computed(() => {
 const phoneNumber = computed(() => {
   return props.contact?.phone_number ? props.contact.phone_number : '-'
 })
+
+const emit = defineEmits(['edit-contact', 'delete-contact'])
+
+const auth = useAuthStore()
 </script>
 
 <template>
@@ -45,6 +50,22 @@ const phoneNumber = computed(() => {
           {{ props.contact?.expand?.office_id.street_number }}
         </p>
       </div>
+    </div>
+    <div class="flex mb-7 ml-5 space-x-3">
+      <button
+        v-show="auth.User?.expand?.permissions_id?.edit_employees"
+        @click="emit('edit-contact', props.contact)"
+        class="size-12 bg-button-blue rounded-4xl items-center flex justify justify-center shadow-md shadow-black hover:bg-blue-500"
+      >
+        <img src="../../assets/edit-image.png" class="size-6" />
+      </button>
+      <button
+        v-show="auth.User?.expand?.permissions_id?.delete_employees"
+        @click="emit('delete-contact', props.contact)"
+        class="size-12 bg-red-800 rounded-4xl items-center flex justify justify-center shadow-md shadow-black hover:bg-red-700"
+      >
+        <img src="../../assets/delete-image.png" class="size-6" />
+      </button>
     </div>
   </div>
 </template>

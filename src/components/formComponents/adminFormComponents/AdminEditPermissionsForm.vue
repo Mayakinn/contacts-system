@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
 import { updateAdminPermissions } from '@/services/adminService'
+import { useAuthStore } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import type { User } from '@/typings/interface/User'
@@ -8,7 +9,7 @@ import { ref, watchEffect } from 'vue'
 const props = defineProps<{
   currentAdmin: User | null
 }>()
-
+const auth = useAuthStore()
 const editCreateContacts = ref<boolean>(false)
 const deleteContacts = ref<boolean>(false)
 const createEditCompanies = ref<boolean>(false)
@@ -60,6 +61,10 @@ async function updateSelectedAdminPermissions(permissions: object) {
     if (props.currentAdmin?.permissions_id != null) {
       const results = await updateAdminPermissions(permissions, props.currentAdmin?.permissions_id)
       if (results != null) {
+        if (props.currentAdmin.username == auth.User?.username) {
+          //Reiketu refreshint duomenis admin'o jeigu pats sau pasikeite permissions
+          auth.userTokenRefresh()
+        }
         notifs.addNotification('Sėkmingai atnaujinti leidimai!', NotificationType.success)
         emit('close-pressed')
       }
@@ -134,5 +139,4 @@ watchEffect(() => {
     </form>
   </div>
   <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)" />
-
 </template>

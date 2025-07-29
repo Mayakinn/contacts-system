@@ -14,13 +14,16 @@ const props = defineProps({
 
 const emit = defineEmits(['page-change'])
 
-watch([() => props.currentPage, () => props.totalPages], () => {
-  calculatePages()
-})
+watch(
+  () => props.totalPages,
+  () => {
+    calculatePages()
+  },
+)
 
 function calculatePages() {
   if (props.currentPage > props.totalPages) {
-    changePage(props.totalPages)
+    emit('page-change', props.totalPages)
   }
 }
 
