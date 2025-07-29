@@ -53,8 +53,8 @@ const login = async (email: string, password: string) => {
       },
     )
     const data = response.data
-    console.log(data)
     localStorage.setItem('token', data.token)
+    localStorage.setItem('username', data.record.username)
     router.push('contacts')
     return data
   } catch (error) {
@@ -67,7 +67,6 @@ const tokenRefresh = async () => {
     const response = await instance.post(
       `
 api/collections/users/auth-refresh`,
-      {},
       {
         params: {
           expand: 'permissions_id',

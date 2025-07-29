@@ -10,6 +10,7 @@ import { useRoute } from 'vue-router'
 
 export const useAuthStore = defineStore('authContext', () => {
   const jwtToken = ref<string | null>(localStorage.getItem('token'))
+  const username = ref<string | null>(localStorage.getItem('username'))
   const User = ref<User | null>(null)
 
   const notif = useNotificationStore()
@@ -21,6 +22,7 @@ export const useAuthStore = defineStore('authContext', () => {
       if (response != null) {
         jwtToken.value = response.token
         User.value = response.record
+        username.value = response.record.username
         notif.addNotification('Prisijungimas sėkmingas!', NotificationType.success)
       }
     } catch (error: any) {
@@ -32,8 +34,10 @@ export const useAuthStore = defineStore('authContext', () => {
   function logOutUser() {
     if (jwtToken.value != null) {
       localStorage.removeItem('token')
+      localStorage.removeItem('username')
       User.value = null
       jwtToken.value = null
+      username.value = null
       notif.addNotification('Sėkmingai atsijungta', NotificationType.success)
       if (route.path === '/changepassword') {
         return
@@ -54,8 +58,8 @@ export const useAuthStore = defineStore('authContext', () => {
 
       if (response != null) {
         localStorage.setItem('token', response.token)
-        User.value = response.record
-        return
+        localStorage.setItem('username', response.record.username)
+        return response.record
       }
     } catch (error) {
       notif.addNotification(
@@ -65,18 +69,19 @@ export const useAuthStore = defineStore('authContext', () => {
       localStorage.removeItem('token')
       User.value = null
       jwtToken.value = null
+      username.value = null
       router.push('/contacts')
     }
   }
 
   onMounted(async () => {
-    await userTokenRefresh()
+    User.value = await userTokenRefresh()
   })
   return {
     jwtToken: readonly(jwtToken),
+    username: readonly(username),
     User: readonly(User),
     loginUser,
     logOutUser,
-    userTokenRefresh,
   }
 })

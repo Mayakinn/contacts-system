@@ -22,7 +22,27 @@ const emit = defineEmits(['close-pressed'])
 
 const notifs = useNotificationStore()
 
-function formatData() {
+function onSumbit() {
+  const currentSelectedAdmin = props.currentAdmin?.expand
+  if (!currentSelectedAdmin?.permissions_id) {
+    return
+  }
+  const editContactsChanged = editCreateContacts.value !== currentSelectedAdmin.permissions_id?.edit_employees
+  const deleteContactsChanged = deleteContacts.value !== currentSelectedAdmin.permissions_id?.delete_employees
+  const createEditChanged = createEditCompanies.value !== currentSelectedAdmin.permissions_id?.edit_companies
+  const deleteCompanieChanged = deleteCompanies.value !== currentSelectedAdmin.permissions_id?.delete_companies
+  const createEditOfficesChanged = createEditOffices.value !== currentSelectedAdmin.permissions_id?.edit_offices
+  const deleteOfficesChanged = deleteOffices.value !== currentSelectedAdmin.permissions_id?.delete_offices
+  const createEditStructuresChanged = createEditStructures.value !== currentSelectedAdmin.permissions_id?.edit_structure
+  const deleteStructuresChanged = deleteStructures.value !== currentSelectedAdmin.permissions_id?.delete_structure
+
+  if (!editContactsChanged && !deleteContactsChanged && !createEditChanged
+    && !deleteCompanieChanged && !createEditOfficesChanged && !deleteOfficesChanged
+    && !createEditStructuresChanged && !deleteStructuresChanged) {
+    emit('close-pressed', true)
+    return
+  }
+
   const permissions = {
     edit_employees: editCreateContacts.value,
     delete_employees: deleteContacts.value,
@@ -72,7 +92,7 @@ watchEffect(() => {
 
 <template>
   <div class="sm:items-start m-5">
-    <form @submit.prevent="formatData">
+    <form @submit.prevent="onSumbit">
       <h1 class="text-xl">Redaguoti paskyros teises:</h1>
 
       <div class="">
@@ -113,9 +133,7 @@ watchEffect(() => {
         </div>
       </div>
 
-      <button
-        class="h-7 w-45 bg-button-blue absolute right-5 bottom-5 text-white text-xs rounded-xs hover:bg-blue-800"
-      >
+      <button class="h-7 w-45 bg-button-blue absolute right-5 bottom-5 text-white text-xs rounded-xs hover:bg-blue-800">
         Atnaujinti
       </button>
     </form>

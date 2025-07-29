@@ -15,13 +15,14 @@ const props = defineProps<{
 }>()
 
 const schema = yup.object({
-  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
+  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą').trim(),
   name: yup
     .string()
     .required('Įveskite vardą')
     .max(30, 'Vardas per ilgas. Max. 30 simboliai')
     .matches(regexExpressionString, 'Negalimi jokie specialūs simboliai/skaičiai')
-    .min(2, 'Vardas per trumpas'),
+    .min(2, 'Vardas per trumpas')
+    .trim(),
 })
 
 const { defineField, errors, handleSubmit } = useForm({
@@ -55,14 +56,13 @@ async function createNewAdmin(permissions: object) {
     showTempPassword.value = true
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
-    emit('close-pressed', true)
   }
 }
 
 const onSubmit = handleSubmit(async () => {
   password.value = randomPassword({ length: 12, characters: 'alphanumeric' })
-  formData.append('email', email.value)
-  formData.append('name', name.value)
+  formData.append('email', email.value.trim())
+  formData.append('name', name.value.trim())
   if (selectedFile.value != null) {
     formData.append('avatar', selectedFile.value)
   }
@@ -134,7 +134,7 @@ const fileHasBeenUploaded = computed(() => {
               v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
             />
-            <p>{{ errors.name }}</p>
+            <p class="text-red-500">{{ errors.name }}</p>
           </div>
           <div>
             <label for="email" class="block text-gray-500 text-sm">Elektroninis paštas:</label>
@@ -159,7 +159,7 @@ const fileHasBeenUploaded = computed(() => {
               autocomplete="email"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
             />
-            {{ errors.email }}
+            <p class="text-red-500">{{ errors.email }}</p>
           </div>
           <div class="flex flex-col items-center justify-center mt-10">
             <label

@@ -35,6 +35,7 @@ const auth = useAuthStore()
 const currentContact = ref<Contact | null>(null)
 const currentForm = shallowRef<Component>()
 const formModalActive = ref<boolean>(false)
+const active = ref<boolean>(true)
 
 async function loadData() {
   try {
@@ -51,7 +52,7 @@ async function loadData() {
       totalItems.value = total
       loading.value = false
       totalPages.value = pages
-
+      active.value = true
       if (currentPage.value > totalPages.value && totalPages.value > 0) {
         currentPage.value = totalPages.value
         await loadData()
@@ -76,6 +77,7 @@ async function loadData() {
       notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.danger)
     }
   } catch (error: any) {
+    active.value = false
     notifs.addNotification(error, NotificationType.danger)
   }
 }
@@ -190,7 +192,7 @@ onMounted(async () => {
     <div class="w-full mt-4">
       <div class="relative flex items-center">
         <Search @query-change="onSearchTermChange" />
-        <ItemsPerPage :TotalItems="totalItems" @number-change="onNumberChange" />
+        <ItemsPerPage :totalItems="totalItems" :active="active" @number-change="onNumberChange" />
         <button
           @click="changeListType()"
           class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 hover:bg-blue-500 flex items-center justify-center cursor-pointer"
