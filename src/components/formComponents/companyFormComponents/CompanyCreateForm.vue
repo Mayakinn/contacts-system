@@ -23,19 +23,19 @@ const { defineField, errors, handleSubmit } = useForm({
   validationSchema: schema,
 })
 
-const formData = new FormData()
-
 const [name, nameAttrs] = defineField('name')
 const notifs = useNotificationStore()
 
 const emit = defineEmits(['close-pressed'])
 
 const onSubmit = handleSubmit(async () => {
+  const formData = new FormData()
+
   formData.append('name', name.value.trim())
-  createNewCompany()
+  createNewCompany(formData)
 })
 
-async function createNewCompany() {
+async function createNewCompany(formData: FormData) {
   try {
     await createCompany(formData)
     notifs.addNotification('Įmonė sėkmingai pridėta', NotificationType.success)

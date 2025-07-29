@@ -24,23 +24,22 @@ const { defineField, errors, handleSubmit } = useForm({
   validationSchema: schema,
 })
 
-const formData = new FormData()
-
 const [name, nameAttrs] = defineField('name')
 const notifs = useNotificationStore()
 
 const emit = defineEmits(['close-pressed'])
 
 const onSubmit = handleSubmit(async () => {
+  const formData = new FormData()
   if (name.value.trim() == props.currentCompany?.name) {
     emit('close-pressed', true)
     return
   }
   formData.append('name', name.value.trim())
-  updateCompany()
+  updateCompany(formData)
 })
 
-async function updateCompany() {
+async function updateCompany(formData: FormData) {
   if (props.currentCompany?.id == null) {
     return
   }
