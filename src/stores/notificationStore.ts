@@ -15,7 +15,7 @@ export const useNotificationStore = defineStore('notification', () => {
     const id = uuidv4()
     const notification = { message, status, id }
     Notifs.value.push(notification)
-    const delay = 5000 * Notifs.value.length
+    const delay = 3000 * Notifs.value.length
     setTimeout(() => {
       deleteNotification(id)
     }, delay)

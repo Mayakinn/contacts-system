@@ -44,23 +44,42 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <button
+  <div
     ref="dropdownRef"
-    class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 flex items-center cursor-pointer"
-    :disabled="props.active"
+    class="bg-button-blue rounded-xs w-11.5 h-10 ml-5 flex items-center cursor-pointer justify justify-center"
     @click="showHideMenu"
   >
-    <img src="../../assets/dropdown.png" class="pt-2" />
-
-    <div class="w-11.5 space-y-0.5 absolute top-full z-10 mt-1" v-show="showHideMenuSelect">
-      <div
-        class="h-4 bg-teltonika-blue hover:bg-blue-500 rounded-xs text-center text-xs text-white"
-        v-for="(option, index) in options"
-        :key="index"
-        @click="toggleOptionSelect(option)"
-      >
-        {{ option }}
+    <img src="../../assets/dropdown.png" class="size-11 pt-1" />
+    <transition-group name="select-fade">
+      <div class="w-11.5 space-y-0.5 absolute top-full z-10 mt-1" v-if="showHideMenuSelect">
+        <div
+          class="h-4 bg-teltonika-blue hover:bg-blue-500 rounded-xs text-center text-xs text-white"
+          v-for="(option, index) in options"
+          :key="index"
+          @click="toggleOptionSelect(option)"
+        >
+          {{ option }}
+        </div>
       </div>
-    </div>
-  </button>
+    </transition-group>
+  </div>
 </template>
+
+<style scoped>
+.select-fade-enter-from,
+.select-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.select-fade-enter-active,
+.select-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.select-fade-enter-to,
+.select-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>

@@ -231,14 +231,5 @@ const fileHasBeenUploaded = computed(() => {
       </button>
     </form>
   </div>
-  <ModalCloseButton
-    v-if="!showTempPassword"
-    :isDeleteModal="false"
-    @close-modal="emit('close-pressed', true)"
-  />
-  <ModalCloseButton
-    v-if="showTempPassword"
-    :isDeleteModal="false"
-    @close-modal="emit('close-pressed')"
-  />
+  <ModalCloseButton :isDeleteModal="false" @close-modal="emit('close-pressed', true)" />
 </template>
