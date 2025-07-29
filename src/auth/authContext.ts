@@ -41,8 +41,7 @@ instance.interceptors.request.use((config) => {
 const login = async (email: string, password: string) => {
   try {
     const response = await instance.post(
-      `
-api/collections/users/auth-with-password`,
+      `api/collections/users/auth-with-password`,
       {
         identity: email,
         password: password,
@@ -55,6 +54,7 @@ api/collections/users/auth-with-password`,
     )
     const data = response.data
     localStorage.setItem('token', data.token)
+    localStorage.setItem('username', data.record.username)
     router.push('contacts')
     return data
   } catch (error) {
@@ -67,7 +67,6 @@ const tokenRefresh = async () => {
     const response = await instance.post(
       `
 api/collections/users/auth-refresh`,
-      {},
       {
         params: {
           expand: 'permissions_id',

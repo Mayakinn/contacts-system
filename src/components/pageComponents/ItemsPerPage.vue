@@ -7,22 +7,25 @@ const dropdownRef = ref<HTMLElement | null>(null)
 const selectedOption = ref<number | undefined>(25)
 
 const props = defineProps<{
-  TotalItems: number | undefined
+  totalItems: number | undefined
+  active: boolean
 }>()
 
 const emit = defineEmits(['number-change'])
 
 const toggleOptionSelect = (option: number | string) => {
   if (option === 'All') {
-    selectedOption.value = props.TotalItems
-    emit('number-change', props.TotalItems)
+    selectedOption.value = props.totalItems
+    emit('number-change', props.totalItems)
   } else {
     emit('number-change', option)
   }
 }
 
 const showHideMenu = () => {
-  return (showHideMenuSelect.value = !showHideMenuSelect.value)
+  if (props.active == false) {
+    return (showHideMenuSelect.value = !showHideMenuSelect.value)
+  }
 }
 
 const handleClickOutside = (event: MouseEvent) => {

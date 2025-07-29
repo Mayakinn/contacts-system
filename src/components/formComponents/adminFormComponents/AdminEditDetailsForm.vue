@@ -7,11 +7,17 @@ import { updateAdmin } from '@/services/adminService'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
-import { useAuthStore } from '@/stores/authStore'
+const regexExpressionString = /^\p{L}+$/u
 
 const schema = yup.object({
-  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą'),
-  name: yup.string().required('Neįvestas vardas').max(30, 'Vardas per ilgas. Max. 30 simboliai'),
+  email: yup.string().required('Įveskite el.paštą').email('Įveskite validų el. paštą').trim(),
+  name: yup
+    .string()
+    .required('Neįvestas vardas')
+    .max(30, 'Vardas per ilgas. Max. 30 simboliai')
+    .trim()
+    .matches(regexExpressionString, 'Negalimi jokie specialūs simboliai/skaičiai')
+    .min(2, 'Vardas per trumpas'),
 })
 
 const props = defineProps<{
@@ -30,11 +36,9 @@ const [name, nameAttrs] = defineField('name')
 const notifs = useNotificationStore()
 const selectedFile = ref<File | null>(null)
 const formData = new FormData()
-const isEmailTaken = ref<boolean>(false)
 const MAXFILESIZE = 5242880
 const isFileAnImage = ref<boolean>(true)
 const isFileSizeOk = ref<boolean>(true)
-const auth = useAuthStore()
 
 function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
@@ -59,21 +63,23 @@ const onSubmit = handleSubmit(async () => {
     if (!currentSelectedAdmin?.permissions_id) {
       return
     }
-    const emailChanged = email.value !== currentSelectedAdmin.email
-
-    if (emailChanged) {
-      formData.append('email', email.value)
+    const emailChanged = email.value.trim() !== currentSelectedAdmin.email
+    const nameChanged = name.value.trim() !== currentSelectedAdmin.name
+    if (!nameChanged && !emailChanged && selectedFile.value == null) {
+      emit('close-pressed', true)
+      return
     }
-
-    formData.append('name', name.value)
+    if (emailChanged) {
+      formData.append('email', email.value.trim())
+    }
+    if (nameChanged) {
+      formData.append('name', name.value.trim())
+    }
 
     formData.append('permissions_id', currentSelectedAdmin.permissions_id)
 
     if (selectedFile.value != null) {
       formData.append('avatar', selectedFile.value)
-    }
-    if (auth.User?.name == currentSelectedAdmin.name) {
-      await auth.userTokenRefresh()
     }
 
     updateAdminInfo()
@@ -110,7 +116,6 @@ async function updateAdminInfo() {
     }
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
-    emit('close-pressed', true)
   }
 }
 watchEffect(() => {
@@ -139,7 +144,7 @@ watchEffect(() => {
               v-bind="nameAttrs"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-2 pr-3 py-2 transition duration-300 ease"
             />
-            <p>{{ errors.name }}</p>
+            <p class="text-red-500">{{ errors.name }}</p>
           </div>
           <div>
             <label for="email" class="block text-gray-500 text-sm">Elektroninis paštas:</label>
@@ -164,8 +169,7 @@ watchEffect(() => {
               autocomplete="email"
               class="w-full bg-gray-100 placeholder:text-gray-400 text-slate-700 text-sm border border-slate-200 rounded-xs pl-10 pr-3 py-2 transition duration-300 ease"
             />
-            <p>{{ errors.email }}</p>
-            <p v-show="isEmailTaken">El.paštas užmimtas</p>
+            <p class="text-red-500">{{ errors.email }}</p>
           </div>
           <div class="flex flex-col items-center justify-center mt-10">
             <label

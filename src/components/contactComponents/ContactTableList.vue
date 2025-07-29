@@ -23,7 +23,7 @@ function editContactPressed(contact: Contact) {
 
 <template>
   <div class="relative overflow-x-auto shadow-md sm:rounded-lg mr-30">
-    <table class="text-sm text-left w-full">
+    <table class="text-sm text-left w-full table-fixed">
       <thead class="text-xl text-center bg-gray-50">
         <tr>
           <th scope="col" class="px-6 py-3">Vardas ir pavardė</th>
