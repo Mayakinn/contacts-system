@@ -12,8 +12,8 @@ import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import type { DivisionDepartment } from '@/typings/interface/DivisionDepartment'
 import type { DepartmentGroup } from '@/typings/interface/DepartmentGroup'
 import { getOfficesForFilter } from '@/services/officeService'
-import { getDivisions } from '@/services/divisionService'
-import { getDepartments } from '@/services/departmentService'
+import { getDivisionsForFilters } from '@/services/divisionService'
+import { getDepartmentsForFilter } from '@/services/departmentService'
 import { getGroupsForFilter } from '@/services/groupService'
 import { getCompanies } from '@/services/companiesService'
 import { createContact } from '@/services/contactsService'
@@ -161,14 +161,14 @@ async function onCompanyValueChange() {
   chosenGroup.value = ''
 }
 async function onOfficeValueChange() {
-  officeDivisions.value = await getDivisions(chosenOffice.value)
+  officeDivisions.value = await getDivisionsForFilters(chosenOffice.value)
   chosenDivision.value = ''
   chosenDepartment.value = ''
   chosenGroup.value = ''
 }
 
 async function onDivisionValueChange() {
-  divisionDepartments.value = await getDepartments(chosenDivision.value)
+  divisionDepartments.value = await getDepartmentsForFilter(chosenDivision.value)
   chosenDepartment.value = ''
   chosenGroup.value = ''
 }

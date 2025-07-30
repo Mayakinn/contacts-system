@@ -24,7 +24,7 @@ instance.interceptors.response.use(undefined, (error) => {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
   if (status === 400) {
-    throw 'Klaida: Autorizacijos klaida, neturite tam teisių!'
+    throw 'Klaida: Toks ofisas jau egzistuoja!'
   }
 
   return 'Klaida: Serverio klaida!'

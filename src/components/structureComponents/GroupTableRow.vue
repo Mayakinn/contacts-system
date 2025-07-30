@@ -21,8 +21,8 @@ const auth = useAuthStore()
   <td
     class="px-6 py-4 space-x-5 text-white font-light"
     v-if="
-      auth.User?.expand?.permissions_id?.edit_offices ||
-      auth.User?.expand?.permissions_id?.delete_offices
+      auth.User?.expand?.permissions_id?.edit_structure ||
+      auth.User?.expand?.permissions_id?.edit_structure
     "
   >
     <button

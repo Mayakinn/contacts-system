@@ -23,12 +23,19 @@ instance.interceptors.response.use(undefined, (error) => {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
   if (status === 400) {
-    throw 'Klaida: Autorizacijos klaida, neturite tam teisių!'
+    throw 'Klaida: Tokia grupė jau egzistuoja!'
   }
 
   return 'Klaida: Serverio klaida!'
 })
 
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
+})
 const getGroupsForFilter = async (selectedDepartment: string): Promise<DepartmentGroup[]> => {
   try {
     const response = await instance.get(
@@ -66,4 +73,13 @@ const getGroups = async (currentPage = 1): Promise<[Group[], number, number]> =>
   }
 }
 
-export { getGroupsForFilter, getGroups }
+const createGroup = async (formData: FormData) => {
+  try {
+    await instance.post(`/api/collections/groups/records`, formData)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getGroupsForFilter, getGroups, createGroup }

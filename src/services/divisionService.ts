@@ -1,3 +1,4 @@
+import type { Division } from '@/typings/interface/Division'
 import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import axios from 'axios'
 
@@ -27,8 +28,14 @@ instance.interceptors.response.use(undefined, (error) => {
 
   return 'Klaida: Serverio klaida!'
 })
-
-const getDivisions = async (selectedOffice: string): Promise<OfficeDivision[]> => {
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
+})
+const getDivisionsForFilters = async (selectedOffice: string): Promise<OfficeDivision[]> => {
   try {
     const response = await instance.get(
       `
@@ -48,4 +55,42 @@ api/collections/offices_divisions/records`,
   }
 }
 
-export { getDivisions }
+const getDivisions = async (currentPage = 1): Promise<[Division[], number, number]> => {
+  try {
+    const response = await instance.get(`api/collections/divisions/records`, {
+      params: {
+        page: currentPage,
+      },
+    })
+    const data: Division[] = response.data.items
+
+    const totalItems: number = response.data.totalItems
+    const totalPages: number = response.data.totalPages
+    return [data, totalItems, totalPages]
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const createDivision = async (formData: FormData, name: string) => {
+  try {
+    const division_id = await instance.post(`/api/collections/divisions/records`, {
+      name: name,
+    })
+    const data = division_id.data.id
+    if (data != null) {
+      formData.forEach(async (department_id) => {
+        const payload = {
+          division_id: data,
+          department_id: department_id,
+        }
+        await instance.post(`/api/collections/divisions_departments/records`, payload)
+      })
+    }
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getDivisionsForFilters, getDivisions, createDivision }

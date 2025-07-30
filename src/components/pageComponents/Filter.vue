@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getCompanies } from '@/services/companiesService'
-import { getDepartments } from '@/services/departmentService'
-import { getDivisions } from '@/services/divisionService'
+import { getDepartmentsForFilter } from '@/services/departmentService'
+import { getDivisionsForFilters } from '@/services/divisionService'
 import { getGroupsForFilter } from '@/services/groupService'
 import { getOfficesForFilter } from '@/services/officeService'
 import type { Company } from '@/typings/interface/Company'
@@ -130,7 +130,7 @@ async function onOfficeValueChange(value: string) {
     chosenDepartment.value = ''
     chosenGroup.value = ''
 
-    officeDivisions.value = await getDivisions(value)
+    officeDivisions.value = await getDivisionsForFilters(value)
     divisionDepartments.value = []
     departmentGroups.value = []
   } catch (error: any) {
@@ -145,7 +145,7 @@ async function onDivisionValueChange(value: string) {
     chosenDepartment.value = ''
     chosenGroup.value = ''
 
-    divisionDepartments.value = await getDepartments(value)
+    divisionDepartments.value = await getDepartmentsForFilter(value)
     departmentGroups.value = []
   } catch (error: any) {
     emit('error-received', error)

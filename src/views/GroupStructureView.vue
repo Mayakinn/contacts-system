@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import GroupCreateForm from '@/components/formComponents/structureFormComponents/GroupCreateForm.vue'
+import Pagination from '@/components/pageComponents/Pagination.vue'
 import GroupTable from '@/components/structureComponents/GroupTable.vue'
 import { getGroups } from '@/services/groupService'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -13,7 +15,11 @@ const currentPage = ref<number>(1)
 const totalPages = ref<number>(0)
 const totalItems = ref<number>(0)
 const groups = ref<Group[]>([])
-
+const emit = defineEmits(['change-create-form'])
+function onPageChange(page: number) {
+  currentPage.value = page
+  loadData()
+}
 async function loadData() {
   try {
     const result = await getGroups(currentPage.value)
@@ -24,6 +30,8 @@ async function loadData() {
       totalItems.value = total
       loading.value = false
       totalPages.value = pages
+      emit('change-create-form', GroupCreateForm)
+
       if (currentPage.value > totalPages.value && totalPages.value > 0) {
         currentPage.value = totalPages.value
         await loadData()
@@ -60,4 +68,5 @@ onMounted(() => {
 
 <template>
   <GroupTable :groups="groups" @edit-group="" @delete-group="" />
+  <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
 </template>

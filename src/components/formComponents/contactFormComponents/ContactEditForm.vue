@@ -2,8 +2,8 @@
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
 import { getCompanies } from '@/services/companiesService'
 import { updateContact } from '@/services/contactsService'
-import { getDepartments } from '@/services/departmentService'
-import { getDivisions } from '@/services/divisionService'
+import { getDepartmentsForFilter } from '@/services/departmentService'
+import { getDivisionsForFilters } from '@/services/divisionService'
 import { getGroupsForFilter } from '@/services/groupService'
 import { getOfficesForFilter } from '@/services/officeService'
 import { useNotificationStore } from '@/stores/notificationStore'
@@ -107,14 +107,14 @@ async function onCompanyValueChange() {
   chosenGroup.value = ''
 }
 async function onOfficeValueChange() {
-  officeDivisions.value = await getDivisions(chosenOffice.value)
+  officeDivisions.value = await getDivisionsForFilters(chosenOffice.value)
   chosenDivision.value = ''
   chosenDepartment.value = ''
   chosenGroup.value = ''
 }
 
 async function onDivisionValueChange() {
-  divisionDepartments.value = await getDepartments(chosenDivision.value)
+  divisionDepartments.value = await getDepartmentsForFilter(chosenDivision.value)
   chosenDepartment.value = ''
   chosenGroup.value = ''
 }

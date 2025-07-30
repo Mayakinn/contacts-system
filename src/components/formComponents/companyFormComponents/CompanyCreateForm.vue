@@ -15,7 +15,7 @@ const schema = yup.object({
   name: yup
     .string()
     .required('Įveskite įmonės pavadinimą')
-    .max(50, 'Vardas per ilgas. Max. 50 simboliai')
+    .max(50, 'Pavadinimas per ilgas. Max. 50 simboliai')
     .trim(),
 })
 
