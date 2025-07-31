@@ -9,7 +9,6 @@ import _ from 'lodash'
 import { getDivisions } from '@/services/divisionService'
 import type { Division } from '@/typings/interface/Division'
 import {
-  createDepartment,
   getDepartmentDivisions,
   updateAddDepartmentDivisions,
   updateDeleteDepartmentDivisions,
