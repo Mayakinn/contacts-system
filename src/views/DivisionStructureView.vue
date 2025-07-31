@@ -1,12 +1,15 @@
 <script lang="ts" setup>
 import DivisionCreateForm from '@/components/formComponents/structureFormComponents/DivisionCreateForm.vue'
+import DivisionDeleteForm from '@/components/formComponents/structureFormComponents/DivisionDeleteForm.vue'
+import DivisionEditForm from '@/components/formComponents/structureFormComponents/DivisionEditForm.vue'
+import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
 import DivisionTable from '@/components/structureComponents/DivisionTable.vue'
 import { getDivisions } from '@/services/divisionService'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Division } from '@/typings/interface/Division'
 import { NotificationType } from '@/typings/interface/NotificationType'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, shallowRef, type Component } from 'vue'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -16,6 +19,10 @@ const totalPages = ref<number>(0)
 const totalItems = ref<number>(0)
 const divisions = ref<Division[]>([])
 const emit = defineEmits(['change-create-form'])
+const currentDivision = ref<Division | null>(null)
+const currentForm = shallowRef<Component>()
+const formModalActive = ref<boolean>(false)
+
 function onPageChange(page: number) {
   currentPage.value = page
   loadData()
@@ -62,12 +69,60 @@ async function loadData() {
   }
 }
 
+function OpenModal() {
+  formModalActive.value = true
+}
+
+function openDeleteDivisionForm(division: Division) {
+  currentForm.value = DivisionDeleteForm
+  currentDivision.value = division
+  OpenModal()
+}
+
+function openDivisionEditForm(division: Division) {
+  currentForm.value = DivisionEditForm
+  currentDivision.value = division
+  OpenModal()
+}
+
+const closeModal = () => {
+  formModalActive.value = false
+  currentForm.value = undefined
+  currentDivision.value = null
+}
+function closeModalAfterForm(flag: boolean) {
+  formModalActive.value = false
+  currentDivision.value = null
+  if (flag) {
+    return
+  } else {
+    loadData()
+  }
+}
+
 onMounted(() => {
   loadData()
 })
 </script>
 
 <template>
-  <DivisionTable :divisions="divisions" @edit-division="" @delete-division="" />
-  <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
+  <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
+  <div v-else>
+    <DivisionTable
+      :divisions="divisions"
+      @edit-division="openDivisionEditForm"
+      @delete-division="openDeleteDivisionForm"
+    />
+    <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  </div>
+
+  <FormModal :isActive="formModalActive" @close-modal="closeModal">
+    <component
+      @close-pressed="closeModalAfterForm"
+      :is="currentForm"
+      :currentDivision="currentDivision"
+      :key="currentForm"
+    ></component>
+  </FormModal>
 </template>

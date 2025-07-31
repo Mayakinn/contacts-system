@@ -5,8 +5,9 @@ import * as yup from 'yup'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { onMounted, ref } from 'vue'
-import { getGroups } from '@/services/groupService'
-import type { Group } from '@/typings/interface/Group'
+
+import { getDivisions } from '@/services/divisionService'
+import type { Division } from '@/typings/interface/Division'
 import { createDepartment } from '@/services/departmentService'
 
 const loading = ref<boolean>(true)
@@ -14,30 +15,30 @@ const empty = ref<boolean>(false)
 const currentPage = ref<number>(1)
 const totalPages = ref<number>(0)
 const totalItems = ref<number>(0)
-const GroupsArray = ref<Group[]>([])
+const divisionArray = ref<Division[]>([])
 
 async function loadData() {
   try {
-    const result = await getGroups(currentPage.value)
+    const result = await getDivisions(currentPage.value)
 
     if (result != null) {
       const [data, total, pages] = result
-      GroupsArray.value = data
+      divisionArray.value = data
       if (totalItems.value == undefined || totalItems.value == 0) {
         empty.value = true
         return
       } else if (totalItems.value > 0) {
         empty.value = false
-        notifs.addNotification('Grupės sėkmingai užkrautos!', NotificationType.success)
+        notifs.addNotification('Padaliniai sėkmingai užkrauti!', NotificationType.success)
       }
     } else {
       loading.value = false
       empty.value = true
-      GroupsArray.value = []
+      divisionArray.value = []
       totalItems.value = 0
       totalPages.value = 0
 
-      notifs.addNotification('Nepavyko užkrauti grupių!', NotificationType.danger)
+      notifs.addNotification('Nepavyko užkrauti padalinių!', NotificationType.danger)
     }
   } catch (error: any) {
     empty.value = true
@@ -48,22 +49,26 @@ async function loadData() {
 const schema = yup.object({
   name: yup
     .string()
-    .required('Įveskite grupės pavadinimą')
+    .required('Įveskite skyriaus pavadinimą')
     .max(50, 'Pavadinimas per ilgas. Max. 50 simboliai')
     .trim(),
-  groups: yup.array().required().min(1, 'Pasirinkite bent vieną grupę').of(yup.string().required()),
+  divisions: yup
+    .array()
+    .required()
+    .min(1, 'Pasirinkite bent vieną padalinį')
+    .of(yup.string().required()),
 })
 
 const { defineField, errors, handleSubmit } = useForm({
   validationSchema: schema,
   initialValues: {
     name: '',
-    groups: [],
+    divisions: [],
   },
 })
 
 const [name, nameAttrs] = defineField('name')
-const [groups, groupsAttrs] = defineField('groups')
+const [divisions, divisionsAttrs] = defineField('divisions')
 
 const notifs = useNotificationStore()
 
@@ -72,16 +77,16 @@ const emit = defineEmits(['close-pressed'])
 const onSubmit = handleSubmit(async () => {
   const formData = new FormData()
 
-  groups.value.forEach((groupId: number | string) => {
-    formData.append('group_id', groupId.toString())
+  divisions.value.forEach((divisionId: number | string) => {
+    formData.append('division_id', divisionId.toString())
   })
-  createNewGroup(formData, name.value.trim())
+  createNewDepartment(formData, name.value.trim())
 })
 
-async function createNewGroup(formData: FormData, name: string) {
+async function createNewDepartment(formData: FormData, name: string) {
   try {
     await createDepartment(formData, name)
-    notifs.addNotification('Grupė sėkmingai pridėta', NotificationType.success)
+    notifs.addNotification('Skyrius sėkmingai pridėtas', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
     notifs.addNotification(error, NotificationType.danger)
@@ -117,29 +122,29 @@ onMounted(async () => {
           </button>
         </div>
         <div class="ml-10">
-          <label class="block text-gray-500 text-sm mb-2">Pasirinkite grupes:</label>
+          <label class="block text-gray-500 text-sm mb-2">Pasirinkite padalinius:</label>
           <div class="space-y-1 overflow-y-scroll h-50 w-70">
             <div
-              v-for="group in GroupsArray"
-              :key="group.id"
+              v-for="division in divisionArray"
+              :key="division.id"
               class="flex items-center space-x-2 select-none"
             >
               <input
                 type="checkbox"
-                :id="'department-' + group.id"
-                :value="group.id"
-                v-model="groups"
+                :id="'division-' + division.id"
+                :value="division.id"
+                v-model="divisions"
                 class="hidden peer"
               />
               <label
-                :for="'department-' + group.id"
+                :for="'division-' + division.id"
                 class="text-sm text-black bg-gray-100 peer-checked:bg-blue-700 w-70 h-10 text-center items-center justify justify-center flex"
               >
-                {{ group.name }}
+                {{ division.name }}
               </label>
             </div>
           </div>
-          <p class="text-red-500 text-sm mt-1">{{ errors.groups }}</p>
+          <p class="text-red-500 text-sm mt-1">{{ errors.divisions }}</p>
         </div>
       </div>
     </form>

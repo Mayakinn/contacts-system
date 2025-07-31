@@ -27,18 +27,33 @@ function onSumbit() {
   if (!currentSelectedAdmin?.permissions_id) {
     return
   }
-  const editContactsChanged = editCreateContacts.value !== currentSelectedAdmin.permissions_id?.edit_employees
-  const deleteContactsChanged = deleteContacts.value !== currentSelectedAdmin.permissions_id?.delete_employees
-  const createEditChanged = createEditCompanies.value !== currentSelectedAdmin.permissions_id?.edit_companies
-  const deleteCompanieChanged = deleteCompanies.value !== currentSelectedAdmin.permissions_id?.delete_companies
-  const createEditOfficesChanged = createEditOffices.value !== currentSelectedAdmin.permissions_id?.edit_offices
-  const deleteOfficesChanged = deleteOffices.value !== currentSelectedAdmin.permissions_id?.delete_offices
-  const createEditStructuresChanged = createEditStructures.value !== currentSelectedAdmin.permissions_id?.edit_structure
-  const deleteStructuresChanged = deleteStructures.value !== currentSelectedAdmin.permissions_id?.delete_structure
+  const editContactsChanged =
+    editCreateContacts.value !== currentSelectedAdmin.permissions_id?.edit_employees
+  const deleteContactsChanged =
+    deleteContacts.value !== currentSelectedAdmin.permissions_id?.delete_employees
+  const createEditChanged =
+    createEditCompanies.value !== currentSelectedAdmin.permissions_id?.edit_companies
+  const deleteCompanieChanged =
+    deleteCompanies.value !== currentSelectedAdmin.permissions_id?.delete_companies
+  const createEditOfficesChanged =
+    createEditOffices.value !== currentSelectedAdmin.permissions_id?.edit_offices
+  const deleteOfficesChanged =
+    deleteOffices.value !== currentSelectedAdmin.permissions_id?.delete_offices
+  const createEditStructuresChanged =
+    createEditStructures.value !== currentSelectedAdmin.permissions_id?.edit_structure
+  const deleteStructuresChanged =
+    deleteStructures.value !== currentSelectedAdmin.permissions_id?.delete_structure
 
-  if (!editContactsChanged && !deleteContactsChanged && !createEditChanged
-    && !deleteCompanieChanged && !createEditOfficesChanged && !deleteOfficesChanged
-    && !createEditStructuresChanged && !deleteStructuresChanged) {
+  if (
+    !editContactsChanged &&
+    !deleteContactsChanged &&
+    !createEditChanged &&
+    !deleteCompanieChanged &&
+    !createEditOfficesChanged &&
+    !deleteOfficesChanged &&
+    !createEditStructuresChanged &&
+    !deleteStructuresChanged
+  ) {
     emit('close-pressed', true)
     return
   }
@@ -61,7 +76,8 @@ async function updateSelectedAdminPermissions(permissions: object) {
     if (props.currentAdmin?.permissions_id != null) {
       const results = await updateAdminPermissions(permissions, props.currentAdmin?.permissions_id)
       if (results != null) {
-        if (props.currentAdmin.username == auth.username) {
+        if (props.currentAdmin?.username == auth.username) {
+          console.log('praejo')
           //Reiketu refreshint duomenis admin'o jeigu pats sau pasikeite permissions
           auth.userTokenRefresh()
         }
@@ -133,7 +149,9 @@ watchEffect(() => {
         </div>
       </div>
 
-      <button class="h-7 w-45 bg-button-blue absolute right-5 bottom-5 text-white text-xs rounded-xs hover:bg-blue-800">
+      <button
+        class="h-7 w-45 bg-button-blue absolute right-5 bottom-5 text-white text-xs rounded-xs hover:bg-blue-800"
+      >
         Atnaujinti
       </button>
     </form>

@@ -29,7 +29,13 @@ instance.interceptors.response.use(undefined, (error) => {
 
   return 'Klaida: Serverio klaida!'
 })
-
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
+})
 const getOfficesForFilter = async (selectedCompany: string): Promise<CompanyOffice[]> => {
   try {
     const response = await instance.get(
@@ -50,11 +56,12 @@ api/collections/companies_offices/records`,
   }
 }
 
-const getOffices = async (currentPage = 1): Promise<[Office[], number, number]> => {
+const getOffices = async (currentPage = 1, perPage = 10): Promise<[Office[], number, number]> => {
   try {
     const response = await instance.get(`/api/collections/offices/records`, {
       params: {
         page: currentPage,
+        perPage: perPage,
       },
     })
     const data: Office[] = response.data.items
@@ -66,4 +73,99 @@ const getOffices = async (currentPage = 1): Promise<[Office[], number, number]> 
   }
 }
 
-export { getOfficesForFilter, getOffices }
+const createOffice = async (formDataCompanies: FormData, formDataOffice: FormData) => {
+  try {
+    const office_id = await instance.post(`/api/collections/offices/records`, formDataOffice)
+    const data = office_id.data.id
+    if (data != null) {
+      formDataCompanies.forEach(async (company_id) => {
+        const payload = {
+          office_id: data,
+          company_id: company_id,
+        }
+        await instance.post(`/api/collections/companies_offices/records`, payload)
+      })
+    }
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const updateOfficeDetails = async (formData: FormData, office_id: string | undefined) => {
+  try {
+    await instance.patch(`/api/collections/offices/records/${office_id}`, formData)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const getOfficeCompanies = async (selectedOffice: string): Promise<CompanyOffice[]> => {
+  try {
+    const response = await instance.get(`api/collections/companies_offices/records`, {
+      params: {
+        expand: 'company_id',
+        filter: `office_id='${selectedOffice}'`,
+      },
+    })
+    const data: CompanyOffice[] = response.data.items
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const updateAddOfficeCompanies = async (formData: FormData, office_id: string | undefined) => {
+  try {
+    const promises: Promise<any>[] = []
+
+    formData.forEach(async (company_id) => {
+      const payload = {
+        office_id: office_id,
+        company_id: company_id,
+      }
+      promises.push(instance.post(`/api/collections/companies_offices/records`, payload))
+    })
+    await Promise.all(promises)
+
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const updateDeleteOfficeCompanies = async (formData: FormData) => {
+  try {
+    const promises: Promise<any>[] = []
+
+    formData.forEach(async (id) => {
+      promises.push(instance.delete(`/api/collections/companies_offices/records/${id}`))
+    })
+    await Promise.all(promises)
+
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const deleteOffice = async (officeId: string) => {
+  try {
+    await instance.delete(`api/collections/offices/records/${officeId}`)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export {
+  getOfficesForFilter,
+  getOffices,
+  createOffice,
+  deleteOffice,
+  updateOfficeDetails,
+  getOfficeCompanies,
+  updateAddOfficeCompanies,
+  updateDeleteOfficeCompanies,
+}

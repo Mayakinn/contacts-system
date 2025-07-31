@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import OfficeCreateForm from '@/components/formComponents/structureFormComponents/OfficeCreateForm.vue'
+import OfficeDeleteForm from '@/components/formComponents/structureFormComponents/OfficeDeleteForm.vue'
+import OfficeEditForm from '@/components/formComponents/structureFormComponents/OfficeEditForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
 import OfficeTable from '@/components/structureComponents/OfficeTable.vue'
@@ -74,6 +76,19 @@ function closeModalAfterForm(flag: boolean) {
 function OpenModal() {
   formModalActive.value = true
 }
+
+function openDeleteOfficeForm(office: Office) {
+  currentForm.value = OfficeDeleteForm
+  currentOffice.value = office
+  OpenModal()
+}
+
+function openOfficeEditForm(office: Office) {
+  currentOffice.value = office
+  currentForm.value = OfficeEditForm
+  OpenModal()
+}
+
 function onPageChange(page: number) {
   currentPage.value = page
   loadData()
@@ -90,8 +105,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <OfficeTable :offices="offices" @edit-office="" @delete-office="" />
-  <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
+  <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
+  <div v-else>
+    <OfficeTable
+      :offices="offices"
+      @edit-office="openOfficeEditForm"
+      @delete-office="openDeleteOfficeForm"
+    />
+    <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
+  </div>
 
   <FormModal :isActive="formModalActive" @close-modal="closeModal">
     <component

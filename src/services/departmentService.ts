@@ -55,11 +55,15 @@ api/collections/divisions_departments/records`,
   }
 }
 
-const getDepartments = async (currentPage = 1): Promise<[Department[], number, number]> => {
+const getDepartments = async (
+  currentPage = 1,
+  perPage = 10,
+): Promise<[Department[], number, number]> => {
   try {
     const response = await instance.get(`api/collections/departments/records`, {
       params: {
         page: currentPage,
+        perPage: perPage,
       },
     })
     const data: Department[] = response.data.items
@@ -79,12 +83,12 @@ const createDepartment = async (formData: FormData, name: string) => {
     })
     const data = department_id.data.id
     if (data != null) {
-      formData.forEach(async (group_id) => {
+      formData.forEach(async (division_id) => {
         const payload = {
           department_id: data,
-          group_id: group_id,
+          division_id: division_id,
         }
-        await instance.post(`/api/collections/departments_groups/records`, payload)
+        await instance.post(`/api/collections/divisions_departments/records`, payload)
       })
     }
     return
@@ -93,4 +97,87 @@ const createDepartment = async (formData: FormData, name: string) => {
   }
 }
 
-export { getDepartmentsForFilter, getDepartments, createDepartment }
+const updateDepartmentName = async (name: string, departmentId: string | undefined) => {
+  try {
+    await instance.patch(`/api/collections/departments/records/${departmentId}`, {
+      name: name,
+    })
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const getDepartmentDivisions = async (
+  selectedDepartment: string,
+): Promise<DivisionDepartment[]> => {
+  try {
+    const response = await instance.get(`api/collections/divisions_departments/records`, {
+      params: {
+        expand: 'divisions_id',
+        filter: `department_id='${selectedDepartment}'`,
+      },
+    })
+    const data: DivisionDepartment[] = response.data.items
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const updateAddDepartmentDivisions = async (
+  formData: FormData,
+  department_id: string | undefined,
+) => {
+  try {
+    const promises: Promise<any>[] = []
+
+    formData.forEach(async (division_id) => {
+      const payload = {
+        department_id: department_id,
+        division_id: division_id,
+      }
+      promises.push(instance.post(`/api/collections/divisions_departments/records`, payload))
+    })
+    await Promise.all(promises)
+
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const updateDeleteDepartmentDivisions = async (formData: FormData) => {
+  try {
+    const promises: Promise<any>[] = []
+
+    formData.forEach(async (id) => {
+      promises.push(instance.delete(`/api/collections/divisions_departments/records/${id}`))
+    })
+    await Promise.all(promises)
+
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const deleteDepartment = async (departmentId: string) => {
+  try {
+    await instance.delete(`api/collections/departments/records/${departmentId}`)
+    return
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export {
+  getDepartmentsForFilter,
+  getDepartments,
+  createDepartment,
+  deleteDepartment,
+  updateDepartmentName,
+  getDepartmentDivisions,
+  updateDeleteDepartmentDivisions,
+  updateAddDepartmentDivisions,
+}

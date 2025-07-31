@@ -14,7 +14,7 @@ async function deleteSelectedCompany() {
   try {
     if (props.currentCompany != null) {
       await deleteCompany(props.currentCompany.id)
-      notif.addNotification('Sėkmingai panaikintas kontaktas', NotificationType.success)
+      notif.addNotification('Sėkmingai panaikinta įmonė', NotificationType.success)
       emit('close-pressed')
     }
   } catch (error: any) {
