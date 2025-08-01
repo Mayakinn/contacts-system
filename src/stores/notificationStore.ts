@@ -14,7 +14,14 @@ export const useNotificationStore = defineStore('notification', () => {
   function addNotification(message: string, status: NotificationType) {
     const id = uuidv4()
     const notification = { message, status, id }
-    Notifs.value.push(notification)
+
+    const duplicate = Notifs.value.some((notif) => notif.message === notification.message)
+    if (!duplicate) {
+      Notifs.value.push(notification)
+    } else {
+      return
+    }
+
     const delay = 3000 * Notifs.value.length
     setTimeout(() => {
       deleteNotification(id)

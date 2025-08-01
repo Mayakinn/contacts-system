@@ -59,7 +59,8 @@ export const useAuthStore = defineStore('authContext', () => {
       if (response != null) {
         localStorage.setItem('token', response.token)
         localStorage.setItem('username', response.record.username)
-        return response.record
+        User.value = response.record
+        return
       }
     } catch (error) {
       notif.addNotification(
@@ -67,6 +68,7 @@ export const useAuthStore = defineStore('authContext', () => {
         NotificationType.info,
       )
       localStorage.removeItem('token')
+      localStorage.removeItem('username')
       User.value = null
       jwtToken.value = null
       username.value = null
@@ -75,7 +77,7 @@ export const useAuthStore = defineStore('authContext', () => {
   }
 
   onMounted(async () => {
-    User.value = await userTokenRefresh()
+    await userTokenRefresh()
   })
   return {
     jwtToken: readonly(jwtToken),
@@ -83,5 +85,6 @@ export const useAuthStore = defineStore('authContext', () => {
     User: readonly(User),
     loginUser,
     logOutUser,
+    userTokenRefresh,
   }
 })

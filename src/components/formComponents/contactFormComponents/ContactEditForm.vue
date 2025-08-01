@@ -2,10 +2,10 @@
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
 import { getCompanies } from '@/services/companiesService'
 import { updateContact } from '@/services/contactsService'
-import { getDepartments } from '@/services/departmentService'
-import { getDivisions } from '@/services/divisionService'
-import { getGroups } from '@/services/groupService'
-import { getOffices } from '@/services/officeService'
+import { getDepartmentsForFilter } from '@/services/departmentService'
+import { getDivisionsForFilters } from '@/services/divisionService'
+import { getGroupsForFilter } from '@/services/groupService'
+import { getOfficesForFilter } from '@/services/officeService'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Company } from '@/typings/interface/Company'
 import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
@@ -100,27 +100,27 @@ const MAXFILESIZE = 5242880
 const notifs = useNotificationStore()
 
 async function onCompanyValueChange() {
-  companyOffices.value = await getOffices(chosenCompany.value)
+  companyOffices.value = await getOfficesForFilter(chosenCompany.value)
   chosenOffice.value = ''
   chosenDivision.value = ''
   chosenDepartment.value = ''
   chosenGroup.value = ''
 }
 async function onOfficeValueChange() {
-  officeDivisions.value = await getDivisions(chosenOffice.value)
+  officeDivisions.value = await getDivisionsForFilters(chosenOffice.value)
   chosenDivision.value = ''
   chosenDepartment.value = ''
   chosenGroup.value = ''
 }
 
 async function onDivisionValueChange() {
-  divisionDepartments.value = await getDepartments(chosenDivision.value)
+  divisionDepartments.value = await getDepartmentsForFilter(chosenDivision.value)
   chosenDepartment.value = ''
   chosenGroup.value = ''
 }
 
 async function onDepartmentValueChange() {
-  departmentGroups.value = await getGroups(chosenDepartment.value)
+  departmentGroups.value = await getGroupsForFilter(chosenDepartment.value)
   chosenGroup.value = ''
 }
 

@@ -18,4 +18,10 @@
   .text-teltonika-blue {
     color: var(--color-TheTeltonikaBlue);
   }
+  .text-button-blue {
+    color: var(--color-TheButtonBlue);
+  }
+  .hover\:text-button-blue:hover {
+    color: var(--color-TheButtonBlue);
+  }
 }
