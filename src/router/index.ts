@@ -54,22 +54,18 @@ const router = createRouter({
       children: [
         {
           path: 'offices',
-          name: 'offices',
           component: OfficeStructureView,
         },
         {
           path: 'departments',
-          name: 'departments',
           component: DepartmentStructureView,
         },
         {
           path: 'groups',
-          name: 'groups',
           component: GroupStructureView,
         },
         {
           path: 'divisions',
-          name: 'divisions',
           component: DivisionStructureView,
         },
       ],

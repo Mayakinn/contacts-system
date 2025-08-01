@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
-import { deleteCompany } from '@/services/companiesService'
+import {
+  deleteCompany,
+  getCompany,
+  getCompanyRelationsWithOffice,
+} from '@/services/companiesService'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Company } from '@/typings/interface/Company'
 import { NotificationType } from '@/typings/interface/NotificationType'
@@ -13,13 +17,43 @@ const notif = useNotificationStore()
 async function deleteSelectedCompany() {
   try {
     if (props.currentCompany != null) {
+      const result = await getCompany(props.currentCompany.name)
+      if (result.length == 0) {
+        notif.addNotification(
+          `Klaida: ${props.currentCompany.name} ištrinti nepavyko. Įmonė jau panaikinta!`,
+          NotificationType.danger,
+        )
+        return
+      }
+
+      const hasRelations = await getCompanyRelationsWithOffice(props.currentCompany.id)
+      if (hasRelations.length > 0) {
+        notif.addNotification(
+          `Klaida: ${props.currentCompany.name} ištrinti nepavyko. Įmonė turi priskirtų ofisų!`,
+          NotificationType.danger,
+        )
+        return
+      }
+
       await deleteCompany(props.currentCompany.id)
-      notif.addNotification('Sėkmingai panaikintas kontaktas', NotificationType.success)
+      notif.addNotification('Sėkmingai panaikinta įmonė', NotificationType.success)
       emit('close-pressed')
     }
   } catch (error: any) {
-    notif.addNotification(error.message, NotificationType.danger)
-    emit('close-pressed', true)
+    if (error == 400) {
+      notif.addNotification(
+        `Klaida: ${props.currentCompany?.name} ištrinti nepavyko. Patikrinkite ar ši įmonė neturi susijusių ryšių`,
+        NotificationType.danger,
+      )
+    } else if (error == 404) {
+      notif.addNotification(
+        `Klaida: ${props.currentCompany?.name} ištrinti nepavyko. Neturite tam teisių!`,
+        NotificationType.danger,
+      )
+    } else {
+      notif.addNotification(error, NotificationType.danger)
+      emit('close-pressed', true)
+    }
   }
 }
 </script>
