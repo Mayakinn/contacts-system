@@ -5,7 +5,7 @@ import * as yup from 'yup'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { onMounted, ref } from 'vue'
-import { createDivision } from '@/services/divisionService'
+import { createDivision, getDivision } from '@/services/divisionService'
 import { getOffices } from '@/services/officeService'
 import type { Office } from '@/typings/interface/Office'
 
@@ -75,7 +75,14 @@ const emit = defineEmits(['close-pressed'])
 
 const onSubmit = handleSubmit(async () => {
   const formData = new FormData()
-
+  const result = await getDivision(name.value)
+  if (result.length > 0) {
+    notifs.addNotification(
+      `Klaida: ${name.value} sukurti nepavyko. Toks padalinys jau egzistuoja`,
+      NotificationType.danger,
+    )
+    return
+  }
   offices.value.forEach((officeId: number | string) => {
     formData.append('office_id', officeId.toString())
   })

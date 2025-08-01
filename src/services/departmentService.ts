@@ -79,7 +79,7 @@ const getDepartments = async (
 
 const createDepartment = async (formData: FormData, name: string) => {
   try {
-    const department_id = await instance.post(`/api/collections/departments/records`, {
+    const department_id = await instance.post(`api/collections/departments/records`, {
       name: name,
     })
     const data = department_id.data.id
@@ -89,7 +89,7 @@ const createDepartment = async (formData: FormData, name: string) => {
           department_id: data,
           division_id: division_id,
         }
-        await instance.post(`/api/collections/divisions_departments/records`, payload)
+        await instance.post(`api/collections/divisions_departments/records`, payload)
       })
     }
     return
@@ -100,9 +100,9 @@ const createDepartment = async (formData: FormData, name: string) => {
 
 const getDepartment = async (departmentName: string): Promise<Department[]> => {
   try {
-    const response = await instance.get(`/api/collections/departments/records`, {
+    const response = await instance.get(`api/collections/departments/records`, {
       params: {
-        filter: `name~'${departmentName}'`,
+        filter: `name='${departmentName}'`,
       },
     })
     const data: Department[] = response.data.items
@@ -115,7 +115,7 @@ const getDepartment = async (departmentName: string): Promise<Department[]> => {
 
 const updateDepartmentName = async (name: string, departmentId: string | undefined) => {
   try {
-    await instance.patch(`/api/collections/departments/records/${departmentId}`, {
+    await instance.patch(`api/collections/departments/records/${departmentId}`, {
       name: name,
     })
     return
@@ -153,7 +153,7 @@ const updateAddDepartmentDivisions = async (
         department_id: department_id,
         division_id: division_id,
       }
-      promises.push(instance.post(`/api/collections/divisions_departments/records`, payload))
+      promises.push(instance.post(`api/collections/divisions_departments/records`, payload))
     })
     await Promise.all(promises)
 
@@ -168,7 +168,7 @@ const updateDeleteDepartmentDivisions = async (formData: FormData) => {
     const promises: Promise<any>[] = []
 
     formData.forEach(async (id) => {
-      promises.push(instance.delete(`/api/collections/divisions_departments/records/${id}`))
+      promises.push(instance.delete(`api/collections/divisions_departments/records/${id}`))
     })
     await Promise.all(promises)
 
