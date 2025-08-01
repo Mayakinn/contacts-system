@@ -68,6 +68,7 @@ export const useAuthStore = defineStore('authContext', () => {
         NotificationType.info,
       )
       localStorage.removeItem('token')
+      localStorage.removeItem('username')
       User.value = null
       jwtToken.value = null
       username.value = null
