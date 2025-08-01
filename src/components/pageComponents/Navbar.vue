@@ -25,7 +25,7 @@ const auth = useAuthStore()
       >
       <RouterLink
         v-if="auth.jwtToken != null"
-        to="/structures"
+        to="/structures/offices"
         class="hover:text-gray-300 transition-colors"
         >Struktūra</RouterLink
       >

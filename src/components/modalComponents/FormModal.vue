@@ -1,10 +1,7 @@
 <script setup lang="ts">
-
 const props = defineProps<{
   isActive: boolean
 }>()
-
-const emit = defineEmits(['close-modal'])
 </script>
 
 <template>
@@ -17,7 +14,6 @@ const emit = defineEmits(['close-modal'])
           >
             <div class="justify-end flex m-3">
               <slot></slot>
-
             </div>
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4"></div>
           </div>

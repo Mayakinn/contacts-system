@@ -52,7 +52,7 @@ async function loadData() {
       totalItems.value = total
       loading.value = false
       totalPages.value = pages
-      active.value = true
+      active.value = false
       if (currentPage.value > totalPages.value && totalPages.value > 0) {
         currentPage.value = totalPages.value
         await loadData()
@@ -77,7 +77,7 @@ async function loadData() {
       notifs.addNotification('Nepavyko užkrauti kontaktų!', NotificationType.danger)
     }
   } catch (error: any) {
-    active.value = false
+    active.value = true
     notifs.addNotification(error, NotificationType.danger)
   }
 }

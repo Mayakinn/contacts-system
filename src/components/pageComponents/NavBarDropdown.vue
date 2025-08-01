@@ -45,23 +45,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    v-if="auth.jwtToken != null"
-    @click="toggleDropdown"
-    class="relative cursor-pointer"
-    ref="dropdownRef"
-  >
+  <div v-if="auth.jwtToken != null" @click="toggleDropdown" class="relative cursor-pointer" ref="dropdownRef">
     <img class="w-10 h-10 rounded-full mr-4" :src="image" />
   </div>
-  <div
-    v-if="dropdownVisibility"
-    class="absolute right-0 mt-43 w-48 bg-white rounded-md shadow-2xl border border-gray-200 z-10"
-  >
+  <div v-if="dropdownVisibility"
+    class="absolute right-0 z-100  mt-43 w-48 bg-white rounded-md shadow-2xl border border-gray-200 z-10">
     <ul>
-      <li
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md"
-        @click="router.push('/changepassword')"
-      >
+      <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md" @click="router.push('/changepassword')">
         Pakeisti slaptažodį
       </li>
       <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-md" @click="logOut">
