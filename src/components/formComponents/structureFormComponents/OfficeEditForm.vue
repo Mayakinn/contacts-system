@@ -22,7 +22,9 @@ const empty = ref<boolean>(false)
 const currentPage = ref<number>(1)
 const companiesArray = ref<Company[]>([])
 const regexExpressionStringAndNumbers = /^[\p{L}\p{N} ]+$/u
-const regexExpressionString = /^\p{L}+$/u
+const regexExpressionStringAndSpace = /^[\p{L} ]+$/u
+const regexExpressionStreetNumber = /^[\p{L}\p{N}\/-]+$/u
+
 import _ from 'lodash'
 
 const props = defineProps<{
@@ -74,6 +76,7 @@ const schema = yup.object({
     .string()
     .required('Įveskite pastato numerį')
     .max(30, 'Pastato numeris per ilgas. Max. 30 simboliai')
+    .matches(regexExpressionStreetNumber, 'Negalimi specialūs simboliai')
     .trim(),
   city: yup
     .string()
@@ -85,7 +88,7 @@ const schema = yup.object({
     .string()
     .required('Įveskite šalį')
     .max(60, 'Miesto pavadinimas per ilgas. Max. 60 simboliai')
-    .matches(regexExpressionString, 'Negalimi skaičiai ir specialūs simboliai')
+    .matches(regexExpressionStringAndSpace, 'Negalimi skaičiai ir specialūs simboliai')
     .trim(),
   companies: yup
     .array()
