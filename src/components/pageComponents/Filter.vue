@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { getCompanies } from '@/services/companiesService'
-import { getDepartments } from '@/services/departmentService'
-import { getDivisions } from '@/services/divisionService'
-import { getGroups } from '@/services/groupService'
-import { getOffices } from '@/services/officeService'
+import { getDepartmentsForFilter } from '@/services/departmentService'
+import { getDivisionsForFilters } from '@/services/divisionService'
+import { getGroupsForFilter } from '@/services/groupService'
+import { getOfficesForFilter } from '@/services/officeService'
 import type { Company } from '@/typings/interface/Company'
 import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
 import type { DepartmentGroup } from '@/typings/interface/DepartmentGroup'
@@ -113,7 +113,7 @@ async function onCompanyValueChange(value: string) {
     chosenDepartment.value = ''
     chosenGroup.value = ''
 
-    companyOffices.value = await getOffices(value)
+    companyOffices.value = await getOfficesForFilter(value)
     officeDivisions.value = []
     divisionDepartments.value = []
     departmentGroups.value = []
@@ -130,7 +130,7 @@ async function onOfficeValueChange(value: string) {
     chosenDepartment.value = ''
     chosenGroup.value = ''
 
-    officeDivisions.value = await getDivisions(value)
+    officeDivisions.value = await getDivisionsForFilters(value)
     divisionDepartments.value = []
     departmentGroups.value = []
   } catch (error: any) {
@@ -145,7 +145,7 @@ async function onDivisionValueChange(value: string) {
     chosenDepartment.value = ''
     chosenGroup.value = ''
 
-    divisionDepartments.value = await getDepartments(value)
+    divisionDepartments.value = await getDepartmentsForFilter(value)
     departmentGroups.value = []
   } catch (error: any) {
     emit('error-received', error)
@@ -156,7 +156,7 @@ async function onDivisionValueChange(value: string) {
 async function onDepartmentValueChange(value: string) {
   try {
     chosenDepartment.value = value
-    departmentGroups.value = await getGroups(value)
+    departmentGroups.value = await getGroupsForFilter(value)
   } catch (error: any) {
     emit('error-received', error)
     recievedError.value = true

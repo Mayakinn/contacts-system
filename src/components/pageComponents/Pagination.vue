@@ -65,7 +65,7 @@ const canGoForward = computed(() => {
           fill="#FFFFFF"
         />
       </svg>
-      <p class="m-1 ml-13">Praeitas puslapis</p>
+      <p class="m-1 ml-10">Praeitas puslapis</p>
     </button>
 
     <p class="m-0.5 mx-2">{{ currentPage }}/{{ totalPages }}</p>
@@ -75,13 +75,13 @@ const canGoForward = computed(() => {
       @click="changePage(currentPage + 1)"
       :disabled="currentPage === totalPages"
     >
-      <p class="m-1 ml-2">Kitas puslapis</p>
+      <p class="m-3 ml-2 whitespace-nowrap">Kitas puslapis</p>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 -960 960 960"
-        class="ml-19"
+        class="ml-15"
       >
         <path
           d="M383-480 200-664l56-56 240 240-240 240-56-56zm264 0L464-664l56-56 240 240-240 240-56-56z"

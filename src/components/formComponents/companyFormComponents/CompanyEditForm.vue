@@ -48,7 +48,14 @@ async function updateCompany(formData: FormData) {
     notifs.addNotification('Įmonė sėkmingai atnaujinta!', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    if (error == 400) {
+      notifs.addNotification(
+        `Klaida: ${props.currentCompany?.name} redaguoti nepavyko. Tokia pavadinimu įmonė jau egzistuoja`,
+        NotificationType.danger,
+      )
+    } else {
+      notifs.addNotification(error, NotificationType.danger)
+    }
   }
 }
 

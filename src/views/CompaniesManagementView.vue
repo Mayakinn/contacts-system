@@ -10,10 +10,9 @@ import { useAuthStore } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Company } from '@/typings/interface/Company'
 import { NotificationType } from '@/typings/interface/NotificationType'
-import type { User } from '@/typings/interface/User'
 import { shallowRef, ref, type Component, onMounted } from 'vue'
 
-const currentCompany = ref<User | null>(null)
+const currentCompany = ref<Company | null>(null)
 const currentForm = shallowRef<Component>()
 const formModalActive = ref<boolean>(false)
 const companies = ref<Company[]>()
@@ -68,15 +67,15 @@ function openCompanyCreateForm() {
   OpenModal()
 }
 
-function openDeleteCompanyForm(user: User) {
+function openDeleteCompanyForm(company: Company) {
   currentForm.value = CompanyDeleteForm
-  currentCompany.value = user
+  currentCompany.value = company
   OpenModal()
 }
 
-function openCompanyEditForm(user: User) {
+function openCompanyEditForm(company: Company) {
   currentForm.value = CompanyEditForm
-  currentCompany.value = user
+  currentCompany.value = company
   OpenModal()
 }
 
