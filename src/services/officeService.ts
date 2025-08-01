@@ -1,6 +1,7 @@
 import type { Company } from '@/typings/interface/Company'
 import type { CompanyOffice } from '@/typings/interface/CompanyOffice'
 import type { Office } from '@/typings/interface/Office'
+import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import axios from 'axios'
 
 const DB_URL = import.meta.env.VITE_POCKETBASE_API
@@ -17,17 +18,13 @@ instance.interceptors.response.use(undefined, (error) => {
 
   const { status, data } = error.response
 
-  if (status === 404) {
-    throw 'Klaida: Ofisas nerastas!'
+  if (status === 403) {
+    throw 'Neturite teisių atlikti šio veiksmo!'
   }
   if (status === 401) {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
-  if (status === 400) {
-    throw 'Klaida: Toks ofisas jau egzistuoja!'
-  }
-
-  return 'Klaida: Serverio klaida!'
+  throw status
 })
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -73,7 +70,38 @@ const getOffices = async (currentPage = 1, perPage = 10): Promise<[Office[], num
   }
 }
 
+const getOffice = async (officeName: string): Promise<Office[]> => {
+  try {
+    const response = await instance.get(`/api/collections/offices/records`, {
+      params: {
+        filter: `name~'${officeName}'`,
+      },
+    })
+    const data: Office[] = response.data.items
+
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+const getOfficeRelationsWithDivisions = async (
+  selectedOffice: string,
+): Promise<OfficeDivision[]> => {
+  try {
+    const response = await instance.get(`api/collections/offices_divisions/records`, {
+      params: {
+        filter: `office_id='${selectedOffice}'`,
+      },
+    })
+    const data: OfficeDivision[] = response.data.items
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
 const createOffice = async (formDataCompanies: FormData, formDataOffice: FormData) => {
+  const promises: Promise<any>[] = []
+
   try {
     const office_id = await instance.post(`/api/collections/offices/records`, formDataOffice)
     const data = office_id.data.id
@@ -83,9 +111,10 @@ const createOffice = async (formDataCompanies: FormData, formDataOffice: FormDat
           office_id: data,
           company_id: company_id,
         }
-        await instance.post(`/api/collections/companies_offices/records`, payload)
+        promises.push(instance.post(`/api/collections/companies_offices/records`, payload))
       })
     }
+    await Promise.all(promises)
     return
   } catch (error) {
     return Promise.reject(error)
@@ -168,4 +197,6 @@ export {
   getOfficeCompanies,
   updateAddOfficeCompanies,
   updateDeleteOfficeCompanies,
+  getOffice,
+  getOfficeRelationsWithDivisions,
 }

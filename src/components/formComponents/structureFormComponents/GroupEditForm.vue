@@ -8,6 +8,7 @@ import { onMounted, ref } from 'vue'
 import { getDepartments } from '@/services/departmentService'
 import type { Department } from '@/typings/interface/Department'
 import {
+  getGroup,
   getGroupsDepartments,
   updateAddGroupDepartments,
   updateDeleteGroupDepartments,
@@ -31,7 +32,7 @@ const GroupDepartments = ref<DepartmentGroup[]>([])
 
 async function loadData() {
   try {
-    const result = await getDepartments(currentPage.value)
+    const result = await getDepartments(currentPage.value, 30)
     if (result != null) {
       const [data] = result
       departmentArray.value = data
@@ -84,6 +85,14 @@ const onSubmit = handleSubmit(async () => {
   try {
     if (name.value == undefined) return
 
+    const result = await getGroup(name.value)
+    if (result.length > 0 && props.currentGroup?.name != name.value) {
+      notifs.addNotification(
+        `Klaida: ${name.value} redaguoti nepavyko. Tokia grupė jau egzistuoja`,
+        NotificationType.danger,
+      )
+      return
+    }
     const formDataToAdd = new FormData()
     const formDataToDelete = new FormData()
 
@@ -127,7 +136,19 @@ const onSubmit = handleSubmit(async () => {
     notifs.addNotification('Grupė sėkmingai atnaujinta', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    if (error == 400) {
+      notifs.addNotification(
+        `Klaida: ${props.currentGroup?.name} redaguoti nepavyko. Priskirtas skyrius/-iai  panaikintas/-i!`,
+        NotificationType.danger,
+      )
+    } else if (error == 404) {
+      notifs.addNotification(
+        `Klaida: ${props.currentGroup?.name} redaguoti nepavyko. Grupė nerasta.`,
+        NotificationType.danger,
+      )
+    } else {
+      notifs.addNotification(error, NotificationType.danger)
+    }
   }
 })
 
@@ -167,7 +188,7 @@ onMounted(async () => {
           <button
             class="h-7 w-45 mt-10 bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800"
           >
-            Pridėti
+            Redaguoti
           </button>
         </div>
         <div class="ml-10">

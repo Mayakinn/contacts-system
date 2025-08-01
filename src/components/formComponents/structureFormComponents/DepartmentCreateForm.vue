@@ -19,7 +19,7 @@ const divisionArray = ref<Division[]>([])
 
 async function loadData() {
   try {
-    const result = await getDivisions(currentPage.value)
+    const result = await getDivisions(currentPage.value, 30)
 
     if (result != null) {
       const [data, total, pages] = result

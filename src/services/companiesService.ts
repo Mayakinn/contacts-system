@@ -11,25 +11,18 @@ const instance = axios.create({
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
-    throw 'Klaida: Tinklo klaida!'
+    throw 'Tinklo klaida!'
   }
 
   const { status, data } = error.response
 
-  if (status === 404) {
-    throw 'Klaida: Įmonė nerasta!'
+  if (status === 403) {
+    throw 'Neturite teisių atlikti šio veiksmo!'
   }
   if (status === 401) {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
-  if (status === 400) {
-    throw 'Klaida: Tokia įmonė jau egzistuoja!'
-  }
-  if (status === 403) {
-    throw 'Klaida: Neturite tam teisių'
-  }
-
-  return 'Klaida: Serverio klaida!'
+  throw status
 })
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -38,11 +31,15 @@ instance.interceptors.request.use((config) => {
   }
   return config
 })
-const getCompanies = async (currentPage = 1): Promise<[Company[], number, number]> => {
+const getCompanies = async (
+  currentPage = 1,
+  perPage = 10,
+): Promise<[Company[], number, number]> => {
   try {
     const response = await instance.get(`api/collections/companies/records`, {
       params: {
         page: currentPage,
+        perPage: perPage,
       },
     })
     const data: Company[] = response.data.items
@@ -53,7 +50,20 @@ const getCompanies = async (currentPage = 1): Promise<[Company[], number, number
     return Promise.reject(error)
   }
 }
+const getCompany = async (companyName: string): Promise<Company[]> => {
+  try {
+    const response = await instance.get(`/api/collections/companies/records`, {
+      params: {
+        filter: `name~'${companyName}'`,
+      },
+    })
+    const data: Company[] = response.data.items
 
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
 const createCompany = async (formData: FormData) => {
   try {
     await instance.post(`api/collections/companies/records`, formData)
@@ -81,4 +91,25 @@ const deleteCompany = async (companyId: string) => {
   }
 }
 
-export { getCompanies, createCompany, editCompany, deleteCompany }
+const getCompanyRelationsWithOffice = async (selectedCompany: string): Promise<CompanyOffice[]> => {
+  try {
+    const response = await instance.get(`api/collections/companies_offices/records`, {
+      params: {
+        filter: `company_id='${selectedCompany}'`,
+      },
+    })
+    const data: CompanyOffice[] = response.data.items
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export {
+  getCompanies,
+  createCompany,
+  editCompany,
+  deleteCompany,
+  getCompany,
+  getCompanyRelationsWithOffice,
+}

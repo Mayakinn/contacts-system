@@ -8,7 +8,7 @@ import { onMounted, ref } from 'vue'
 
 import type { Company } from '@/typings/interface/Company'
 import { getCompanies } from '@/services/companiesService'
-import { createOffice } from '@/services/officeService'
+import { createOffice, getOffice } from '@/services/officeService'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -21,7 +21,7 @@ const regexExpressionString = /^\p{L}+$/u
 
 async function loadData() {
   try {
-    const result = await getCompanies(currentPage.value)
+    const result = await getCompanies(currentPage.value, 30)
 
     if (result != null) {
       const [data, total, pages] = result
@@ -127,11 +127,27 @@ const onSubmit = handleSubmit(async () => {
 
 async function createNewOffice(formDataCompanies: FormData, formDataOffice: FormData) {
   try {
+    const result = await getOffice(name.value)
+    if (result.length > 0) {
+      notifs.addNotification(
+        `Klaida: ${name.value} sukurti nepavyko. Toks Ofisas jau egzistuoja`,
+        NotificationType.danger,
+      )
+      return
+    }
+
     await createOffice(formDataCompanies, formDataOffice)
     notifs.addNotification('Ofisas sėkmingai pridėtas', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    if (error == 400) {
+      notifs.addNotification(
+        `Klaida: ${name.value} sukurti nepavyko. Priskirtos įmonė/-s  panaikinta/-os!`,
+        NotificationType.danger,
+      )
+    } else {
+      notifs.addNotification(error, NotificationType.danger)
+    }
   }
 }
 

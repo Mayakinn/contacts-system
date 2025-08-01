@@ -12,22 +12,18 @@ const instance = axios.create({
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
-    throw 'Klaida: Tinklo klaida!'
+    throw 'Tinklo klaida!'
   }
 
   const { status, data } = error.response
 
-  if (status === 404) {
-    throw 'Klaida: Grupė nerasta!'
+  if (status === 403) {
+    throw 'Neturite teisių atlikti šio veiksmo!'
   }
   if (status === 401) {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
-  if (status === 400) {
-    throw 'Klaida: Tokia grupė jau egzistuoja!'
-  }
-
-  return 'Klaida: Serverio klaida!'
+  throw status
 })
 
 instance.interceptors.request.use((config) => {
@@ -72,6 +68,21 @@ const getGroupsDepartments = async (selectedGroup: string): Promise<DepartmentGr
   }
 }
 
+const getGroup = async (groupName: string): Promise<Group[]> => {
+  try {
+    const response = await instance.get(`api/collections/groups/records`, {
+      params: {
+        filter: `name~"${encodeURIComponent(groupName)}"`,
+      },
+    })
+    const data: Group[] = response.data.items
+
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
 const getGroups = async (currentPage = 1, perPage = 10): Promise<[Group[], number, number]> => {
   try {
     const response = await instance.get(`api/collections/groups/records`, {
@@ -94,7 +105,7 @@ const createGroup = async (formData: FormData, name: string) => {
   try {
     const promises: Promise<any>[] = []
 
-    const group_id = await instance.post(`/api/collections/groups/records`, {
+    const group_id = await instance.post(`api/collections/groups/records`, {
       name: name,
     })
     const data = group_id.data.id
@@ -177,4 +188,5 @@ export {
   updateGroupName,
   updateAddGroupDepartments,
   updateDeleteGroupDepartments,
+  getGroup,
 }

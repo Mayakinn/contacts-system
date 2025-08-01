@@ -1,6 +1,11 @@
 <script lang="ts" setup>
+import DepartmentCreateForm from '@/components/formComponents/structureFormComponents/DepartmentCreateForm.vue'
+import DivisionCreateForm from '@/components/formComponents/structureFormComponents/DivisionCreateForm.vue'
+import GroupCreateForm from '@/components/formComponents/structureFormComponents/GroupCreateForm.vue'
+import OfficeCreateForm from '@/components/formComponents/structureFormComponents/OfficeCreateForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import router from '@/router'
+import { useAuthStore } from '@/stores/authStore'
 import { computed, ref, shallowRef, type Component } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -53,11 +58,21 @@ const closeModal = () => {
 function changeForm(newCreateForm: Component) {
   currentForm.value = newCreateForm
 }
+const auth = useAuthStore()
 </script>
 <template>
   <div class="m-10 space-y-10">
     <p class="text-5xl font-light">Struktūra</p>
-    <div class="flex space-x-10">
+    <div
+      class="flex space-x-10"
+      v-if="
+        (currentForm == OfficeCreateForm && auth.User?.expand?.permissions_id?.edit_offices) ||
+        ((currentForm == GroupCreateForm ||
+          currentForm == DepartmentCreateForm ||
+          currentForm == DivisionCreateForm) &&
+          auth.User?.expand?.permissions_id?.edit_structure)
+      "
+    >
       <button
         class="w-10 h-10 bg-button-blue rounded-full flex items-center justify-center shadow-2xl hover:bg-blue-500"
         @click="OpenModal"

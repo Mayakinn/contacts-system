@@ -4,12 +4,13 @@ import OfficeDeleteForm from '@/components/formComponents/structureFormComponent
 import OfficeEditForm from '@/components/formComponents/structureFormComponents/OfficeEditForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
-import OfficeTable from '@/components/structureComponents/OfficeTable.vue'
+import StructureTable from '@/components/structureComponents/StructureTable.vue'
 import { getOffices } from '@/services/officeService'
+import { useAuthStore } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import type { Office } from '@/typings/interface/Office'
-import { onMounted, ref, shallowRef, type Component } from 'vue'
+import { computed, onMounted, ref, shallowRef, type Component } from 'vue'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -19,10 +20,22 @@ const totalPages = ref<number>(0)
 const totalItems = ref<number>(0)
 const offices = ref<Office[]>([])
 const emit = defineEmits(['change-create-form'])
-const currentOffice = ref<Office | null>(null)
+const currentOffice = ref<Office | undefined>(undefined)
 const currentForm = shallowRef<Component>()
 const formModalActive = ref<boolean>(false)
-
+const fields = [
+  { key: 'name', label: 'Pavadinimas' },
+  { key: 'address', label: 'Adresas' },
+]
+const mappedOffices = computed(() =>
+  offices.value.map((office) => ({
+    id: office.id,
+    name: office.name || 'Nežinoma grupė',
+    address:
+      `${office.street}, ${office.street_number}, ${office.city}, ${office.country}` ||
+      'Nežinomas adresas',
+  })),
+)
 async function loadData() {
   try {
     const result = await getOffices(currentPage.value)
@@ -65,7 +78,7 @@ async function loadData() {
 
 function closeModalAfterForm(flag: boolean) {
   formModalActive.value = false
-  currentOffice.value = null
+  currentOffice.value = undefined
   if (flag) {
     return
   } else {
@@ -73,18 +86,26 @@ function closeModalAfterForm(flag: boolean) {
   }
 }
 
+const auth = useAuthStore()
+const canUserDelete = computed(() => {
+  return auth.User?.expand?.permissions_id?.delete_offices
+})
+const canUserEdit = computed(() => {
+  return auth.User?.expand?.permissions_id?.edit_offices
+})
+
 function OpenModal() {
   formModalActive.value = true
 }
 
-function openDeleteOfficeForm(office: Office) {
+function openDeleteOfficeForm(officeId: string) {
+  currentOffice.value = offices.value.find((office) => office.id === officeId)
   currentForm.value = OfficeDeleteForm
-  currentOffice.value = office
   OpenModal()
 }
 
-function openOfficeEditForm(office: Office) {
-  currentOffice.value = office
+function openOfficeEditForm(officeId: string) {
+  currentOffice.value = offices.value.find((office) => office.id === officeId)
   currentForm.value = OfficeEditForm
   OpenModal()
 }
@@ -96,7 +117,7 @@ function onPageChange(page: number) {
 const closeModal = () => {
   formModalActive.value = false
   currentForm.value = undefined
-  currentOffice.value = null
+  currentOffice.value = undefined
 }
 
 onMounted(() => {
@@ -108,11 +129,15 @@ onMounted(() => {
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
   <div v-else>
-    <OfficeTable
-      :offices="offices"
-      @edit-office="openOfficeEditForm"
-      @delete-office="openDeleteOfficeForm"
+    <StructureTable
+      :data="mappedOffices"
+      :fields="fields"
+      :canUserDelete="canUserDelete"
+      :canUserEdit="canUserEdit"
+      @edit="openOfficeEditForm"
+      @delete="openDeleteOfficeForm"
     />
+
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>
 

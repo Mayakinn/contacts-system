@@ -1,4 +1,5 @@
 import type { Department } from '@/typings/interface/Department'
+import type { DepartmentGroup } from '@/typings/interface/DepartmentGroup'
 import type { DivisionDepartment } from '@/typings/interface/DivisionDepartment'
 import axios from 'axios'
 
@@ -97,6 +98,21 @@ const createDepartment = async (formData: FormData, name: string) => {
   }
 }
 
+const getDepartment = async (departmentName: string): Promise<Department[]> => {
+  try {
+    const response = await instance.get(`/api/collections/departments/records`, {
+      params: {
+        filter: `name~'${departmentName}'`,
+      },
+    })
+    const data: Department[] = response.data.items
+
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
 const updateDepartmentName = async (name: string, departmentId: string | undefined) => {
   try {
     await instance.patch(`/api/collections/departments/records/${departmentId}`, {
@@ -162,6 +178,22 @@ const updateDeleteDepartmentDivisions = async (formData: FormData) => {
   }
 }
 
+const getDepartmentRelationsWithGroup = async (
+  selectedDepartment: string,
+): Promise<DepartmentGroup[]> => {
+  try {
+    const response = await instance.get(`api/collections/departments_groups/records`, {
+      params: {
+        filter: `department_id='${selectedDepartment}'`,
+      },
+    })
+    const data: DepartmentGroup[] = response.data.items
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
 const deleteDepartment = async (departmentId: string) => {
   try {
     await instance.delete(`api/collections/departments/records/${departmentId}`)
@@ -180,4 +212,6 @@ export {
   getDepartmentDivisions,
   updateDeleteDepartmentDivisions,
   updateAddDepartmentDivisions,
+  getDepartment,
+  getDepartmentRelationsWithGroup,
 }

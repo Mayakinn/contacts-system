@@ -7,7 +7,7 @@ import { NotificationType } from '@/typings/interface/NotificationType'
 import { onMounted, ref } from 'vue'
 import { getDepartments } from '@/services/departmentService'
 import type { Department } from '@/typings/interface/Department'
-import { createGroup } from '@/services/groupService'
+import { createGroup, getGroup } from '@/services/groupService'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -18,7 +18,7 @@ const departmentArray = ref<Department[]>([])
 
 async function loadData() {
   try {
-    const result = await getDepartments(currentPage.value)
+    const result = await getDepartments(currentPage.value, 30)
 
     if (result != null) {
       const [data, total, pages] = result
@@ -75,6 +75,14 @@ const emit = defineEmits(['close-pressed'])
 
 const onSubmit = handleSubmit(async () => {
   const formData = new FormData()
+  const result = await getGroup(name.value)
+  if (result.length > 0) {
+    notifs.addNotification(
+      `Klaida: ${name.value} sukurti nepavyko. Tokia grupė jau egzistuoja`,
+      NotificationType.danger,
+    )
+    return
+  }
 
   departments.value.forEach((departmentId: number | string) => {
     formData.append('department_id', departmentId.toString())
@@ -88,7 +96,19 @@ async function createNewGroup(formData: FormData, name: string) {
     notifs.addNotification('Grupė sėkmingai pridėta', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    if (error == 400) {
+      notifs.addNotification(
+        `Klaida: ${name} redaguoti nepavyko. Priskirtas skyrius/-iai  panaikintas/-i!`,
+        NotificationType.danger,
+      )
+    } else if (error == 404) {
+      notifs.addNotification(
+        `Klaida: ${name} redaguoti nepavyko. Grupė nerasta.`,
+        NotificationType.danger,
+      )
+    } else {
+      notifs.addNotification(error, NotificationType.danger)
+    }
   }
 }
 

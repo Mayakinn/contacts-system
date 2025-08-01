@@ -23,7 +23,7 @@ const officeArray = ref<Office[]>([])
 
 async function loadData() {
   try {
-    const result = await getOffices(currentPage.value)
+    const result = await getOffices(currentPage.value, 30)
     if (result != null) {
       const [data] = result
       officeArray.value = data
@@ -149,7 +149,7 @@ onMounted(async () => {
 <template>
   <div class="sm:items-start m-5">
     <form @submit.prevent="onSubmit">
-      <p class="text-2xl">Pridėti naują padalinį:</p>
+      <p class="text-2xl">Redaguoti padalinį:</p>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 pr-50">
         <div class="mr-40 space-y-5 mt-10 w-full">
           <label for="name" class="block text-gray-500 text-sm">Padalinio pavadinimas:</label>
@@ -166,7 +166,7 @@ onMounted(async () => {
           <button
             class="h-7 w-45 mt-10 bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800"
           >
-            Pridėti
+            Redaguoti
           </button>
         </div>
         <div class="ml-10">

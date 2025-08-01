@@ -4,7 +4,7 @@ import * as yup from 'yup'
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
 import type { Company } from '@/typings/interface/Company'
 import { useNotificationStore } from '@/stores/notificationStore'
-import { createCompany } from '@/services/companiesService'
+import { createCompany, getCompany } from '@/services/companiesService'
 import { NotificationType } from '@/typings/interface/NotificationType'
 
 const props = defineProps<{
@@ -37,6 +37,15 @@ const onSubmit = handleSubmit(async () => {
 
 async function createNewCompany(formData: FormData) {
   try {
+    const result = await getCompany(name.value)
+    if (result.length > 0) {
+      notifs.addNotification(
+        `Klaida: ${name.value} sukurti nepavyko. Tokia įmonė jau egzistuoja`,
+        NotificationType.danger,
+      )
+      return
+    }
+
     await createCompany(formData)
     notifs.addNotification('Įmonė sėkmingai pridėta', NotificationType.success)
     emit('close-pressed')

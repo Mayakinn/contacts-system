@@ -9,6 +9,7 @@ import { onMounted, ref } from 'vue'
 import type { Company } from '@/typings/interface/Company'
 import { getCompanies } from '@/services/companiesService'
 import {
+  getOffice,
   getOfficeCompanies,
   updateAddOfficeCompanies,
   updateDeleteOfficeCompanies,
@@ -30,7 +31,7 @@ const props = defineProps<{
 
 async function loadData() {
   try {
-    const result = await getCompanies(currentPage.value)
+    const result = await getCompanies(currentPage.value, 30)
     if (result != null) {
       const [data] = result
       companiesArray.value = data
@@ -128,6 +129,15 @@ const onSubmit = handleSubmit(async () => {
     if (city.value == undefined) return
     if (country.value == undefined) return
 
+    const result = await getOffice(name.value)
+    if (result.length > 0 && props.currentOffice?.name != name.value) {
+      notifs.addNotification(
+        `Klaida: ${name.value} redaguoti nepavyko. Toks Ofisas jau egzistuoja`,
+        NotificationType.danger,
+      )
+      return
+    }
+
     const formDataToAdd = new FormData()
     const formDataToDelete = new FormData()
 
@@ -189,7 +199,19 @@ const onSubmit = handleSubmit(async () => {
     notifs.addNotification('Ofisas sėkmingai atnaujintas', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    if (error == 400) {
+      notifs.addNotification(
+        `Klaida: ${props.currentOffice?.name} redaguoti nepavyko. Priskirtos įmonė/-s  panaikinta/-os!`,
+        NotificationType.danger,
+      )
+    } else if (error == 404) {
+      notifs.addNotification(
+        `Klaida: ${props.currentOffice?.name} redaguoti nepavyko. Ofisas nerastas.`,
+        NotificationType.danger,
+      )
+    } else {
+      notifs.addNotification(error, NotificationType.danger)
+    }
   }
 })
 
@@ -216,7 +238,7 @@ onMounted(async () => {
 <template>
   <div class="sm:items-start m-5">
     <form @submit.prevent="onSubmit">
-      <p class="text-2xl">Pridėti naują ofisą:</p>
+      <p class="text-2xl">Redaguoti ofisą:</p>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 pr-50">
         <div class="mr-40 space-y-1 mt-10 w-full">
           <label for="name" class="block text-gray-500 text-sm">Ofiso pavadinimas:</label>
@@ -277,7 +299,7 @@ onMounted(async () => {
           <button
             class="h-7 w-45 mt-10 bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800"
           >
-            Pridėti
+            Redaguoti
           </button>
         </div>
         <div class="ml-10">

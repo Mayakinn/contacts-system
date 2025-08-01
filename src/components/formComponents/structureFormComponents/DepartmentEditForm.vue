@@ -9,6 +9,7 @@ import _ from 'lodash'
 import { getDivisions } from '@/services/divisionService'
 import type { Division } from '@/typings/interface/Division'
 import {
+  getDepartment,
   getDepartmentDivisions,
   updateAddDepartmentDivisions,
   updateDeleteDepartmentDivisions,
@@ -29,7 +30,7 @@ const divisionIds = ref<string[]>([])
 
 async function loadData() {
   try {
-    const result = await getDivisions(currentPage.value)
+    const result = await getDivisions(currentPage.value, 30)
     if (result != null) {
       const [data] = result
       divisionArray.value = data
@@ -88,7 +89,14 @@ const onSubmit = handleSubmit(async () => {
 
     const formDataToAdd = new FormData()
     const formDataToDelete = new FormData()
-
+    const result = await getDepartment(name.value)
+    if (result.length > 0 && props.currentDepartment?.name != name.value) {
+      notifs.addNotification(
+        `Klaida: ${name.value} redaguoti nepavyko. Skyrius tokiu pavadinimu jau egzistuoja`,
+        NotificationType.danger,
+      )
+      return
+    }
     const equalDivisionArrays = _.isEmpty(_.xor(divisions.value, divisionIds.value))
 
     if (name.value.trim() == props.currentDepartment?.name && equalDivisionArrays) {
@@ -150,7 +158,7 @@ onMounted(async () => {
 <template>
   <div class="sm:items-start m-5">
     <form @submit.prevent="onSubmit">
-      <p class="text-2xl">Pridėti naują skyrių:</p>
+      <p class="text-2xl">Redaguoti skyrių:</p>
       <div class="grid sm:grid-cols-1 md:grid-cols-2 pr-50">
         <div class="mr-40 space-y-5 mt-10 w-full">
           <label for="name" class="block text-gray-500 text-sm">Skyrio pavadinimas:</label>
@@ -167,7 +175,7 @@ onMounted(async () => {
           <button
             class="h-7 w-45 mt-10 bg-button-blue text-white text-xs rounded-xs hover:bg-blue-800"
           >
-            Pridėti
+            Redaguoti
           </button>
         </div>
         <div class="ml-10">

@@ -4,12 +4,13 @@ import DepartmentDeleteForm from '@/components/formComponents/structureFormCompo
 import DepartmentEditForm from '@/components/formComponents/structureFormComponents/DepartmentEditForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
-import DepartmentTable from '@/components/structureComponents/DepartmentTable.vue'
+import StructureTable from '@/components/structureComponents/StructureTable.vue'
 import { getDepartments } from '@/services/departmentService'
+import { useAuthStore } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Department } from '@/typings/interface/Department'
 import { NotificationType } from '@/typings/interface/NotificationType'
-import { onMounted, ref, shallowRef, type Component } from 'vue'
+import { computed, onMounted, ref, shallowRef, type Component } from 'vue'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -20,7 +21,7 @@ const totalItems = ref<number>(0)
 const departments = ref<Department[]>([])
 const emit = defineEmits(['change-create-form'])
 
-const currentDepartment = ref<Department | null>(null)
+const currentDepartment = ref<Department | undefined>(undefined)
 const currentForm = shallowRef<Component>()
 const formModalActive = ref<boolean>(false)
 
@@ -70,36 +71,52 @@ async function loadData() {
   }
 }
 
+const mappedDepartments = computed(() =>
+  departments.value.map((department) => ({
+    id: department.id,
+    name: department.name || 'Nežinomas Skyrius',
+  })),
+)
+const fields = [{ key: 'name', label: 'Pavadinimas' }]
+
 function OpenModal() {
   formModalActive.value = true
 }
 
-function openDeleteDepartmentForm(department: Department) {
+function openDeleteDepartmentForm(departmentId: string) {
   currentForm.value = DepartmentDeleteForm
-  currentDepartment.value = department
+  currentDepartment.value = departments.value.find((department) => department.id === departmentId)
   OpenModal()
 }
 
-function openDepartmentEditForm(department: Department) {
+function openDepartmentEditForm(departmentId: string) {
   currentForm.value = DepartmentEditForm
-  currentDepartment.value = department
+  currentDepartment.value = departments.value.find((department) => department.id === departmentId)
   OpenModal()
 }
 
 const closeModal = () => {
   formModalActive.value = false
   currentForm.value = undefined
-  currentDepartment.value = null
+  currentDepartment.value = undefined
 }
 function closeModalAfterForm(flag: boolean) {
   formModalActive.value = false
-  currentDepartment.value = null
+  currentDepartment.value = undefined
   if (flag) {
     return
   } else {
     loadData()
   }
 }
+
+const auth = useAuthStore()
+const canUserDelete = computed(() => {
+  return auth.User?.expand?.permissions_id?.delete_structure
+})
+const canUserEdit = computed(() => {
+  return auth.User?.expand?.permissions_id?.edit_structure
+})
 
 onMounted(() => {
   loadData()
@@ -110,10 +127,13 @@ onMounted(() => {
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
   <div v-else>
-    <DepartmentTable
-      :departments="departments"
-      @edit-department="openDepartmentEditForm"
-      @delete-department="openDeleteDepartmentForm"
+    <StructureTable
+      :data="mappedDepartments"
+      :fields="fields"
+      :canUserDelete="canUserDelete"
+      :canUserEdit="canUserEdit"
+      @edit="openDepartmentEditForm"
+      @delete="openDeleteDepartmentForm"
     />
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>

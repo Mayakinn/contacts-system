@@ -4,12 +4,13 @@ import DivisionDeleteForm from '@/components/formComponents/structureFormCompone
 import DivisionEditForm from '@/components/formComponents/structureFormComponents/DivisionEditForm.vue'
 import FormModal from '@/components/modalComponents/FormModal.vue'
 import Pagination from '@/components/pageComponents/Pagination.vue'
-import DivisionTable from '@/components/structureComponents/DivisionTable.vue'
+import StructureTable from '@/components/structureComponents/StructureTable.vue'
 import { getDivisions } from '@/services/divisionService'
+import { useAuthStore } from '@/stores/authStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import type { Division } from '@/typings/interface/Division'
 import { NotificationType } from '@/typings/interface/NotificationType'
-import { onMounted, ref, shallowRef, type Component } from 'vue'
+import { computed, onMounted, ref, shallowRef, type Component } from 'vue'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -19,7 +20,7 @@ const totalPages = ref<number>(0)
 const totalItems = ref<number>(0)
 const divisions = ref<Division[]>([])
 const emit = defineEmits(['change-create-form'])
-const currentDivision = ref<Division | null>(null)
+const currentDivision = ref<Division | undefined>(undefined)
 const currentForm = shallowRef<Component>()
 const formModalActive = ref<boolean>(false)
 
@@ -69,36 +70,51 @@ async function loadData() {
   }
 }
 
+const mappedDivisions = computed(() =>
+  divisions.value.map((division) => ({
+    id: division.id,
+    name: division.name || 'Nežinomas padalinys',
+  })),
+)
+const fields = [{ key: 'name', label: 'Pavadinimas' }]
+
 function OpenModal() {
   formModalActive.value = true
 }
 
-function openDeleteDivisionForm(division: Division) {
+function openDeleteDivisionForm(divisionId: string) {
   currentForm.value = DivisionDeleteForm
-  currentDivision.value = division
+  currentDivision.value = divisions.value.find((division) => division.id === divisionId)
   OpenModal()
 }
 
-function openDivisionEditForm(division: Division) {
+function openDivisionEditForm(divisionId: string) {
   currentForm.value = DivisionEditForm
-  currentDivision.value = division
+  currentDivision.value = divisions.value.find((division) => division.id === divisionId)
   OpenModal()
 }
 
 const closeModal = () => {
   formModalActive.value = false
   currentForm.value = undefined
-  currentDivision.value = null
+  currentDivision.value = undefined
 }
 function closeModalAfterForm(flag: boolean) {
   formModalActive.value = false
-  currentDivision.value = null
+  currentDivision.value = undefined
   if (flag) {
     return
   } else {
     loadData()
   }
 }
+const auth = useAuthStore()
+const canUserDelete = computed(() => {
+  return auth.User?.expand?.permissions_id?.delete_structure
+})
+const canUserEdit = computed(() => {
+  return auth.User?.expand?.permissions_id?.edit_structure
+})
 
 onMounted(() => {
   loadData()
@@ -109,10 +125,13 @@ onMounted(() => {
   <div v-if="empty" class="text-3xl ml-24 mt-10">Sąrašas tusčias</div>
   <div v-else-if="loading" class="text-3xl ml-24 mt-10">Kraunama...</div>
   <div v-else>
-    <DivisionTable
-      :divisions="divisions"
-      @edit-division="openDivisionEditForm"
-      @delete-division="openDeleteDivisionForm"
+    <StructureTable
+      :data="mappedDivisions"
+      :fields="fields"
+      :canUserDelete="canUserDelete"
+      :canUserEdit="canUserEdit"
+      @edit="openDivisionEditForm"
+      @delete="openDeleteDivisionForm"
     />
     <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-change="onPageChange" />
   </div>

@@ -1,4 +1,5 @@
 import type { Division } from '@/typings/interface/Division'
+import type { DivisionDepartment } from '@/typings/interface/DivisionDepartment'
 import type { OfficeDivision } from '@/typings/interface/OfficeDivision'
 import axios from 'axios'
 
@@ -11,23 +12,20 @@ const instance = axios.create({
 
 instance.interceptors.response.use(undefined, (error) => {
   if (!error.response) {
-    throw 'Klaida: Tinklo klaida!'
+    throw 'Tinklo klaida!'
   }
 
   const { status, data } = error.response
 
-  if (status === 404) {
-    throw 'Klaida: Padalinys nerastas!'
+  if (status === 403) {
+    throw 'Neturite teisių atlikti šio veiksmo!'
   }
   if (status === 401) {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
-  if (status === 400) {
-    throw 'Klaida: Toks padalinys jau egzistuoja!'
-  }
-
-  return 'Klaida: Serverio klaida!'
+  throw status
 })
+
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) {
@@ -71,6 +69,37 @@ const getDivisions = async (
     const totalItems: number = response.data.totalItems
     const totalPages: number = response.data.totalPages
     return [data, totalItems, totalPages]
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const getDivision = async (divisionName: string): Promise<Division[]> => {
+  try {
+    const response = await instance.get(`/api/collections/divisions/records`, {
+      params: {
+        filter: `name~'${divisionName}'`,
+      },
+    })
+    const data: Division[] = response.data.items
+
+    return data
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+const getDivisionRelationsWithDepartment = async (
+  selectedDivision: string,
+): Promise<DivisionDepartment[]> => {
+  try {
+    const response = await instance.get(`api/collections/divisions_departments/records`, {
+      params: {
+        filter: `division_id='${selectedDivision}'`,
+      },
+    })
+    const data: DivisionDepartment[] = response.data.items
+    return data
   } catch (error) {
     return Promise.reject(error)
   }
@@ -175,4 +204,6 @@ export {
   getDivisionOffices,
   updateAddDivisionOffices,
   updateDeleteDivisionOffices,
+  getDivision,
+  getDivisionRelationsWithDepartment,
 }

@@ -18,7 +18,7 @@ const officeArray = ref<Office[]>([])
 
 async function loadData() {
   try {
-    const result = await getOffices(currentPage.value)
+    const result = await getOffices(currentPage.value, 30)
 
     if (result != null) {
       const [data, total, pages] = result
