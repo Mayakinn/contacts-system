@@ -195,8 +195,8 @@ const onSubmit = handleSubmit(async () => {
       detailsFormData.append('street_number', street_number.value.trim())
       detailsFormData.append('city', city.value.trim())
       detailsFormData.append('country', country.value.trim())
-
-      await updateOfficeDetails(detailsFormData, props.currentOffice?.id)
+      if (props.currentOffice?.id != undefined)
+        await updateOfficeDetails(detailsFormData, props.currentOffice?.id)
     }
 
     notifs.addNotification('Ofisas sėkmingai atnaujintas', NotificationType.success)
@@ -204,16 +204,11 @@ const onSubmit = handleSubmit(async () => {
   } catch (error: any) {
     if (error == 400) {
       notifs.addNotification(
-        `Klaida: ${props.currentOffice?.name} redaguoti nepavyko. Priskirtos įmonė/-s  panaikinta/-os!`,
-        NotificationType.danger,
-      )
-    } else if (error == 404) {
-      notifs.addNotification(
-        `Klaida: ${props.currentOffice?.name} redaguoti nepavyko. Ofisas nerastas.`,
+        `Klaida: ${props.currentOffice?.name} redaguoti nepavyko`,
         NotificationType.danger,
       )
     } else {
-      notifs.addNotification(error, NotificationType.danger)
+      notifs.addNotification('Įvyko klaida bandant redaguoti ofisą', NotificationType.danger)
     }
   }
 })
