@@ -153,7 +153,7 @@ const updateAddDivisionOffices = async (formData: FormData, division_id: string 
       }
       promises.push(instance.post(`api/collections/offices_divisions/records`, payload))
     })
-    await Promise.allSettled(promises)
+    await Promise.all(promises)
 
     return
   } catch (error) {

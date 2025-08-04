@@ -131,7 +131,7 @@ const updateAddGroupDepartments = async (formData: FormData, groupId: string | u
       }
       promises.push(instance.post(`api/collections/departments_groups/records`, payload))
     })
-    await Promise.allSettled(promises)
+    await Promise.all(promises)
 
     return
   } catch (error) {
@@ -146,7 +146,7 @@ const updateDeleteGroupDepartments = async (formData: FormData) => {
     formData.forEach(async (id) => {
       promises.push(instance.delete(`api/collections/departments_groups/records/${id}`))
     })
-    await Promise.allSettled(promises)
+    await Promise.all(promises)
 
     return
   } catch (error) {

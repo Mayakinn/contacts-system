@@ -155,7 +155,7 @@ const updateDeleteOfficeCompanies = async (formData: FormData) => {
     formData.forEach(async (id) => {
       promises.push(instance.delete(`/api/collections/companies_offices/records/${id}`))
     })
-    await Promise.allSettled(promises)
+    await Promise.all(promises)
 
     return
   } catch (error) {
