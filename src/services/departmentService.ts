@@ -17,9 +17,6 @@ instance.interceptors.response.use(undefined, (error) => {
 
   const { status, data } = error.response
 
-  if (status === 404) {
-    throw 'Klaida: Skyrius nerastas!'
-  }
   if (status === 401) {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
@@ -27,7 +24,7 @@ instance.interceptors.response.use(undefined, (error) => {
     throw 'Klaida: Toks skyrius jau egzistuoja!'
   }
 
-  return 'Klaida: Serverio klaida!'
+  throw status
 })
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -77,22 +74,13 @@ const getDepartments = async (
   }
 }
 
-const createDepartment = async (formData: FormData, name: string) => {
+const createDepartment = async (name: string) => {
   try {
     const department_id = await instance.post(`api/collections/departments/records`, {
       name: name,
     })
-    const data = department_id.data.id
-    if (data != null) {
-      formData.forEach(async (division_id) => {
-        const payload = {
-          department_id: data,
-          division_id: division_id,
-        }
-        await instance.post(`api/collections/divisions_departments/records`, payload)
-      })
-    }
-    return
+
+    return department_id.data.id
   } catch (error) {
     return Promise.reject(error)
   }

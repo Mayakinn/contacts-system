@@ -5,9 +5,10 @@ import * as yup from 'yup'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { onMounted, ref } from 'vue'
-import { createDivision, getDivision } from '@/services/divisionService'
+import { createDivision, getDivision, updateAddDivisionOffices } from '@/services/divisionService'
 import { getOffices } from '@/services/officeService'
 import type { Office } from '@/typings/interface/Office'
+import { updateAddDepartmentDivisions } from '@/services/departmentService'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -75,7 +76,7 @@ const emit = defineEmits(['close-pressed'])
 
 const onSubmit = handleSubmit(async () => {
   const formData = new FormData()
-  const result = await getDivision(name.value)
+  const result = await getDivision(name.value.trim())
   if (result.length > 0) {
     notifs.addNotification(
       `Klaida: ${name.value} sukurti nepavyko. Toks padalinys jau egzistuoja`,
@@ -91,12 +92,32 @@ const onSubmit = handleSubmit(async () => {
 
 async function createNewDivision(formData: FormData, name: string) {
   try {
-    await createDivision(formData, name)
-    notifs.addNotification('Padalinys sėkmingai pridėtas', NotificationType.success)
+    const division_id = await createDivisionAndGetId(name)
+    if (division_id == null) {
+      return
+    }
+    try {
+      await createDivisionRelations(formData, division_id)
+      notifs.addNotification('Padalinys sėkmingai pridėtas', NotificationType.success)
+    } catch (relationError) {
+      notifs.addNotification(
+        'Padalinys sukurtas, bet nepavyko pridėti visų ryšių',
+        NotificationType.warning,
+      )
+    }
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    notifs.addNotification(`Įvyko klaidą kuriant padalinį`, NotificationType.danger)
   }
+}
+
+async function createDivisionAndGetId(name: string) {
+  const createdDivision = await createDivision(name)
+  return createdDivision
+}
+
+async function createDivisionRelations(formData: FormData, divisionId: string) {
+  await updateAddDivisionOffices(formData, divisionId)
 }
 
 onMounted(async () => {

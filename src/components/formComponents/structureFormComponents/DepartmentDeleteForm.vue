@@ -58,7 +58,7 @@ async function deleteSelectedDepartment() {
         NotificationType.danger,
       )
     } else {
-      notif.addNotification(error, NotificationType.danger)
+      notif.addNotification(`Įvyko klaidą ištrinant skyrių!`, NotificationType.danger)
       emit('close-pressed', true)
     }
   }

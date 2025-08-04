@@ -105,22 +105,12 @@ const getDivisionRelationsWithDepartment = async (
   }
 }
 
-const createDivision = async (formData: FormData, name: string) => {
+const createDivision = async (name: string) => {
   try {
-    const division_id = await instance.post(`api/collections/divisions/records`, {
+    const response = await instance.post(`api/collections/divisions/records`, {
       name: name,
     })
-    const data = division_id.data.id
-    if (data != null) {
-      formData.forEach(async (office_id) => {
-        const payload = {
-          division_id: data,
-          office_id: office_id,
-        }
-        await instance.post(`api/collections/offices_divisions/records`, payload)
-      })
-    }
-    return
+    return response.data.id
   } catch (error) {
     return Promise.reject(error)
   }
@@ -163,7 +153,7 @@ const updateAddDivisionOffices = async (formData: FormData, division_id: string 
       }
       promises.push(instance.post(`api/collections/offices_divisions/records`, payload))
     })
-    await Promise.all(promises)
+    await Promise.allSettled(promises)
 
     return
   } catch (error) {

@@ -65,7 +65,7 @@ const getOffices = async (currentPage = 1, perPage = 10): Promise<[Office[], num
   }
 }
 
-const getOffice = async (officeName: string): Promise<Office[]> => {
+const getOffice = async (officeName: string | undefined): Promise<Office[]> => {
   try {
     const response = await instance.get(`api/collections/offices/records`, {
       params: {
@@ -94,29 +94,18 @@ const getOfficeRelationsWithDivisions = async (
     return Promise.reject(error)
   }
 }
-const createOffice = async (formDataCompanies: FormData, formDataOffice: FormData) => {
-  const promises: Promise<any>[] = []
-
+const createOffice = async (formDataOffice: FormData) => {
   try {
     const office_id = await instance.post(`api/collections/offices/records`, formDataOffice)
     const data = office_id.data.id
-    if (data != null) {
-      formDataCompanies.forEach(async (company_id) => {
-        const payload = {
-          office_id: data,
-          company_id: company_id,
-        }
-        promises.push(instance.post(`api/collections/companies_offices/records`, payload))
-      })
-    }
-    await Promise.all(promises)
-    return
+
+    return data
   } catch (error) {
     return Promise.reject(error)
   }
 }
 
-const updateOfficeDetails = async (formData: FormData, office_id: string | undefined) => {
+const updateOfficeDetails = async (formData: FormData, office_id: string) => {
   try {
     await instance.patch(`api/collections/offices/records/${office_id}`, formData)
     return
@@ -166,7 +155,7 @@ const updateDeleteOfficeCompanies = async (formData: FormData) => {
     formData.forEach(async (id) => {
       promises.push(instance.delete(`/api/collections/companies_offices/records/${id}`))
     })
-    await Promise.all(promises)
+    await Promise.allSettled(promises)
 
     return
   } catch (error) {

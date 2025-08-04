@@ -8,7 +8,7 @@ import { onMounted, ref } from 'vue'
 
 import type { Company } from '@/typings/interface/Company'
 import { getCompanies } from '@/services/companiesService'
-import { createOffice, getOffice } from '@/services/officeService'
+import { createOffice, getOffice, updateAddOfficeCompanies } from '@/services/officeService'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -124,33 +124,45 @@ const onSubmit = handleSubmit(async () => {
   companies.value.forEach((companyId: number | string) => {
     formDataCompanies.append('company_id', companyId.toString())
   })
-  createNewOffice(formDataCompanies, formDataOffice)
+  await createNewOffice(formDataCompanies, formDataOffice)
 })
 
 async function createNewOffice(formDataCompanies: FormData, formDataOffice: FormData) {
   try {
-    const result = await getOffice(name.value)
-    if (result.length > 0) {
+    const officeId = await createOfficeAndGetId(formDataOffice)
+    try {
+      await createOfficeRelations(formDataCompanies, officeId)
+      notifs.addNotification('Ofisas sėkmingai pridėtas', NotificationType.success)
+    } catch (relationError) {
       notifs.addNotification(
-        `Klaida: ${name.value} sukurti nepavyko. Toks Ofisas jau egzistuoja`,
-        NotificationType.danger,
+        'Ofisas sukurtas, bet nepavyko pridėti visų ryšių',
+        NotificationType.warning,
       )
-      return
     }
-
-    await createOffice(formDataCompanies, formDataOffice)
-    notifs.addNotification('Ofisas sėkmingai pridėtas', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
     if (error == 400) {
-      notifs.addNotification(
-        `Klaida: ${name.value} sukurti nepavyko. Priskirtos įmonė/-s  panaikinta/-os!`,
-        NotificationType.danger,
-      )
+      notifs.addNotification(`Klaida: neturite tam teisių`, NotificationType.danger)
     } else {
-      notifs.addNotification(error, NotificationType.danger)
+      notifs.addNotification(`Įvyko klaida kuriant ofisą`, NotificationType.danger)
     }
   }
+}
+
+async function createOfficeAndGetId(formDataOffice: FormData) {
+  const nameTrimmed = formDataOffice.get('name')?.toString().trim()
+  const result = await getOffice(nameTrimmed)
+
+  if (result.length > 0) {
+    throw `Klaida: ${nameTrimmed} sukurti nepavyko. Toks Ofisas jau egzistuoja`
+  }
+
+  const createdOffice = await createOffice(formDataOffice)
+  return createdOffice
+}
+
+async function createOfficeRelations(formDataCompanies: FormData, officeId: string) {
+  await updateAddOfficeCompanies(formDataCompanies, officeId)
 }
 
 onMounted(async () => {

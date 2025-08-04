@@ -8,7 +8,11 @@ import { onMounted, ref } from 'vue'
 
 import { getDivisions } from '@/services/divisionService'
 import type { Division } from '@/typings/interface/Division'
-import { createDepartment } from '@/services/departmentService'
+import {
+  createDepartment,
+  getDepartment,
+  updateAddDepartmentDivisions,
+} from '@/services/departmentService'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -77,6 +81,14 @@ const emit = defineEmits(['close-pressed'])
 const onSubmit = handleSubmit(async () => {
   const formData = new FormData()
 
+  const result = await getDepartment(name.value.trim())
+  if (result.length > 0) {
+    notifs.addNotification(
+      `Klaida: ${name.value} sukurti nepavyko. Toks skyrius jau egzistuoja`,
+      NotificationType.danger,
+    )
+    return
+  }
   divisions.value.forEach((divisionId: number | string) => {
     formData.append('division_id', divisionId.toString())
   })
@@ -85,12 +97,34 @@ const onSubmit = handleSubmit(async () => {
 
 async function createNewDepartment(formData: FormData, name: string) {
   try {
-    await createDepartment(formData, name)
+    const department_id = await createDepartmentAndGetId(name)
+
+    if (department_id == null) {
+      return
+    }
+    try {
+      await createDepartmentRelations(formData, department_id)
+      notifs.addNotification('Skyrius sėkmingai pridėtas', NotificationType.success)
+    } catch (relationError) {
+      notifs.addNotification(
+        'Skyrius sukurtas, bet nepavyko pridėti visų ryšių',
+        NotificationType.warning,
+      )
+    }
     notifs.addNotification('Skyrius sėkmingai pridėtas', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    notifs.addNotification(`Įvyko klaidą kuriant skyrių`, NotificationType.danger)
   }
+}
+
+async function createDepartmentAndGetId(name: string) {
+  const createdDivision = await createDepartment(name)
+  return createdDivision
+}
+
+async function createDepartmentRelations(formData: FormData, departmentId: string) {
+  await updateAddDepartmentDivisions(formData, departmentId)
 }
 
 onMounted(async () => {
