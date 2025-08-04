@@ -54,7 +54,7 @@ const getCompany = async (companyName: string): Promise<Company[]> => {
   try {
     const response = await instance.get(`/api/collections/companies/records`, {
       params: {
-        filter: `name~'${companyName}'`,
+        filter: `name='${companyName}'`,
       },
     })
     const data: Company[] = response.data.items

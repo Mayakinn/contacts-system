@@ -126,7 +126,10 @@ const onSubmit = handleSubmit(async () => {
     notifs.addNotification('Padalinys sėkmingai atnaujintas', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    notifs.addNotification(
+      `Klaida: ${props.currentDivision?.name} redaguoti nepavyko.`,
+      NotificationType.danger,
+    )
   }
 })
 

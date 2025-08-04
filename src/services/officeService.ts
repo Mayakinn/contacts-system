@@ -35,17 +35,12 @@ instance.interceptors.request.use((config) => {
 })
 const getOfficesForFilter = async (selectedCompany: string): Promise<CompanyOffice[]> => {
   try {
-    const response = await instance.get(
-      `
-
-api/collections/companies_offices/records`,
-      {
-        params: {
-          expand: 'office_id',
-          filter: `company_id='${selectedCompany}'`,
-        },
+    const response = await instance.get(`api/collections/companies_offices/records`, {
+      params: {
+        expand: 'office_id',
+        filter: `company_id='${selectedCompany}'`,
       },
-    )
+    })
     const data: CompanyOffice[] = response.data.items
     return data
   } catch (error) {
@@ -55,7 +50,7 @@ api/collections/companies_offices/records`,
 
 const getOffices = async (currentPage = 1, perPage = 10): Promise<[Office[], number, number]> => {
   try {
-    const response = await instance.get(`/api/collections/offices/records`, {
+    const response = await instance.get(`api/collections/offices/records`, {
       params: {
         page: currentPage,
         perPage: perPage,
@@ -70,11 +65,11 @@ const getOffices = async (currentPage = 1, perPage = 10): Promise<[Office[], num
   }
 }
 
-const getOffice = async (officeName: string): Promise<Office[]> => {
+const getOffice = async (officeName: string | undefined): Promise<Office[]> => {
   try {
-    const response = await instance.get(`/api/collections/offices/records`, {
+    const response = await instance.get(`api/collections/offices/records`, {
       params: {
-        filter: `name~'${officeName}'`,
+        filter: `name='${officeName}'`,
       },
     })
     const data: Office[] = response.data.items
@@ -99,31 +94,20 @@ const getOfficeRelationsWithDivisions = async (
     return Promise.reject(error)
   }
 }
-const createOffice = async (formDataCompanies: FormData, formDataOffice: FormData) => {
-  const promises: Promise<any>[] = []
-
+const createOffice = async (formDataOffice: FormData) => {
   try {
-    const office_id = await instance.post(`/api/collections/offices/records`, formDataOffice)
+    const office_id = await instance.post(`api/collections/offices/records`, formDataOffice)
     const data = office_id.data.id
-    if (data != null) {
-      formDataCompanies.forEach(async (company_id) => {
-        const payload = {
-          office_id: data,
-          company_id: company_id,
-        }
-        promises.push(instance.post(`/api/collections/companies_offices/records`, payload))
-      })
-    }
-    await Promise.all(promises)
-    return
+
+    return data
   } catch (error) {
     return Promise.reject(error)
   }
 }
 
-const updateOfficeDetails = async (formData: FormData, office_id: string | undefined) => {
+const updateOfficeDetails = async (formData: FormData, office_id: string) => {
   try {
-    await instance.patch(`/api/collections/offices/records/${office_id}`, formData)
+    await instance.patch(`api/collections/offices/records/${office_id}`, formData)
     return
   } catch (error) {
     return Promise.reject(error)

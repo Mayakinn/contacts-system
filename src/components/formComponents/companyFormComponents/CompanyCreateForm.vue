@@ -50,6 +50,13 @@ async function createNewCompany(formData: FormData) {
     notifs.addNotification('Įmonė sėkmingai pridėta', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
+    if (error == 400) {
+      notifs.addNotification(
+        `Klaida: ${name.value} sukurti nepavyko. Neturite tam teisių!`,
+        NotificationType.danger,
+      )
+      return
+    }
     notifs.addNotification(error, NotificationType.danger)
   }
 }

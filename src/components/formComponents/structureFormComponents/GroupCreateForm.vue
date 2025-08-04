@@ -7,7 +7,7 @@ import { NotificationType } from '@/typings/interface/NotificationType'
 import { onMounted, ref } from 'vue'
 import { getDepartments } from '@/services/departmentService'
 import type { Department } from '@/typings/interface/Department'
-import { createGroup, getGroup } from '@/services/groupService'
+import { createGroup, getGroup, updateAddGroupDepartments } from '@/services/groupService'
 
 const loading = ref<boolean>(true)
 const empty = ref<boolean>(false)
@@ -74,15 +74,19 @@ const notifs = useNotificationStore()
 const emit = defineEmits(['close-pressed'])
 
 const onSubmit = handleSubmit(async () => {
-  const formData = new FormData()
+  if (name.value == undefined) {
+    return
+  }
   const result = await getGroup(name.value)
+
   if (result.length > 0) {
     notifs.addNotification(
-      `Klaida: ${name.value} sukurti nepavyko. Tokia grupė jau egzistuoja`,
+      `Klaida: ${name} sukurti nepavyko. Tokia Grupė jau egzistuoja`,
       NotificationType.danger,
     )
     return
   }
+  const formData = new FormData()
 
   departments.value.forEach((departmentId: number | string) => {
     formData.append('department_id', departmentId.toString())
@@ -90,25 +94,33 @@ const onSubmit = handleSubmit(async () => {
   createNewGroup(formData, name.value.trim())
 })
 
+async function createGroupAndGetId(name: string) {
+  const createdGroup = await createGroup(name)
+  return createdGroup
+}
+
+async function createGroupRelations(formData: FormData, groupId: string) {
+  await updateAddGroupDepartments(formData, groupId)
+}
+
 async function createNewGroup(formData: FormData, name: string) {
   try {
-    await createGroup(formData, name)
-    notifs.addNotification('Grupė sėkmingai pridėta', NotificationType.success)
+    const groupId = await createGroupAndGetId(name)
+    if (groupId == null) {
+      return
+    }
+    try {
+      await createGroupRelations(formData, groupId)
+      notifs.addNotification('Grupė sėkmingai pridėta', NotificationType.success)
+    } catch (relationError) {
+      notifs.addNotification(
+        'Grupė sukurta, bet nepavyko pridėti visų ryšių',
+        NotificationType.warning,
+      )
+    }
     emit('close-pressed')
   } catch (error: any) {
-    if (error == 400) {
-      notifs.addNotification(
-        `Klaida: ${name} redaguoti nepavyko. Priskirtas skyrius/-iai  panaikintas/-i!`,
-        NotificationType.danger,
-      )
-    } else if (error == 404) {
-      notifs.addNotification(
-        `Klaida: ${name} redaguoti nepavyko. Grupė nerasta.`,
-        NotificationType.danger,
-      )
-    } else {
-      notifs.addNotification(error, NotificationType.danger)
-    }
+    notifs.addNotification('Įvyko klaida bandant sukurti grupę', NotificationType.danger)
   }
 }
 

@@ -25,7 +25,7 @@ const emit = defineEmits(['edit', 'delete'])
           <th v-for="(item, idx) in fields" :key="idx" scope="col" class="px-6 py-3">
             {{ item.label }}
           </th>
-          <th v-if="canUserEdit || canUserDelete">Veiksmai</th>
+          <th v-show="canUserEdit == true || canUserDelete == true">Veiksmai</th>
         </tr>
       </thead>
       <tbody>
@@ -42,18 +42,21 @@ const emit = defineEmits(['edit', 'delete'])
               {{ item[field.key] }}
             </p>
           </th>
-          <td class="px-6 py-4 space-x-5 text-white font-light">
+          <td
+            class="px-6 py-4 space-x-5 text-white font-light"
+            v-show="canUserEdit == true || canUserDelete == true"
+          >
             <button
               class="bg-button-blue rounded-3xl p-1 px-3 hover:bg-blue-500 text-white"
               @click="emit('edit', item.id)"
-              v-if="canUserEdit"
+              v-show="canUserEdit"
             >
               Redaguoti
             </button>
             <button
               class="bg-red-700 rounded-3xl p-1 px-3 hover:bg-red-600 text-white"
               @click="emit('delete', item.id)"
-              v-if="canUserDelete"
+              v-show="canUserDelete"
             >
               Ištrinti
             </button>
