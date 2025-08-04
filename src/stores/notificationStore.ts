@@ -13,8 +13,8 @@ export const useNotificationStore = defineStore('notification', () => {
 
   function addNotification(message: string, status: NotificationType) {
     const id = uuidv4()
-    const notification = { message, status, id }
 
+    const notification = { message, status, id }
     const duplicate = Notifs.value.some((notif) => notif.message === notification.message)
     if (!duplicate) {
       Notifs.value.push(notification)

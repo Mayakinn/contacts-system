@@ -135,7 +135,10 @@ const onSubmit = handleSubmit(async () => {
     notifs.addNotification('Skyrius sėkmingai atnaujintas', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    notifs.addNotification(error, NotificationType.danger)
+    notifs.addNotification(
+      `Klaida: ${props.currentDepartment?.name} redaguoti nepavyko.`,
+      NotificationType.danger,
+    )
   }
 })
 

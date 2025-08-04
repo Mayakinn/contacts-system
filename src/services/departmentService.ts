@@ -17,9 +17,6 @@ instance.interceptors.response.use(undefined, (error) => {
 
   const { status, data } = error.response
 
-  if (status === 404) {
-    throw 'Klaida: Skyrius nerastas!'
-  }
   if (status === 401) {
     throw 'Klaida: Autorizacijos klaida, prisijunkite!'
   }
@@ -27,7 +24,7 @@ instance.interceptors.response.use(undefined, (error) => {
     throw 'Klaida: Toks skyrius jau egzistuoja!'
   }
 
-  return 'Klaida: Serverio klaida!'
+  throw status
 })
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -77,22 +74,13 @@ const getDepartments = async (
   }
 }
 
-const createDepartment = async (formData: FormData, name: string) => {
+const createDepartment = async (name: string) => {
   try {
-    const department_id = await instance.post(`/api/collections/departments/records`, {
+    const department_id = await instance.post(`api/collections/departments/records`, {
       name: name,
     })
-    const data = department_id.data.id
-    if (data != null) {
-      formData.forEach(async (division_id) => {
-        const payload = {
-          department_id: data,
-          division_id: division_id,
-        }
-        await instance.post(`/api/collections/divisions_departments/records`, payload)
-      })
-    }
-    return
+
+    return department_id.data.id
   } catch (error) {
     return Promise.reject(error)
   }
@@ -100,9 +88,9 @@ const createDepartment = async (formData: FormData, name: string) => {
 
 const getDepartment = async (departmentName: string): Promise<Department[]> => {
   try {
-    const response = await instance.get(`/api/collections/departments/records`, {
+    const response = await instance.get(`api/collections/departments/records`, {
       params: {
-        filter: `name~'${departmentName}'`,
+        filter: `name='${departmentName}'`,
       },
     })
     const data: Department[] = response.data.items
@@ -115,7 +103,7 @@ const getDepartment = async (departmentName: string): Promise<Department[]> => {
 
 const updateDepartmentName = async (name: string, departmentId: string | undefined) => {
   try {
-    await instance.patch(`/api/collections/departments/records/${departmentId}`, {
+    await instance.patch(`api/collections/departments/records/${departmentId}`, {
       name: name,
     })
     return
@@ -153,7 +141,7 @@ const updateAddDepartmentDivisions = async (
         department_id: department_id,
         division_id: division_id,
       }
-      promises.push(instance.post(`/api/collections/divisions_departments/records`, payload))
+      promises.push(instance.post(`api/collections/divisions_departments/records`, payload))
     })
     await Promise.all(promises)
 
@@ -168,7 +156,7 @@ const updateDeleteDepartmentDivisions = async (formData: FormData) => {
     const promises: Promise<any>[] = []
 
     formData.forEach(async (id) => {
-      promises.push(instance.delete(`/api/collections/divisions_departments/records/${id}`))
+      promises.push(instance.delete(`api/collections/divisions_departments/records/${id}`))
     })
     await Promise.all(promises)
 

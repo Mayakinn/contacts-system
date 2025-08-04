@@ -4,7 +4,7 @@ import * as yup from 'yup'
 import ModalCloseButton from '@/components/modalComponents/ModalCloseButton.vue'
 import type { Company } from '@/typings/interface/Company'
 import { useNotificationStore } from '@/stores/notificationStore'
-import { editCompany } from '@/services/companiesService'
+import { editCompany, getCompany } from '@/services/companiesService'
 import { NotificationType } from '@/typings/interface/NotificationType'
 import { watchEffect } from 'vue'
 
@@ -35,6 +35,14 @@ const onSubmit = handleSubmit(async () => {
     emit('close-pressed', true)
     return
   }
+  const result = await getCompany(name.value.trim())
+  if (result.length > 0 && props.currentCompany?.name != name.value) {
+    notifs.addNotification(
+      `Klaida: ${name.value} redaguoti nepavyko. Įmonė tokiu pavadinimu jau egzistuoja`,
+      NotificationType.danger,
+    )
+    return
+  }
   formData.append('name', name.value.trim())
   updateCompany(formData)
 })
@@ -51,6 +59,11 @@ async function updateCompany(formData: FormData) {
     if (error == 400) {
       notifs.addNotification(
         `Klaida: ${props.currentCompany?.name} redaguoti nepavyko. Tokia pavadinimu įmonė jau egzistuoja`,
+        NotificationType.danger,
+      )
+    } else if (error == 404) {
+      notifs.addNotification(
+        `Klaida: ${props.currentCompany?.name} redaguoti nepavyko. Neturite tam teisių arba įmonė neegzistuoja`,
         NotificationType.danger,
       )
     } else {

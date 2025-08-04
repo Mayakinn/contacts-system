@@ -51,7 +51,7 @@ async function deleteSelectedDivision() {
         NotificationType.danger,
       )
     } else {
-      notif.addNotification(error, NotificationType.danger)
+      notif.addNotification(`Įvyko klaidą ištrinant padalinį`, NotificationType.danger)
       emit('close-pressed', true)
     }
   }

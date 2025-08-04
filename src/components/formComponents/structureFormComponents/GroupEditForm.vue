@@ -136,19 +136,10 @@ const onSubmit = handleSubmit(async () => {
     notifs.addNotification('Grupė sėkmingai atnaujinta', NotificationType.success)
     emit('close-pressed')
   } catch (error: any) {
-    if (error == 400) {
-      notifs.addNotification(
-        `Klaida: ${props.currentGroup?.name} redaguoti nepavyko. Priskirtas skyrius/-iai  panaikintas/-i!`,
-        NotificationType.danger,
-      )
-    } else if (error == 404) {
-      notifs.addNotification(
-        `Klaida: ${props.currentGroup?.name} redaguoti nepavyko. Grupė nerasta.`,
-        NotificationType.danger,
-      )
-    } else {
-      notifs.addNotification(error, NotificationType.danger)
-    }
+    notifs.addNotification(
+      `Klaida: ${props.currentGroup?.name} redaguoti nepavyko.`,
+      NotificationType.danger,
+    )
   }
 })
 

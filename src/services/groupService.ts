@@ -35,17 +35,12 @@ instance.interceptors.request.use((config) => {
 })
 const getGroupsForFilter = async (selectedDepartment: string): Promise<DepartmentGroup[]> => {
   try {
-    const response = await instance.get(
-      `
-
-api/collections/departments_groups/records`,
-      {
-        params: {
-          expand: 'group_id',
-          filter: `department_id='${selectedDepartment}'`,
-        },
+    const response = await instance.get(`api/collections/departments_groups/records`, {
+      params: {
+        expand: 'group_id',
+        filter: `department_id='${selectedDepartment}'`,
       },
-    )
+    })
     const data: DepartmentGroup[] = response.data.items
     return data
   } catch (error) {
@@ -72,7 +67,7 @@ const getGroup = async (groupName: string): Promise<Group[]> => {
   try {
     const response = await instance.get(`api/collections/groups/records`, {
       params: {
-        filter: `name~"${encodeURIComponent(groupName)}"`,
+        filter: `name="${groupName}"`,
       },
     })
     const data: Group[] = response.data.items
@@ -101,25 +96,14 @@ const getGroups = async (currentPage = 1, perPage = 10): Promise<[Group[], numbe
   }
 }
 
-const createGroup = async (formData: FormData, name: string) => {
+const createGroup = async (name: string) => {
   try {
-    const promises: Promise<any>[] = []
-
     const group_id = await instance.post(`api/collections/groups/records`, {
       name: name,
     })
     const data = group_id.data.id
-    if (data != null) {
-      formData.forEach(async (department_id) => {
-        const payload = {
-          group_id: data,
-          department_id: department_id,
-        }
-        promises.push(instance.post(`/api/collections/departments_groups/records`, payload))
-      })
-      await Promise.all(promises)
-    }
-    return
+
+    return data
   } catch (error) {
     return Promise.reject(error)
   }
@@ -127,7 +111,7 @@ const createGroup = async (formData: FormData, name: string) => {
 
 const updateGroupName = async (name: string, groupId: string | undefined) => {
   try {
-    await instance.patch(`/api/collections/groups/records/${groupId}`, {
+    await instance.patch(`api/collections/groups/records/${groupId}`, {
       name: name,
     })
     return
@@ -145,7 +129,7 @@ const updateAddGroupDepartments = async (formData: FormData, groupId: string | u
         group_id: groupId,
         department_id: department_id,
       }
-      promises.push(instance.post(`/api/collections/departments_groups/records`, payload))
+      promises.push(instance.post(`api/collections/departments_groups/records`, payload))
     })
     await Promise.all(promises)
 
@@ -160,7 +144,7 @@ const updateDeleteGroupDepartments = async (formData: FormData) => {
     const promises: Promise<any>[] = []
 
     formData.forEach(async (id) => {
-      promises.push(instance.delete(`/api/collections/departments_groups/records/${id}`))
+      promises.push(instance.delete(`api/collections/departments_groups/records/${id}`))
     })
     await Promise.all(promises)
 
