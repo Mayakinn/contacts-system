@@ -1,45 +1,39 @@
-# linux_web_template
+# .
 
-This is a template repository for your projects. Use this template when starting a new repository. This template can be used for Linux and Web positions in the academy. 
+This template should help get you started developing with Vue 3 in Vite.
 
-## Structure
+## Recommended IDE Setup
 
-This template will come with two branches and simple kaban board.
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-### Branches
-The project by default has two branches:
-* main
-* development
+## Type Support for `.vue` Imports in TS
 
-**main** branch is used to keep your tested and ready for production code.
-**development** branch is used to develop your code with new features and bug fixes.
-Additional branches can be used to for getting a better understanding of git workflow. 
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
-### Kanban board
-Kaban board can be found in the **Issue boards** menu. 
-Kaban board will be used to track your progress on your project.
-Kaban board have 6 tables:
-* Open
-* Doing
-* Test
-* Testing
-* Ready to merge
-* Closed
+## Customize configuration
 
-**Open** table is like a To-Do list where all of your tasks are kept.
+See [Vite Configuration Reference](https://vite.dev/config/).
 
-**Doing** table is used to show which tasks are you doing now. All on going tasks must be moved from **Open** table.
+## Project Setup
 
-**Test** table is used to keep tasks which must be tested by testing engineer, but are not tested yet.
+```sh
+npm install
+```
 
-**Testing** table is used to keep tasks which are on going on in testing. If the testing was succesfull, the task must be moved to **Ready to merge** table, if not, return to the **Doing** table to fix the bugs. Also the Testing engineer must to add a labal **Test failed** for the developer to understand that he must fix found bugs.
+### Compile and Hot-Reload for Development
 
-**Ready to merge** table is used to keep tasks which are waiting to be merged with the **main** branch, because all bug fixes and new features must be developed in the **development** branch.
+```sh
+npm run dev
+```
 
-**Closed** table is used to keep all done tasks which passed the testing phase and were succesfully merged into **main** branch.
+### Type-Check, Compile and Minify for Production
 
-## Other things
+```sh
+npm run build
+```
 
-Do not forget to delete this information later in the process and document your project so that other developers or users will not struggle to use your project.
+### Run Unit Tests with [Vitest](https://vitest.dev/)
 
-GL & HF
+```sh
+npm run test:unit
+```

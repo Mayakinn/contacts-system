@@ -1,0 +1,71 @@
+<script setup lang="ts">
+import router from '@/router'
+import type { Contact } from '@/typings/interface/Contact'
+import { computed } from 'vue'
+import noImage from '../../assets/noPhoto.png'
+import { useAuthStore } from '@/stores/authStore'
+
+const props = defineProps<{
+  contact: Contact | undefined
+}>()
+const DB_URL = import.meta.env.VITE_POCKETBASE_API
+const image = computed(() => {
+  const imageURL = `${DB_URL}/api/files/${props.contact?.collectionId}/${props.contact?.id}/${props.contact?.photo}`
+  return props.contact?.photo != '' ? imageURL : noImage
+})
+
+const email = computed(() => {
+  return props.contact?.email ? props.contact.email : '-'
+})
+
+const phoneNumber = computed(() => {
+  return props.contact?.phone_number ? props.contact.phone_number : '-'
+})
+
+const emit = defineEmits(['edit-contact', 'delete-contact'])
+
+const auth = useAuthStore()
+</script>
+
+<template>
+  <div class="rounded overflow-hidden shadow-lg">
+    <div class="px-6 py-4">
+      <div class="flex items-center">
+        <img class="w-15 h-15 rounded-full mr-4" :src="image" />
+        <div
+          class="text-sm cursor-pointer"
+          @click="router.push({ name: 'contact', params: { id: props.contact?.id } })"
+        >
+          <p class="text-gray-900 leading-none">
+            {{ props.contact?.name }} {{ props.contact?.surname }}
+          </p>
+          <p class="text-gray-600">{{ props.contact?.position }}</p>
+        </div>
+      </div>
+      <div class="text-left p-4 space-y-4 text-sm">
+        <p class="font-light">Telefono nr: {{ phoneNumber }}</p>
+        <p class="font-light">El. Paštas: {{ email }}</p>
+        <p class="font-light">
+          Adresas: {{ props.contact?.expand?.office_id.street }}
+          {{ props.contact?.expand?.office_id.street_number }}
+        </p>
+      </div>
+    </div>
+    <div class="flex mb-7 ml-5 space-x-3">
+      <button
+        v-show="auth.User?.expand?.permissions_id?.edit_employees"
+        @click="emit('edit-contact', props.contact)"
+        class="size-12 bg-button-blue rounded-4xl items-center flex justify justify-center shadow-md shadow-black hover:bg-blue-500"
+      >
+        <img src="../../assets/edit-image.png" class="size-6" />
+      </button>
+      <button
+        v-show="auth.User?.expand?.permissions_id?.delete_employees"
+        @click="emit('delete-contact', props.contact)"
+        class="size-12 bg-red-800 rounded-4xl items-center flex justify justify-center shadow-md shadow-black hover:bg-red-700"
+      >
+        <img src="../../assets/delete-image.png" class="size-6" />
+      </button>
+    </div>
+  </div>
+</template>

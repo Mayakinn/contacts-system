@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+@layer base {
+  :root {
+    --color-TheTeltonikaBlue: #1f3f77;
+    --color-TheButtonBlue: #0054a6;
+  }
+}
+
+@layer utilities {
+  .bg-teltonika-blue {
+    background-color: var(--color-TheTeltonikaBlue);
+  }
+  .bg-button-blue {
+    background-color: var(--color-TheButtonBlue);
+  }
+
+  .text-teltonika-blue {
+    color: var(--color-TheTeltonikaBlue);
+  }
+  .text-button-blue {
+    color: var(--color-TheButtonBlue);
+  }
+  .hover\:text-button-blue:hover {
+    color: var(--color-TheButtonBlue);
+  }
+}
